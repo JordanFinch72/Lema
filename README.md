@@ -1,2 +1,2 @@
-# Lea
-LEA: The Linguistic Etymology Assistant
+# Lema
+LEMA: The Linguistic Etymology Map Assistant
