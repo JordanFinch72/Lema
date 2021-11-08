@@ -12,16 +12,22 @@ export class RadioGroup extends Component
 		};
 
 		this.onButtonClick = this.onButtonClick.bind(this);
+		this.updateMapMode = this.props.updateMapMode.bind(this);
 	}
 
 	onButtonClick(e, id)
 	{
+		// Update the state of the buttons
 		let oldButtons = this.state.buttons;
 		for(let i = 0; i < oldButtons.length; ++i)
 		{
 			oldButtons[i].active = (i === id);
 		}
 		this.setState({buttons: oldButtons});
+
+		// Update parent LeftBar component's state
+		let mode = (id === 0) ? "cognate" : "journey";
+		this.updateMapMode(e, mode);
 	}
 
 	render()

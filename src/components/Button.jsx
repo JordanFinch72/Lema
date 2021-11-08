@@ -14,7 +14,7 @@ export class Button extends Component
 	{
 		return(
 			<div>
-
+				<button>{this.props.value}</button>
 			</div>
 		)
 	}

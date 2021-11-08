@@ -8,16 +8,23 @@ export class LeftBar extends Component
 	{
 		super(props);
 		this.state = {
-
+			mapMode: "cognate" // "cognate" || "journey"
 		};
+
+		this.updateMapMode = this.updateMapMode.bind(this);
+	}
+
+	updateMapMode(e, mode)
+	{
+		this.setState({mapMode: mode});
 	}
 
 	render()
 	{
 		return(
 			<div>
-				<Search />
-				<Collections />
+				<Search mapMode={this.state.mapMode} updateMapMode={this.updateMapMode} />
+				<Collections mapMode={this.state.mapMode} />
 			</div>
 		);
 	}

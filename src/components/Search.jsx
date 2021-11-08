@@ -1,6 +1,7 @@
 import {Component} from "react";
 import {Textbox} from "./Textbox";
 import {RadioGroup} from "./RadioGroup";
+import {Button} from "./Button";
 
 export class Search extends Component
 {
@@ -10,6 +11,7 @@ export class Search extends Component
 		this.state = {
 
 		};
+		this.updateMapMode = this.props.updateMapMode.bind(this);
 	}
 
 	render()
@@ -19,7 +21,8 @@ export class Search extends Component
 		return(
 			<div>
 				<Textbox hint={"Enter a word..."} />
-				<RadioGroup buttons={buttons} name={"map-mode"} />
+				<RadioGroup buttons={buttons} name={"map-mode"} updateMapMode={this.updateMapMode} />
+				<Button value={"Search"} />
 			</div>
 		)
 	}
