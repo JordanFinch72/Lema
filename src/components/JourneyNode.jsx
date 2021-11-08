@@ -13,8 +13,10 @@ export class JourneyNode extends Component
 	render()
 	{
 		return(
-			<div>
-				<p>{this.props.word}</p>
+			<div className={"journey-node"}>
+				{/* Flex-row */}
+				<div>{this.props.word}</div>
+				<div>{this.props.language}</div>
 			</div>
 		)
 	}

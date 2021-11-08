@@ -1,5 +1,4 @@
 import {Component} from "react";
-import {JourneyHeader} from "./JourneyHeader";
 import {JourneyNode} from "./JourneyNode";
 import {Meatballs} from "./Meatballs";
 import {Collapser} from "./Collapser";
