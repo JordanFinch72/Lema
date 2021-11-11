@@ -93,6 +93,7 @@ div.journey-header div {
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
+    text-align: center;
 }
 div.journey-header .meatball-collapser-container div {
     flex-basis: 15%;
@@ -110,6 +111,7 @@ div.journey-node div {
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
+    text-align: center;
 }
 div.journey-node div.node-colour div {
     flex-basis: 12%;
