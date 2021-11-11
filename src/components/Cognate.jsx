@@ -1,7 +1,28 @@
 import {Component} from "react";
-import {CognateNode} from "./CognateNode";
 import {Meatballs} from "./Meatballs";
 import {Collapser} from "./Collapser";
+
+class CognateNode extends Component
+{
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+
+		};
+	}
+
+	render()
+	{
+		return(
+			<div className={"cognate-node"}>
+				{/* Flex-row */}
+				<div>{this.props.word}</div>
+				<div>{this.props.language}</div>
+			</div>
+		);
+	}
+}
 
 export class Cognate extends Component
 {

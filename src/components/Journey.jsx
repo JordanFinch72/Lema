@@ -1,7 +1,41 @@
 import {Component} from "react";
-import {JourneyNode} from "./JourneyNode";
 import {Meatballs} from "./Meatballs";
 import {Collapser} from "./Collapser";
+
+class JourneyNode extends Component
+{
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			nodeColour: "blue"
+		};
+
+		this.onNodeColourClick = this.onNodeColourClick.bind(this);
+	}
+
+	/**
+	 * Open a modal that allows user to change the colour of the node on the map
+	 */
+	onNodeColourClick()
+	{
+		// TODO: Open modal, allow user choice
+		let newValue = "red";
+		this.setState({nodeColour: newValue});
+	}
+
+	render()
+	{
+		return(
+			<div className={"journey-node"}>
+				{/* Flex-row */}
+				<div>{this.props.word}</div>
+				<div>{this.props.language}</div>
+				<div className={"node-colour"} style={"background-color: " + this.state.nodeColour} onClick={this.onNodeColourClick}> </div>
+			</div>
+		)
+	}
+}
 
 export class Journey extends Component
 {
