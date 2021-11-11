@@ -13,8 +13,8 @@ export class Button extends Component
 	render()
 	{
 		return(
-			<div>
-				<button>{this.props.value}</button>
+			<div className={"button"}>
+				<button id={this.props.id}>{this.props.value}</button>
 			</div>
 		)
 	}

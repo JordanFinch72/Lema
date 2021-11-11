@@ -27,7 +27,7 @@ export class Textbox extends Component
 	render()
 	{
 		return(
-			<div>
+			<div className={"textbox"}>
 				<input type={"text"} placeholder={this.state.hint} value={this.state.value} name={"boxValue"} onChange={this.onFieldChange} />
 			</div>
 		)

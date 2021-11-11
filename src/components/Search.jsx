@@ -16,13 +16,13 @@ export class Search extends Component
 
 	render()
 	{
-		const buttons = [{active: true, label: "Cognate mode"}, {active: false, label: "Historical journey mode"}];
+		const buttons = [{active: true, label: "Cognates"}, {active: false, label: "Historical journey"}];
 
 		return(
-			<div>
+			<div className={"search-container"}>
 				<Textbox hint={"Enter a word..."} />
 				<RadioGroup buttons={buttons} name={"map-mode"} updateMapMode={this.updateMapMode} />
-				<Button value={"Search"} />
+				<Button value={"Search"} id={"search"} />
 			</div>
 		)
 	}

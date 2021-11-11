@@ -1,4 +1,4 @@
-import './Lema.css';
+import './css/Lema.css';
 import {Component} from "react";
 import {Banner} from "./components/Banner";
 import {LeftBar} from "./components/LeftBar";
@@ -10,9 +10,11 @@ class Lema extends Component
   {
     return (
         <div className="Lema">
-          <Banner />
-          <LeftBar />
-          <Map />
+            <Banner />
+            <div className={"main-view-container"}>
+                <LeftBar />
+                <Map />
+            </div>
         </div>
     );
   }

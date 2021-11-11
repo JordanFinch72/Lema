@@ -22,7 +22,7 @@ export class LeftBar extends Component
 	render()
 	{
 		return(
-			<div>
+			<div className={"left-bar-container"}>
 				<Search mapMode={this.state.mapMode} updateMapMode={this.updateMapMode} />
 				<Collections mapMode={this.state.mapMode} />
 			</div>

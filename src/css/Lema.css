@@ -1,0 +1,119 @@
+html, body, div#root {
+    height: 100%;
+    width: 100%;
+}
+
+.Lema {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+/* Banner */
+div.banner-container {
+    display: flex;
+    flex-flow: row;
+    border-bottom: 1px solid black;
+}
+div.banner-container h2 {
+    flex-basis: 85%;
+}
+div.login-register-container {
+    display: flex;
+    flex-basis: 15%;
+    justify-content: space-evenly;
+}
+
+/* Main View */
+div.main-view-container {
+    display: flex;
+    flex-flow: row;
+    height: 100%;
+}
+
+div.left-bar-container {
+    flex-basis: 25%;
+    display: flex;
+    flex-flow: column;
+    border-right: 1px solid black;
+    padding: 0.2em;
+}
+
+/* Search */
+div.search-container {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0.2em;
+}
+div.textbox {
+    flex-basis: 100%;
+}
+div.textbox input {
+    width: 97%;
+}
+div.radio-group {
+    display: flex;
+    flex-flow: row;
+    flex-basis: 76%;
+}
+div.radio-group div.radio-button {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    margin-right: 0.1em;
+}
+
+div.button button#search {
+    width: 8em;
+}
+
+
+/* Collections */
+div.collections-container {
+    display: flex;
+    flex-flow: column;
+    padding: 0.2em;
+    border-top: 1px solid black;
+    align-items: center;
+}
+div.journey-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    width: 100%;
+}
+div.journey-header {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    width: 100%;
+}
+div.journey-header div {
+    display: flex;
+    flex-flow: row;
+    flex-basis: 33%;
+    justify-content: center;
+}
+div.journey-header .meatball-collapser-container div {
+    flex-basis: 15%;
+}
+
+div.journey-node {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1em;
+}
+div.journey-node div {
+    display: flex;
+    flex-flow: row;
+    flex-basis: 33%;
+    justify-content: center;
+}
+div.journey-node div.node-colour div {
+    flex-basis: 12%;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px solid black;
+}
+

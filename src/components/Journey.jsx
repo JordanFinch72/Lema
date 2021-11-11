@@ -7,31 +7,22 @@ class JourneyNode extends Component
 	constructor(props)
 	{
 		super(props);
-		this.state = {
-			nodeColour: "blue"
-		};
 
-		this.onNodeColourClick = this.onNodeColourClick.bind(this);
-	}
-
-	/**
-	 * Open a modal that allows user to change the colour of the node on the map
-	 */
-	onNodeColourClick()
-	{
-		// TODO: Open modal, allow user choice
-		let newValue = "red";
-		this.setState({nodeColour: newValue});
+		this.onNodeColourClick = this.props.onNodeColourClick.bind(this);
 	}
 
 	render()
 	{
+		let nodeColour = this.props.node.colour || "blue"; // TODO: Advanced logic for determining next unused colour (per journey)
+
 		return(
 			<div className={"journey-node"}>
 				{/* Flex-row */}
-				<div>{this.props.word}</div>
-				<div>{this.props.language}</div>
-				<div className={"node-colour"} style={"background-color: " + this.state.nodeColour} onClick={this.onNodeColourClick}> </div>
+				<div>{this.props.node.word}</div>
+				<div>{this.props.node.language}</div>
+				<div className={"node-colour"} >
+					<div style={{backgroundColor: nodeColour}} onClick={(e) => this.onNodeColourClick(e, this.props.node)}> </div>
+				</div>
 			</div>
 		)
 	}
@@ -49,6 +40,7 @@ export class Journey extends Component
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
+		this.onNodeColourClick = this.props.onNodeColourClick.bind(this);
 	}
 
 	toggleCollapse(e)
@@ -63,7 +55,7 @@ export class Journey extends Component
 		if(!this.state.collapsed)
 		{
 			this.state.childNodes.map((childNode, index) => {
-				childNodeElements.push(<JourneyNode word={childNode.word} key={index} />);
+				childNodeElements.push(<JourneyNode node={childNode} key={index} onNodeColourClick={this.onNodeColourClick} />);
 			});
 		}
 
@@ -73,8 +65,10 @@ export class Journey extends Component
 					{/* Flex-row */}
 					<div>{this.state.header.word}</div>
 					<div>{this.state.header.language}</div>
-					<Meatballs />
-					<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed} />
+					<div className={"meatball-collapser-container"}>
+						<Meatballs />
+						<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed} />
+					</div>
 				</div>
 				{childNodeElements}
 			</div>
