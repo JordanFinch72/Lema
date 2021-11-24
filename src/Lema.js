@@ -12,48 +12,64 @@ class Lema extends Component
         super(props);
 
         this.state = {
-            activeModal: null // Either null or a React component
+            activeModal: null, // Either null or a React component
+	        activeContextMenu: null
         };
 
-        this.onManualAddClick = this.onManualAddClick.bind(this);
+        this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
     }
 
-    onManualAddClick(e, modalComponent)
+    openModal(e, modalComponent)
     {
         this.setState({
             activeModal: modalComponent
         });
     }
-    closeModal()
-    {
-    	this.setState({
-		    activeModal: null
-	    });
-    }
+	closeModal()
+	{
+		this.setState({
+			activeModal: null
+		});
+	}
+	openContextMenu(e, menuComponent)
+	{
+		this.setState({
+			activeContextMenu: menuComponent
+		});
+	}
+	closeContextMenu()
+	{
+		this.setState({
+			activeContextMenu: null
+		});
+	}
 
 	render()
 	{
-	    let modalContainer;
+	    let modalContainer = null, contextMenuContainer = null;
 		if(this.state.activeModal !== null)
 		{
 			let activeModal = this.state.activeModal;
 			modalContainer = <div className={"modal-container"}>{activeModal}</div>;
 		}
-		else
+		if(this.state.activeContextMenu !== null)
 		{
-			modalContainer = null;
+			let activeContextMenu = this.state.activeContextMenu;
+			contextMenuContainer = <div className={"context-menu-container"}>{activeContextMenu}</div>
 		}
+
 
 
 		return (
 			<div className="Lema">
 				<Banner/>
 				<div className={"main-view-container"}>
-					<LeftBar onManualAddClick={this.onManualAddClick} closeModal={this.closeModal} />
+					<LeftBar openModal={this.openModal} closeModal={this.closeModal} openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu} />
 					<Map/>
 				</div>
 				{modalContainer}
+				{contextMenuContainer}
 			</div>
 		);
 	}

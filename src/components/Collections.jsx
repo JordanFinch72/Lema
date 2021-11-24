@@ -23,8 +23,10 @@ export class Collections extends Component
 
 		this.onNodeColourClick = this.onNodeColourClick.bind(this);
 		this.onAddCollectionSubmit = this.onAddCollectionSubmit.bind(this);
-		this.onManualAddClick = this.props.onManualAddClick.bind(this);
+		this.openModal = this.props.openModal.bind(this);
 		this.closeModal = this.props.closeModal.bind(this);
+		this.openContextMenu = this.props.openContextMenu.bind(this);
+		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 	}
 
 	/**
@@ -53,7 +55,6 @@ export class Collections extends Component
 
 	onAddCollectionSubmit(e, data)
 	{
-		console.log(data);
 		if(data.type === "Cognates") data.type = "cognate";
 		else if(data.type === "Historical journey") data.type = "journey";
 
@@ -64,10 +65,13 @@ export class Collections extends Component
 			]
 		}), function(){
 			this.closeModal();
-			console.log(this.state);
 		});
+	}
 
-
+	addNodeHandler(e, parent)
+	{
+		// TODO: Open node add modal
+		console.log(parent);
 	}
 
 	render()
@@ -76,11 +80,11 @@ export class Collections extends Component
 		let itemElements = this.state.items.map((item, index) => {
 			if(item.type === "cognate")
 			{
-				return <Cognate header={item.header} childNodes={item.childNodes} key={index} />;
+				return <Cognate header={item.header} childNodes={item.childNodes} key={index} openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu} addNodeHandler={this.addNodeHandler}  />;
 			}
 			else if(item.type === "journey")
 			{
-				return <Journey header={item.header} childNodes={item.childNodes} key={index} onNodeColourClick={this.onNodeColourClick} />;
+				return <Journey header={item.header} childNodes={item.childNodes} key={index} onNodeColourClick={this.onNodeColourClick} openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu} addNodeHandler={this.addNodeHandler}  />;
 			}
 		});
 
@@ -89,7 +93,7 @@ export class Collections extends Component
 				<div className={"header-container"}>
 					<h2>Journeys</h2>
 					<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}} onClick={(e) => {
-						this.onManualAddClick(e, <AddCollectionModal onAddCollectionSubmit={this.onAddCollectionSubmit} />);
+						this.openModal(e, <AddCollectionModal onAddCollectionSubmit={this.onAddCollectionSubmit} />);
 					}} />
 				</div>
 				{itemElements}

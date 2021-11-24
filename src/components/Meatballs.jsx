@@ -1,4 +1,5 @@
 import {Component} from "react";
+import {ContextMenu} from "./ContextMenu";
 
 export class Meatballs extends Component
 {
@@ -6,16 +7,22 @@ export class Meatballs extends Component
 	{
 		super(props);
 		this.state = {
-			//contextMenuItems: this.props.contextMenuItems // TODO: Menu items, controls for those (make it generic; do it smart)
+			contextMenuItems: this.props.contextMenuItems
 		};
+
+		this.openContextMenu = this.props.openContextMenu.bind(this);
+		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 	}
 
 	render()
 	{
-		return(
-			<div>
+		return (
+			<div onClick={(e) =>
+			{
+				this.openContextMenu(e, <ContextMenu items={this.state.contextMenuItems} />);
+			}}>
 				...
 			</div>
-		)
+		);
 	}
 }

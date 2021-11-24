@@ -12,8 +12,10 @@ export class LeftBar extends Component
 		};
 
 		this.updateMapMode = this.updateMapMode.bind(this);
-		this.onManualAddClick = this.props.onManualAddClick.bind(this);
+		this.openModal = this.props.openModal.bind(this);
 		this.closeModal = this.props.closeModal.bind(this);
+		this.openContextMenu = this.props.openContextMenu.bind(this);
+		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 	}
 
 	updateMapMode(e, mode)
@@ -26,7 +28,7 @@ export class LeftBar extends Component
 		return(
 			<div className={"left-bar-container"}>
 				<ControlBox mapMode={this.state.mapMode} updateMapMode={this.updateMapMode} />
-				<Collections mapMode={this.state.mapMode} onManualAddClick={this.onManualAddClick} closeModal={this.closeModal} />
+				<Collections mapMode={this.state.mapMode} openModal={this.openModal} closeModal={this.closeModal} openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu} />
 			</div>
 		);
 	}

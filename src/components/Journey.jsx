@@ -42,6 +42,9 @@ export class Journey extends Component
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
 		this.onNodeColourClick = this.props.onNodeColourClick.bind(this);
+		this.openContextMenu = this.props.openContextMenu.bind(this);
+		this.closeContextMenu = this.props.closeContextMenu.bind(this);
+		this.addNodeHandler = this.props.addNodeHandler.bind(this);
 	}
 
 	toggleCollapse(e)
@@ -60,6 +63,10 @@ export class Journey extends Component
 			});
 		}
 
+		let meatballItems = [
+			{text: "Add node", handler: (e) => {this.addNodeHandler(e, this.state.header)}}
+		];
+
 		return(
 			<div className={"journey-container"}>
 				<div className={"journey-header"}>
@@ -67,7 +74,7 @@ export class Journey extends Component
 					<div>{this.state.header.word}</div>
 					<div>{this.state.header.language}</div>
 					<div className={"meatball-collapser-container"}>
-						<Meatballs />
+						<Meatballs openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu} contextMenuItems={meatballItems} />
 						<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed} />
 					</div>
 				</div>
