@@ -7,10 +7,14 @@ export class Textbox extends Component
 		super(props);
 		this.state = {
 			hint: this.props.hint,
-			boxValue: this.props.value || ""
+			boxValue: this.props.value || "",
+			name: this.props.name || this.props.value || ""
 		};
 
-		this.onFieldChange = this.onFieldChange.bind(this);
+		if(this.props.onFieldChange)
+			this.onFieldChange = this.props.onFieldChange.bind(this);
+		else
+			this.onFieldChange = this.onFieldChange.bind(this);
 	}
 
 	onFieldChange(event)
@@ -28,7 +32,7 @@ export class Textbox extends Component
 	{
 		return(
 			<div className={"textbox"}>
-				<input type={"text"} placeholder={this.state.hint} value={this.state.value} name={"boxValue"} onChange={this.onFieldChange} />
+				<input type={"text"} placeholder={this.state.hint} value={this.state.value} name={this.props.name} onChange={this.onFieldChange} />
 			</div>
 		)
 	}

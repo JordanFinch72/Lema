@@ -11,12 +11,13 @@ class RadioButton extends Component
 	render()
 	{
 		// TODO: There's a better way to do this by having the radio button reflect the value of the state. Do it later; not a priority
-		return(
+		return (
 			<div className={"radio-button"}>
-				<input type={"radio"} id={this.props.id} name={this.props.name} value={this.props.label} checked={this.props.active} onChange={(e) => this.onButtonClick(e, this.props.id)} />
+				<input type={"radio"} id={this.props.id} name={this.props.name} value={this.props.label}
+				       checked={this.props.active} onChange={(e) => this.onButtonClick(e, this.props.id)}/>
 				<label htmlFor={this.props.id}>{this.props.label}</label>
 			</div>
-		)
+		);
 	}
 }
 
@@ -52,14 +53,16 @@ export class RadioGroup extends Component
 	render()
 	{
 		let i = 0;
-		let buttonElements = this.state.buttons.map((button, index) => {
-			return <RadioButton active={button.active} label={button.label} name={this.state.name} id={i++} onButtonClick={this.onButtonClick} key={index} />;
+		let buttonElements = this.state.buttons.map((button, index) =>
+		{
+			return <RadioButton active={button.active} label={button.label} name={this.state.name} id={i++}
+			                    onButtonClick={this.onButtonClick} key={index}/>;
 		});
 
-		return(
+		return (
 			<div className={"radio-group"}>
 				{buttonElements}
 			</div>
-		)
+		);
 	}
 }

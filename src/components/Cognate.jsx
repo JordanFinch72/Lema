@@ -60,8 +60,10 @@ export class Cognate extends Component
 					{/* Flex-row */}
 					<div>{this.state.header.word}</div>
 					<div>{this.state.header.language}</div>
-					<Meatballs />
-					<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed} />
+					<div className={"meatball-collapser-container"}>
+						<Meatballs />
+						<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed} />
+					</div>
 				</div>
 				{childNodeElements}
 			</div>

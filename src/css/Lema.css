@@ -76,26 +76,36 @@ div.collections-container {
     border-top: 1px solid black;
     align-items: center;
 }
-div.journey-container {
+div.collections-container div.header-container
+{
+    display: flex;
+    align-items: center;
+}
+div.collections-container div.header-container h2
+{
+    margin-right: 0.1em;
+}
+div.journey-container, div.cognate-container {
     display: flex;
     flex-flow: column;
     align-items: center;
     width: 100%;
+    margin-bottom: 1em;
 }
-div.journey-header {
+div.journey-header, div.cognate-header {
     display: flex;
     flex-flow: row;
     justify-content: center;
     width: 100%;
 }
-div.journey-header div {
+div.journey-header div, div.cognate-header div {
     display: flex;
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
     text-align: center;
 }
-div.journey-header .meatball-collapser-container div {
+div.journey-header .meatball-collapser-container div, div.cognate-container .meatball-collapser-container div {
     flex-basis: 15%;
 }
 
@@ -113,9 +123,26 @@ div.journey-node div {
     justify-content: center;
     text-align: center;
 }
-div.journey-node div.node-colour div {
+div.journey-node div.node-colour input {
     flex-basis: 12%;
     border-radius: 10px 10px 10px 10px;
     border: 1px solid black;
 }
 
+/* Modals */
+div.modal-container {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+div.add-collection-modal {
+    display: flex;
+    flex-flow: column wrap;
+    border: 2px solid #ffcc00;
+    padding: 1em;
+    box-shadow: 0px 0px 15px 1px;
+}

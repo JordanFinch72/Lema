@@ -3,7 +3,7 @@ import {Textbox} from "./Textbox";
 import {RadioGroup} from "./RadioGroup";
 import {Button} from "./Button";
 
-export class Search extends Component
+export class ControlBox extends Component
 {
 	constructor(props)
 	{
@@ -12,6 +12,11 @@ export class Search extends Component
 
 		};
 		this.updateMapMode = this.props.updateMapMode.bind(this);
+	}
+
+	onAddCollectionClick(e, data)
+	{
+
 	}
 
 	render()

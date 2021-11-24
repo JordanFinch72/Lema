@@ -21,7 +21,8 @@ class JourneyNode extends Component
 				<div>{this.props.node.word}</div>
 				<div>{this.props.node.language}</div>
 				<div className={"node-colour"} >
-					<div style={{backgroundColor: nodeColour}} onClick={(e) => this.onNodeColourClick(e, this.props.node)}> </div>
+
+					<input type={"color"} onChange={(e) => console.log(e)} />
 				</div>
 			</div>
 		)

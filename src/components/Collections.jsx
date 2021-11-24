@@ -1,6 +1,8 @@
 import {Component} from "react";
 import {Journey} from "./Journey";
 import {Cognate} from "./Cognate";
+import {Button} from "./Button";
+import {AddCollectionModal} from "./AddCollectionModal";
 
 export class Collections extends Component
 {
@@ -16,10 +18,13 @@ export class Collections extends Component
 					childNodes: [{word: "kers", language: "Proto-Indo-European"}, {word: "krsos", language: "Proto-Indo-European"},
 						{word: "hrussa", language: "Proto-Germanic"}, {word: "hross", language: "Proto-West-Germanic"}, {word: "horse", language: "English"}]
 				}
-			]
+			],
 		};
 
 		this.onNodeColourClick = this.onNodeColourClick.bind(this);
+		this.onAddCollectionSubmit = this.onAddCollectionSubmit.bind(this);
+		this.onManualAddClick = this.props.onManualAddClick.bind(this);
+		this.closeModal = this.props.closeModal.bind(this);
 	}
 
 	/**
@@ -46,6 +51,25 @@ export class Collections extends Component
 		this.setState({items: newItems});
 	}
 
+	onAddCollectionSubmit(e, data)
+	{
+		console.log(data);
+		if(data.type === "Cognates") data.type = "cognate";
+		else if(data.type === "Historical journey") data.type = "journey";
+
+		this.setState((prevState) => ({
+			items: [
+				...prevState.items,
+				{type: data.type, header: data.header, childNodes:[]}
+			]
+		}), function(){
+			this.closeModal();
+			console.log(this.state);
+		});
+
+
+	}
+
 	render()
 	{
 		// TODO: Consider whether both cognates AND journeys may be displayed at the same time
@@ -62,7 +86,12 @@ export class Collections extends Component
 
 		return(
 			<div className={"collections-container"}>
-				<h2 style={{alignSelf: "center"}}>Journeys</h2>
+				<div className={"header-container"}>
+					<h2>Journeys</h2>
+					<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}} onClick={(e) => {
+						this.onManualAddClick(e, <AddCollectionModal onAddCollectionSubmit={this.onAddCollectionSubmit} />);
+					}} />
+				</div>
 				{itemElements}
 			</div>
 		);

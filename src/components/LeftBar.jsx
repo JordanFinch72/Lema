@@ -1,5 +1,5 @@
 import {Component} from "react";
-import {Search} from "./Search";
+import {ControlBox} from "./ControlBox";
 import {Collections} from "./Collections";
 
 export class LeftBar extends Component
@@ -12,6 +12,8 @@ export class LeftBar extends Component
 		};
 
 		this.updateMapMode = this.updateMapMode.bind(this);
+		this.onManualAddClick = this.props.onManualAddClick.bind(this);
+		this.closeModal = this.props.closeModal.bind(this);
 	}
 
 	updateMapMode(e, mode)
@@ -23,8 +25,8 @@ export class LeftBar extends Component
 	{
 		return(
 			<div className={"left-bar-container"}>
-				<Search mapMode={this.state.mapMode} updateMapMode={this.updateMapMode} />
-				<Collections mapMode={this.state.mapMode} />
+				<ControlBox mapMode={this.state.mapMode} updateMapMode={this.updateMapMode} />
+				<Collections mapMode={this.state.mapMode} onManualAddClick={this.onManualAddClick} closeModal={this.closeModal} />
 			</div>
 		);
 	}
