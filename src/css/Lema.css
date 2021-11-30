@@ -85,45 +85,45 @@ div.collections-container div.header-container h2
 {
     margin-right: 0.1em;
 }
-div.journey-container, div.cognate-container {
+div.collection-container, div.cognate-container {
     display: flex;
     flex-flow: column;
     align-items: center;
     width: 100%;
     margin-bottom: 1em;
 }
-div.journey-header, div.cognate-header {
+div.collection-header, div.cognate-header {
     display: flex;
     flex-flow: row;
     justify-content: center;
     width: 100%;
 }
-div.journey-header div, div.cognate-header div {
+div.collection-header div, div.cognate-header div {
     display: flex;
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
     text-align: center;
 }
-div.journey-header .meatball-collapser-container div, div.cognate-container .meatball-collapser-container div {
+div.collection-header .meatball-collapser-container div, div.cognate-container .meatball-collapser-container div {
     flex-basis: 15%;
 }
 
-div.journey-node {
+div.collection-node {
     display: flex;
     flex-flow: row;
     justify-content: center;
     width: 100%;
     margin-top: 1em;
 }
-div.journey-node div {
+div.collection-node div {
     display: flex;
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
     text-align: center;
 }
-div.journey-node div.node-colour input {
+div.collection-node div.node-colour input {
     flex-basis: 12%;
     border-radius: 10px 10px 10px 10px;
     border: 1px solid black;
@@ -138,12 +138,19 @@ div.modal-container {
     justify-content: center;
     align-items: center;
 }
-div.add-collection-modal {
+div.modal {
     display: flex;
     flex-flow: column wrap;
-    border: 2px solid #ffcc00;
+    border: 2px solid #000000;
     padding: 1em;
     box-shadow: 0px 0px 15px 1px;
+    align-items: center;
+}
+div.modal * {
+    margin: 0.2em 0;
+}
+div.modal div.textbox, div.modal select {
+    width: 100%;
 }
 
 /* Context menu */
@@ -157,6 +164,20 @@ div.context-menu-container {
 }
 div.context-menu {
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 0; /* Initial - set by code later */
+    top: 0;  /* Initial - set by code later */
+    background-color: #7cdf7c;
+    border: 1px solid black;
+}
+div.context-menu div.context-menu-item {
+    border-bottom: 1px solid black;
+    padding: 0.2em;
+    cursor: pointer;
+    user-select: none;
+}
+div.context-menu div.context-menu-item:hover {
+    background-color: #d6f5d6;
+}
+div.context-menu div.context-menu-item:last-child {
+    border-bottom: none;
 }

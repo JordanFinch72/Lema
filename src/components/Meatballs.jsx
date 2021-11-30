@@ -1,5 +1,6 @@
 import {Component} from "react";
 import {ContextMenu} from "./ContextMenu";
+import {Button} from "./Button";
 
 export class Meatballs extends Component
 {
@@ -17,12 +18,12 @@ export class Meatballs extends Component
 	render()
 	{
 		return (
-			<div onClick={(e) =>
+			<Button value={"..."} onClick={(e) =>
 			{
-				this.openContextMenu(e, <ContextMenu items={this.state.contextMenuItems} />);
-			}}>
-				...
-			</div>
+				this.openContextMenu(e, <ContextMenu
+					x={e.nativeEvent.clientX}  y={e.nativeEvent.clientY}
+					items={this.state.contextMenuItems} closeContextMenu={this.closeContextMenu} />);
+			}} />
 		);
 	}
 }

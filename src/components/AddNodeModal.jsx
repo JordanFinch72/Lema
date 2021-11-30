@@ -2,18 +2,17 @@ import {Component} from "react";
 import {Textbox} from "./Textbox";
 import {Button} from "./Button";
 
-export class AddCollectionModal extends Component
+export class AddNodeModal extends Component
 {
 	constructor(props)
 	{
 		super(props);
 		this.state = {
-			type: this.props.type || "Historical journey",
 			word: null,
 			language: null
 		};
 
-		this.onAddCollectionSubmit = this.props.onAddCollectionSubmit.bind(this);
+		this.onAddNodeSubmit = this.props.onAddNodeSubmit.bind(this);
 		this.onFieldChange = this.onFieldChange.bind(this);
 	}
 
@@ -32,19 +31,14 @@ export class AddCollectionModal extends Component
 	{
 		return (
 			<div className={"modal"}>
-				<h3>Collection Name (Word)</h3>
+				<h3>Word</h3>
 				<Textbox hint={"e.g. \"Horse\"..."} name={"word"} onFieldChange={this.onFieldChange}/>
-				<h3>Collection Type</h3>
-				<select value={this.state.type} onChange={this.onFieldChange} name={"type"}>
-					<option>Historical journey</option>
-					<option>Cognates</option>
-				</select>
 				<h3>Language</h3>
 				<Textbox hint={"e.g. \"English (UK)\""} name={"language"} onFieldChange={this.onFieldChange} />
-				<Button value={"Submit"} id={"add-collection-modal-submit"} onClick={(e) =>
+				<Button value={"Submit"} id={"add-node-modal-submit"} onClick={(e) =>
 				{
-					let data = {type: this.state.type, header: {word: this.state.word, language: this.state.language}};
-					this.props.onAddCollectionSubmit(e, data);
+					let data = {word: this.state.word, language: this.state.language, parent: this.props.parent};
+					this.props.onAddNodeSubmit(e, data);
 				}}/>
 			</div>
 		);

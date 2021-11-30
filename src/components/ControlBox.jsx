@@ -21,7 +21,7 @@ export class ControlBox extends Component
 
 	render()
 	{
-		const buttons = [{active: true, label: "Cognates"}, {active: false, label: "Historical journey"}];
+		const buttons = [{active: true, label: "Historical journey"}, {active: false, label: "Cognates"}];
 
 		return(
 			<div className={"search-container"}>

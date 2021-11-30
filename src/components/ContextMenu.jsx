@@ -10,18 +10,16 @@ export class ContextMenu extends Component
 			y: this.props.y,
 			items: [
 				...this.props.items,
-				{text: "Close", handler: this.closeContextMenu}
+				{text: "Close", handler: this.props.closeContextMenu}
 			]
 		};
-
-		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 	}
 
 
 	render()
 	{
 		let items = this.state.items.map((item, index) => {
-			return <div className={"context-menu-item"} onClick={item.handler} key={index}>item.text</div>;
+			return <div className={"context-menu-item"} onClick={item.handler} key={index}>{item.text}</div>;
 		});
 
 		return (

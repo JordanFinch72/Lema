@@ -1,4 +1,5 @@
 import {Component} from "react";
+import {Button} from "./Button";
 
 export class Collapser extends Component
 {
@@ -13,9 +14,7 @@ export class Collapser extends Component
 		let symbol = (this.props.collapsed) ? ">" : "V"
 
 		return(
-			<div onClick={(e) => this.toggleCollapse(e)}>
-				<span>{symbol}</span>
-			</div>
+			<Button value={symbol} id={"collapser"} onClick={(e) => this.toggleCollapse(e)} />
 		)
 	}
 }
