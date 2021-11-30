@@ -8,7 +8,6 @@ export class Button extends Component
 		this.state = {
 
 		};
-
 	}
 
 	render()

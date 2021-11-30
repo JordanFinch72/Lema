@@ -3,6 +3,7 @@ import {Meatballs} from "./Meatballs";
 import {Collapser} from "./Collapser";
 import {AddEditCollectionModal} from "./AddEditCollectionModal";
 import {AddEditNodeModal} from "./AddEditNodeModal";
+import {Button} from "./Button";
 
 class CollectionNode extends Component
 {
@@ -10,8 +11,9 @@ class CollectionNode extends Component
 	{
 		super(props);
 		this.openModal = this.props.openModal.bind(this);
-		this.onNodeColourClick = this.props.onNodeColourClick.bind(this);
-		this.onEditNodeSubmit = this.props.onEditNodeSubmit.bind(this);
+		this.editNodeColour = this.props.editNodeColour.bind(this);
+		this.editNode = this.props.editNode.bind(this);
+		this.removeNode = this.props.removeNode.bind(this);
 	}
 
 	render()
@@ -19,21 +21,30 @@ class CollectionNode extends Component
 		let nodeColour = this.props.node.colour || "blue"; // TODO: Advanced logic for determining next unused colour (per journey)
 
 		return(
-			<div className={"collection-node"} onClick={(e) => {
-				this.openModal(e, <AddEditNodeModal
-					word={this.props.node.word}
-					language={this.props.node.language}
-					onNodeSubmit={this.props.onEditNodeSubmit}
-					parentIndex={this.props.parentIndex}
-					childIndex={this.props.childIndex}
-				/>);
-			}}>
+			<div className={"collection-node"}>
 				{/* Flex-row */}
-				<div>{this.props.node.word}</div>
-				<div>{this.props.node.language}</div>
+				<div onClick={(e) => {
+					this.openModal(e, <AddEditNodeModal
+						word={this.props.node.word}
+						language={this.props.node.language}
+						onNodeSubmit={this.props.editNode}
+						parentIndex={this.props.parentIndex}
+						childIndex={this.props.childIndex}
+					/>);
+				}}>{this.props.node.word}</div>
+				<div onClick={(e) => {
+					this.openModal(e, <AddEditNodeModal
+						word={this.props.node.word}
+						language={this.props.node.language}
+						onNodeSubmit={this.props.editNode}
+						parentIndex={this.props.parentIndex}
+						childIndex={this.props.childIndex}
+					/>);
+				}}>{this.props.node.language}</div>
 				<div className={"node-colour"} >
 					<input type={"color"} onChange={(e) => console.log(e)} />
 				</div>
+				<Button value={"X"} id={"remove-node"} onClick={(e) => this.removeNode(e, this.props.parentIndex, this.props.childIndex)} />
 			</div>
 		)
 	}
@@ -49,15 +60,17 @@ export class Collection extends Component
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
-		this.onNodeColourClick = this.props.onNodeColourClick.bind(this);
+
 		this.openContextMenu = this.props.openContextMenu.bind(this);
 		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 		this.openModal = this.props.openModal.bind(this);
-		this.addNodeHandler = this.props.addNodeHandler.bind(this);
-		this.addNodeDefaultHandler = this.props.addNodeDefaultHandler.bind(this);
-		this.onEditCollectionSubmit = this.props.onEditCollectionSubmit.bind(this);
-		this.onAddNodeSubmit = this.props.onAddNodeSubmit.bind(this);
-		this.onEditNodeSubmit = this.props.onEditNodeSubmit.bind(this);
+		this.cAddNode = this.props.cAddNode.bind(this);
+		this.cAddNodeDefault = this.props.cAddNodeDefault.bind(this);
+		this.editCollection = this.props.editCollection.bind(this);
+		this.addNode = this.props.addNode.bind(this);
+		this.editNode = this.props.editNode.bind(this);
+		this.editNodeColour = this.props.editNodeColour.bind(this);
+		this.removeNode = this.props.removeNode.bind(this);
 	}
 
 	toggleCollapse(e)
@@ -74,8 +87,9 @@ export class Collection extends Component
 			this.props.childNodes.map((childNode, index) => {
 				childNodeElements.push(<CollectionNode
 					key={index} type={this.props.type} node={childNode}
-					onEditNodeSubmit={this.onEditNodeSubmit}
-					onNodeColourClick={this.onNodeColourClick}
+					editNode={this.editNode}
+					editNodeColour={this.editNodeColour}
+					removeNode={this.removeNode}
 					openModal={this.openModal}
 					parentIndex={this.props.index} // Index of Collection the child node belongs to
 					childIndex={index}             // Index of child node itself within childNodes array
@@ -84,8 +98,8 @@ export class Collection extends Component
 		}
 
 		let meatballItems = [
-			{text: "Add node", handler: (e) => {this.addNodeHandler(e, this.props.index)}},
-			{text: "Add node (default)", handler: (e) => {this.addNodeDefaultHandler(e, this.props.index)}}
+			{text: "Add node", handler: (e) => {this.cAddNode(e, this.props.index)}},
+			{text: "Add node (default)", handler: (e) => {this.cAddNodeDefault(e, this.props.index)}}
 		];
 
 		return(
@@ -97,7 +111,7 @@ export class Collection extends Component
 							type={this.props.type}
 							word={this.props.header.word}
 							language={this.props.header.language}
-							onCollectionSubmit={this.onEditCollectionSubmit}
+							onCollectionSubmit={this.editCollection}
 							index={this.props.index}
 						/>);
 					}}>{this.props.header.word}</div>
@@ -106,7 +120,7 @@ export class Collection extends Component
 							type={this.props.type}
 							word={this.props.header.word}
 							language={this.props.header.language}
-							onCollectionSubmit={this.onEditCollectionSubmit}
+							onCollectionSubmit={this.editCollection}
 							index={this.props.index}
 						/>);
 					}}>{this.props.header.language}</div>

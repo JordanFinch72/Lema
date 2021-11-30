@@ -26,23 +26,24 @@ export class Collections extends Component
 			]
 		};
 
-		this.onNodeColourClick = this.onNodeColourClick.bind(this);
-		this.onAddCollectionSubmit = this.onAddCollectionSubmit.bind(this);
-		this.onEditCollectionSubmit = this.onEditCollectionSubmit.bind(this);
-		this.onAddNodeSubmit = this.onAddNodeSubmit.bind(this);
-		this.onEditNodeSubmit = this.onEditNodeSubmit.bind(this);
-		this.addNodeHandler = this.addNodeHandler.bind(this);
-		this.addNodeDefaultHandler = this.addNodeDefaultHandler.bind(this);
+		/* Click, event handlers */
+		this.addCollection = this.addCollection.bind(this);
+		this.editCollection = this.editCollection.bind(this);
+		this.addNode = this.addNode.bind(this);
+		this.editNode = this.editNode.bind(this);
+		this.editNodeColour = this.editNodeColour.bind(this);
+		this.removeNode = this.removeNode.bind(this);
+		this.cAddNode = this.cAddNode.bind(this);
+		this.cAddNodeDefault = this.cAddNodeDefault.bind(this);
+
+		/* Prop functions */
 		this.openModal = this.props.openModal.bind(this);
 		this.closeModal = this.props.closeModal.bind(this);
 		this.openContextMenu = this.props.openContextMenu.bind(this);
 		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 	}
 
-	/**
-	 * Open a modal that allows user to change the colour of the node on the map
-	 */
-	onNodeColourClick(e, node)
+	editNodeColour(e, node)
 	{
 		// TODO: Open modal, allow user choice
 		let newValue = "red";
@@ -62,8 +63,17 @@ export class Collections extends Component
 		}
 		this.setState({items: newItems});
 	}
+	removeNode(e, parentIndex, childIndex)
+	{
+		let newItems = this.state.items;
+		delete newItems[parentIndex].childNodes[childIndex];
+		this.setState({items: newItems}, function()
+		{
+			console.log(this.state);
+		});
+	}
 
-	onAddCollectionSubmit(e, data)
+	addCollection(e, data)
 	{
 		if(data.type === "Cognates") data.type = "cognate";
 		else if(data.type === "Historical journey") data.type = "journey";
@@ -87,7 +97,7 @@ export class Collections extends Component
 			}), this.closeModal);
 		}
 	}
-	onEditCollectionSubmit(e, data)
+	editCollection(e, data)
 	{
 		console.log(data);
 
@@ -108,16 +118,16 @@ export class Collections extends Component
 	}
 
 	/* Context menu item handlers */
-	addNodeHandler(e, parentIndex)
+	cAddNode(e, parentIndex)
 	{
 		// Open the AddEditNodeModal
-		this.openModal(e, <AddEditNodeModal onNodeSubmit={this.onAddNodeSubmit} parentIndex={parentIndex}/>);
+		this.openModal(e, <AddEditNodeModal onNodeSubmit={this.addNode} parentIndex={parentIndex}/>);
 	}
-	addNodeDefaultHandler(e, parentIndex)
+	cAddNodeDefault(e, parentIndex)
 	{
-		this.onAddNodeSubmit(e, {word: "word", language: "language", parentIndex: parentIndex});
+		this.addNode(e, {word: "word", language: "language", parentIndex: parentIndex});
 	}
-	onAddNodeSubmit(e, data)
+	addNode(e, data)
 	{
 		// Data validation
 		let errorCollector = "";
@@ -127,7 +137,7 @@ export class Collections extends Component
 			errorCollector += "You must enter a language.\n";
 
 		if(errorCollector.length > 0)
-			alert(errorCollector); // TODO: Proper error handling with toast
+			alert(errorCollector); // TODO: Proper error message with toast
 		else
 		{
 			// Create new child node
@@ -138,7 +148,7 @@ export class Collections extends Component
 			this.setState({items: newItems}, this.closeModal);
 		}
 	}
-	onEditNodeSubmit(e, data)
+	editNode(e, data)
 	{
 		// Data validation
 		let errorCollector = "";
@@ -148,7 +158,7 @@ export class Collections extends Component
 			errorCollector += "You must enter a language.\n";
 
 		if(errorCollector.length > 0)
-			alert(errorCollector); // TODO: Proper error handling with toast
+			alert(errorCollector); // TODO: Proper error message with toast
 		else
 		{
 			// Create new child node
@@ -162,7 +172,6 @@ export class Collections extends Component
 
 	render()
 	{
-		// TODO: Consider whether both cognates AND journeys may be displayed at the same time
 		let journeys = null, cognates = null;
 		let journeyElements = [], cognateElements = [];
 		this.state.items.map((item, index) =>
@@ -170,10 +179,11 @@ export class Collections extends Component
 			let component = <Collection
 				key={index} index={index} type={item.type} header={item.header} openModal={this.openModal}
 				childNodes={item.childNodes}
-				onNodeColourClick={this.onNodeColourClick} openContextMenu={this.openContextMenu}
-				closeContextMenu={this.closeContextMenu} addNodeHandler={this.addNodeHandler}
-				onAddNodeSubmit={this.onAddNodeSubmit} addNodeDefaultHandler={this.addNodeDefaultHandler}
-				onEditCollectionSubmit={this.onEditCollectionSubmit} onEditNodeSubmit={this.onEditNodeSubmit}
+				editNodeColour={this.editNodeColour} removeNode={this.removeNode}
+				openContextMenu={this.openContextMenu}
+				closeContextMenu={this.closeContextMenu} cAddNode={this.cAddNode}
+				addNode={this.addNode} cAddNodeDefault={this.cAddNodeDefault}
+				editCollection={this.editCollection} editNode={this.editNode}
 			/>;
 			if(item.type === "journey")
 				journeyElements.push(component);
@@ -187,10 +197,11 @@ export class Collections extends Component
 				<>
 					<div className={"header-container"}>
 						<h2>Journeys</h2>
-						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}} onClick={(e) =>
-						{
-							this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.onAddCollectionSubmit}/>);
-						}}/>
+						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
+						        onClick={(e) => {
+									this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.addCollection}/>);
+								}}
+						/>
 					</div>
 					{journeyElements}
 				</>;
@@ -201,11 +212,11 @@ export class Collections extends Component
 				<>
 					<div className={"header-container"}>
 						<h2>Cognates</h2>
-						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}} onClick={(e) =>
-						{
-							this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.onAddCollectionSubmit}
-							                                          type={"Cognates"}/>);
-						}}/>
+						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
+						        onClick={(e) => {
+									this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.addCollection} type={"Cognates"}/>);
+								}}
+						/>
 					</div>
 					{cognateElements}
 				</>;
