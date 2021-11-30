@@ -3,7 +3,7 @@ import {Component} from "react";
 import {Banner} from "./components/Banner";
 import {LeftBar} from "./components/LeftBar";
 import {Map} from "./components/Map";
-import {AddCollectionModal} from "./components/AddCollectionModal";
+import {AddEditCollectionModal} from "./components/AddEditCollectionModal";
 
 class Lema extends Component
 {

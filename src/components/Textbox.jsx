@@ -7,7 +7,6 @@ export class Textbox extends Component
 		super(props);
 		this.state = {
 			hint: this.props.hint,
-			boxValue: this.props.value || "",
 			name: this.props.name || this.props.value || ""
 		};
 
@@ -32,7 +31,7 @@ export class Textbox extends Component
 	{
 		return(
 			<div className={"textbox"}>
-				<input type={"text"} placeholder={this.state.hint} value={this.state.value} name={this.props.name} onChange={this.onFieldChange} />
+				<input type={"text"} placeholder={this.state.hint} value={this.props.value} name={this.props.name} onChange={this.onFieldChange} />
 			</div>
 		)
 	}

@@ -1,8 +1,8 @@
 import {Component} from "react";
 import {Collection} from "./Collection";
 import {Button} from "./Button";
-import {AddCollectionModal} from "./AddCollectionModal";
-import {AddNodeModal} from "./AddNodeModal";
+import {AddEditCollectionModal} from "./AddEditCollectionModal";
+import {AddEditNodeModal} from "./AddEditNodeModal";
 
 export class Collections extends Component
 {
@@ -15,21 +15,22 @@ export class Collections extends Component
 					// TODO: Dummy data
 					type: "journey",
 					header: {word: "horse", language: "English (UK)"},
-					childNodes: [{word: "kers", language: "Proto-Indo-European"}, {
-						word: "krsos",
-						language: "Proto-Indo-European"
-					},
-						{word: "hrussa", language: "Proto-Germanic"}, {
-							word: "hross",
-							language: "Proto-West-Germanic"
-						}, {word: "horse", language: "English"}]
+					childNodes: [
+						{word: "kers", language: "Proto-Indo-European"},
+						{word: "krsos", language: "Proto-Indo-European"},
+						{word: "hrussa", language: "Proto-Germanic"},
+						{word: "hross", language: "Proto-West-Germanic"},
+						{word: "horse", language: "English"}
+					]
 				}
 			]
 		};
 
 		this.onNodeColourClick = this.onNodeColourClick.bind(this);
 		this.onAddCollectionSubmit = this.onAddCollectionSubmit.bind(this);
+		this.onEditCollectionSubmit = this.onEditCollectionSubmit.bind(this);
 		this.onAddNodeSubmit = this.onAddNodeSubmit.bind(this);
+		this.onEditNodeSubmit = this.onEditNodeSubmit.bind(this);
 		this.addNodeHandler = this.addNodeHandler.bind(this);
 		this.addNodeDefaultHandler = this.addNodeDefaultHandler.bind(this);
 		this.openModal = this.props.openModal.bind(this);
@@ -86,16 +87,35 @@ export class Collections extends Component
 			}), this.closeModal);
 		}
 	}
+	onEditCollectionSubmit(e, data)
+	{
+		console.log(data);
+
+		if(data.type === "Cognates") data.type = "cognate";
+		else if(data.type === "Historical journey") data.type = "journey";
+
+		// Data validation
+		let errorCollector = "";
+		if(data.header.word === null || data.header.word.length <= 0)
+			errorCollector += "You must enter a word.\n";
+		if(data.header.language === null || data.header.language.length <= 0)
+			errorCollector += "You must enter a language.\n";
+
+		let newItems = this.state.items;
+		newItems[data.index].type = data.type;
+		newItems[data.index].header = data.header;
+		this.setState({items: newItems}, this.closeModal);
+	}
 
 	/* Context menu item handlers */
-	addNodeHandler(e, parent)
+	addNodeHandler(e, parentIndex)
 	{
-		// Open the AddNodeModal
-		this.openModal(e, <AddNodeModal onAddNodeSubmit={this.onAddNodeSubmit} parent={parent}/>);
+		// Open the AddEditNodeModal
+		this.openModal(e, <AddEditNodeModal onNodeSubmit={this.onAddNodeSubmit} parentIndex={parentIndex}/>);
 	}
-	addNodeDefaultHandler(e, parent)
+	addNodeDefaultHandler(e, parentIndex)
 	{
-		this.onAddNodeSubmit(e, {word: "word", language: "language", parent: parent});
+		this.onAddNodeSubmit(e, {word: "word", language: "language", parentIndex: parentIndex});
 	}
 	onAddNodeSubmit(e, data)
 	{
@@ -113,7 +133,28 @@ export class Collections extends Component
 			// Create new child node
 			let newChildNode = {word: data.word, language: data.language};
 			let newItems = this.state.items;
-			newItems[data.parent].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.items array)
+			newItems[data.parentIndex].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.items array)
+
+			this.setState({items: newItems}, this.closeModal);
+		}
+	}
+	onEditNodeSubmit(e, data)
+	{
+		// Data validation
+		let errorCollector = "";
+		if(data.word === null || data.word.length <= 0)
+			errorCollector += "You must enter a word.\n";
+		if(data.language === null || data.language.length <= 0)
+			errorCollector += "You must enter a language.\n";
+
+		if(errorCollector.length > 0)
+			alert(errorCollector); // TODO: Proper error handling with toast
+		else
+		{
+			// Create new child node
+			let newChildNode = {word: data.word, language: data.language};
+			let newItems = this.state.items;
+			newItems[data.parentIndex].childNodes[data.childIndex] = {word: data.word, language: data.language};
 
 			this.setState({items: newItems}, this.closeModal);
 		}
@@ -126,26 +167,18 @@ export class Collections extends Component
 		let journeyElements = [], cognateElements = [];
 		this.state.items.map((item, index) =>
 		{
+			let component = <Collection
+				key={index} index={index} type={item.type} header={item.header} openModal={this.openModal}
+				childNodes={item.childNodes}
+				onNodeColourClick={this.onNodeColourClick} openContextMenu={this.openContextMenu}
+				closeContextMenu={this.closeContextMenu} addNodeHandler={this.addNodeHandler}
+				onAddNodeSubmit={this.onAddNodeSubmit} addNodeDefaultHandler={this.addNodeDefaultHandler}
+				onEditCollectionSubmit={this.onEditCollectionSubmit} onEditNodeSubmit={this.onEditNodeSubmit}
+			/>;
 			if(item.type === "journey")
-			{
-				journeyElements.push(<Collection
-					key={index} index={index} type={item.type} header={item.header} openModal={this.openModal}
-					childNodes={item.childNodes}
-					onNodeColourClick={this.onNodeColourClick} openContextMenu={this.openContextMenu}
-					closeContextMenu={this.closeContextMenu} addNodeHandler={this.addNodeHandler}
-					onAddNodeSubmit={this.onAddNodeSubmit} addNodeDefaultHandler={this.addNodeDefaultHandler}
-				/>);
-			}
+				journeyElements.push(component);
 			else if(item.type === "cognate")
-			{
-				cognateElements.push(<Collection
-					key={index} index={index} type={item.type} header={item.header} openModal={this.openModal}
-					childNodes={item.childNodes}
-					onNodeColourClick={this.onNodeColourClick} openContextMenu={this.openContextMenu}
-					closeContextMenu={this.closeContextMenu} addNodeHandler={this.addNodeHandler}
-					onAddNodeSubmit={this.onAddNodeSubmit} addNodeDefaultHandler={this.addNodeDefaultHandler}
-				/>);
-			}
+				cognateElements.push(component);
 		});
 
 		if(journeyElements.length > 0)
@@ -156,11 +189,11 @@ export class Collections extends Component
 						<h2>Journeys</h2>
 						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}} onClick={(e) =>
 						{
-							this.openModal(e, <AddCollectionModal onAddCollectionSubmit={this.onAddCollectionSubmit}/>);
+							this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.onAddCollectionSubmit}/>);
 						}}/>
 					</div>
 					{journeyElements}
-				</>
+				</>;
 		}
 		if(cognateElements.length > 0)
 		{
@@ -170,11 +203,12 @@ export class Collections extends Component
 						<h2>Cognates</h2>
 						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}} onClick={(e) =>
 						{
-							this.openModal(e, <AddCollectionModal onAddCollectionSubmit={this.onAddCollectionSubmit} type={"Cognates"}  />);
+							this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.onAddCollectionSubmit}
+							                                          type={"Cognates"}/>);
 						}}/>
 					</div>
 					{cognateElements}
-				</>
+				</>;
 		}
 
 		return (

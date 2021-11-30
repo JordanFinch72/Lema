@@ -18,7 +18,7 @@ export class Meatballs extends Component
 	render()
 	{
 		return (
-			<Button value={"..."} onClick={(e) =>
+			<Button className={"meatballs"} value={"..."} onClick={(e) =>
 			{
 				this.openContextMenu(e, <ContextMenu
 					x={e.nativeEvent.clientX}  y={e.nativeEvent.clientY}
