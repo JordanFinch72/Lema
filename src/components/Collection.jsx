@@ -41,10 +41,10 @@ class CollectionNode extends Component
 						childIndex={this.props.childIndex}
 					/>);
 				}}>{this.props.node.language}</div>
-				<div className={"node-colour"} >
+				<div className={"buttons-container"}>
 					<input type={"color"} onChange={(e) => console.log(e)} />
+					<Button value={"X"} id={"remove-node"} onClick={(e) => this.removeNode(e, this.props.parentIndex, this.props.childIndex)} />
 				</div>
-				<Button value={"X"} id={"remove-node"} onClick={(e) => this.removeNode(e, this.props.parentIndex, this.props.childIndex)} />
 			</div>
 		)
 	}
@@ -66,6 +66,7 @@ export class Collection extends Component
 		this.openModal = this.props.openModal.bind(this);
 		this.cAddNode = this.props.cAddNode.bind(this);
 		this.cAddNodeDefault = this.props.cAddNodeDefault.bind(this);
+		this.cRemoveCollection = this.props.cRemoveCollection.bind(this);
 		this.editCollection = this.props.editCollection.bind(this);
 		this.addNode = this.props.addNode.bind(this);
 		this.editNode = this.props.editNode.bind(this);
@@ -99,7 +100,8 @@ export class Collection extends Component
 
 		let meatballItems = [
 			{text: "Add node", handler: (e) => {this.cAddNode(e, this.props.index)}},
-			{text: "Add node (default)", handler: (e) => {this.cAddNodeDefault(e, this.props.index)}}
+			{text: "Add node (default)", handler: (e) => {this.cAddNodeDefault(e, this.props.index)}},
+			{text: "Remove collection", handler: (e) => {this.cRemoveCollection(e, this.props.index)}}
 		];
 
 		return(

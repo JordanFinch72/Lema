@@ -85,27 +85,30 @@ div.collections-container div.header-container h2
 {
     margin-right: 0.1em;
 }
-div.collection-container, div.cognate-container {
+div.collection-container {
     display: flex;
     flex-flow: column;
     align-items: center;
     width: 100%;
     margin-bottom: 1em;
 }
-div.collection-header, div.cognate-header {
+div.collection-header {
     display: flex;
     flex-flow: row;
     justify-content: center;
     width: 100%;
+    background-color: #c4c4c4;
+    border: 1px solid black;
+    padding: 0.7em 0;
 }
-div.collection-header div, div.cognate-header div {
+div.collection-header div {
     display: flex;
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
     text-align: center;
 }
-div.collection-header .meatball-collapser-container div, div.cognate-container .meatball-collapser-container div {
+div.collection-header div.meatball-collapser-container div {
     flex-basis: 15%;
 }
 
@@ -114,7 +117,9 @@ div.collection-node {
     flex-flow: row;
     justify-content: center;
     width: 100%;
-    margin-top: 1em;
+    background-color: rgba(196,196,196,0.5);
+    border: 1px solid black;
+    padding: 0.7em 0;
 }
 div.collection-node div {
     display: flex;
@@ -123,10 +128,8 @@ div.collection-node div {
     justify-content: center;
     text-align: center;
 }
-div.collection-node div.node-colour input {
-    flex-basis: 12%;
-    border-radius: 10px 10px 10px 10px;
-    border: 1px solid black;
+div.collection-node div.buttons-container div {
+    flex-basis: 15%;
 }
 
 /* Modals */
