@@ -31,7 +31,7 @@ export class Textbox extends Component
 	{
 		return(
 			<div className={"textbox"}>
-				<input type={"text"} placeholder={this.state.hint} value={this.props.value} name={this.props.name} onChange={this.onFieldChange} />
+				<input type={"text"} placeholder={this.state.hint} value={this.props.value} name={this.props.name} autoComplete={"off"} onChange={this.onFieldChange} />
 			</div>
 		)
 	}

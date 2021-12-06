@@ -39,6 +39,10 @@ div.left-bar-container {
     padding: 0.2em;
 }
 
+div.map-container {
+    flex-basis: 75%;
+}
+
 /* Search */
 div.search-container {
     display: flex;
@@ -148,6 +152,7 @@ div.modal {
     padding: 1em;
     box-shadow: 0px 0px 15px 1px;
     align-items: center;
+    background-color: white;
 }
 div.modal * {
     margin: 0.2em 0;
