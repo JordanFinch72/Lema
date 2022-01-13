@@ -59,7 +59,7 @@ export function Map(props)
 					.translate([W / 2, H / 2]);
 
 				const path = d3.geoPath().projection(projection);
-				const countries = g_countries.selectAll("path").data(areas);
+				const countries = svg.append("g").append("g").selectAll("path").data(areas);
 				countries.exit().remove();
 				console.log(countries);
 				countries

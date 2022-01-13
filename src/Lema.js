@@ -31,9 +31,12 @@ class Lema extends Component
 					type: "cognate",
 					header: {word: "horse", language: "English (UK)"},
 					childNodes: [
-						{word: "horse", language: "English", colour: "#f5b60d"},
+						{word: "horse", language: "English", colour: "#ff0000"},
 						{word: "paard", language: "Dutch", colour: "#f5b60d"},
-						{word: "Pferd", language: "German", colour: "#f5b60d"}
+						{word: "Pferd", language: "German", colour: "#f5b60d"},
+						{word: "hest", language: "Danish", colour: "#0000ff"},
+						{word: "hest", language: "Norwegian", colour: "#0000ff"},
+						{word: "häst", language: "Swedish", colour: "#0000ff"}
 					]
 				}
 			],
