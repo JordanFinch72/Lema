@@ -18,20 +18,20 @@ class Lema extends Component
 			items: [
 				{
 					type: "journey",
-					header: {word: "horse", language: "English (UK)"},
+					header: {word: "horse", language: "English (GB)"},
 					childNodes: [
 						{word: "kers", language: "Proto-Indo-European", colour: "#000000"},
 						{word: "krsos", language: "Proto-Indo-European", colour: "#000000"},
 						{word: "hrussa", language: "Proto-Germanic", colour: "#000000"},
 						{word: "hross", language: "Proto-West-Germanic", colour: "#000000"},
-						{word: "horse", language: "English", colour: "#000000"}
+						{word: "horse", language: "English (GB)", colour: "#000000"}
 					]
 				},
 				{
 					type: "cognate",
-					header: {word: "horse", language: "English (UK)"},
+					header: {word: "horse", language: "English (GB)"},
 					childNodes: [
-						{word: "horse", language: "English", colour: "#ff0000"},
+						{word: "horse", language: "English (GB)", colour: "#ff0000"},
 						{word: "paard", language: "Dutch", colour: "#f5b60d"},
 						{word: "Pferd", language: "German", colour: "#f5b60d"},
 						{word: "hest", language: "Danish", colour: "#0000ff"},
@@ -80,21 +80,11 @@ class Lema extends Component
 		});
 	}
 
-	editNodeColour(e, node, colour)
+	editNodeColour(e, parentIndex, childIndex, colour)
 	{
 		// Find node and set colour
 		let newItems = this.state.items;
-		for(let i = 0; i < newItems.length; ++i)
-		{
-			for(let j = 0; j < newItems[i].childNodes.length; ++j)
-			{
-				let childNode = newItems[i].childNodes[j];
-				if(childNode === node)
-				{
-					newItems[i].childNodes[j].colour = colour;
-				}
-			}
-		}
+		newItems[parentIndex].childNodes[childIndex].colour = colour;
 		this.setState({items: newItems, mapRenderCounter: this.state.mapRenderCounter+1});
 	}
 	addNode(e, data)

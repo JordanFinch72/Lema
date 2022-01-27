@@ -1,46 +1,21 @@
 import React, {useEffect, useState} from "react";
 import * as d3 from "d3";
 import {useD3} from "../hooks/useD3";
-import languageCountries from "../languageCountries.json";
+import languageCountries from "../supportedLanguages.json";
+import countries_data from "../data/countries/countries.json";
 
 export function Map(props)
 {
 	const items = props.items;
 	let topojson = require("topojson");
-	let world = require("../data/world.json");
-
-	let foo = [{"name": "Netherlands", "continent": "Europe"}, {"name": "England", "continent": "Europe"},
-		{"name": "Germany", "continent": "Europe"}, {"name": "France", "continent": "Europe"}];
+	let countries_data = require("../data/countries/countries.json");
+	const SUPPORTED_LANGUAGES_ONLY = false; // Will only show countries that contain a "languages" property if set to true
 
 	/* Example of using d3-geo in useEffect() instead of custom useD3() */
-	// Note: Still needs clean-up function to stop re-renders
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
 		let svg = d3.selectAll(".map-container").selectAll("svg");
-
-		// Condense data
-		// TODO: Sort this out beforehand so it doesn't have to compute it every time
-		let countries = world.features
-			.reduce((countries2, feature) =>
-			{
-				// flatten multipolygons into polygons
-				if(feature.geometry.type === "Polygon")
-				{
-					countries2.push(feature);
-				}
-				else
-				{ // MultiPolygon
-					feature.geometry.coordinates.forEach(coordinates =>
-					{
-						countries2.push({
-							type: "Feature",
-							properties: feature.properties,
-							geometry: {type: "Polygon", coordinates}
-						});
-					});
-				}
-				return countries2;
-			}, []);
+		let countries = countries_data.features;
 
 		// Create path (passed as svg attribute later to draw the countries)
 		// TODO: Have it auto-scale as window is dragged
@@ -61,7 +36,7 @@ export function Map(props)
 			.attr("fill", (d) => determineFillColour(d))
 			.on("click", function(e, d){
 				// TODO: Functions (context menu for right-click; dragging nodes; etc.)
-				alert("Hello, " + d.properties.name + "!");
+				alert("Hello, " + d.properties.name + "! You speak " + d.properties.languages + "!");
 			})
 			.on("mouseover", function(e, d){
 				let element = d3.select(this);
@@ -96,6 +71,12 @@ export function Map(props)
 		}));
 		 */
 
+		// TODO: Clean-up function
+		return function cleanup()
+		{
+			svg.selectAll("g").remove();
+		}
+
 	});
 
 	/**
@@ -106,32 +87,40 @@ export function Map(props)
 	function determineFillColour(d)
 	{
 		// TODO: Determine fill colour by node colour data
-		//  - Need a language->country mapping
 		//  - Find node language, get corresponding country, if this d's name is country then change to node colour
-
-		let countryName = d.properties.name;
-		let fillColour = "white";
+		let countryLanguages = d.properties.languages || [];
+		let fillColour = "";
 
 		for(let collection in items)
 		{
 			if(items.hasOwnProperty(collection))
 			{
 				collection = items[collection];
-				if(collection.type === "cognate") // Only search for cognates, as journeys aren't filled (at the moment)
+				if(collection.type === "cognate") // Only search for cognates, as journeys aren't filled with colour (at the moment)
 				{
 					for(let childNode in collection.childNodes)
 					{
 						if(collection.childNodes.hasOwnProperty(childNode))
 						{
 							childNode = collection.childNodes[childNode];
-							if(languageCountries[childNode.language] === countryName)
-								fillColour = childNode.colour;
+							for(let i = 0; i < countryLanguages.length; ++i)
+							{
+								if(countryLanguages.includes(childNode.language))
+								{
+									fillColour = childNode.colour;
+									break;
+								}
+							}
 						}
+						if(fillColour !== "")
+							break;
 					}
 				}
 			}
+			if(fillColour !== "")
+				break;
 		}
-		return fillColour;
+		return (fillColour === "") ? "white" : fillColour;
 	}
 
 
@@ -142,7 +131,8 @@ export function Map(props)
 				style={{
 					height: "100%",
 					width: "100%",
-					margin: 0
+					margin: 0,
+					backgroundColor: "#3d73ab" /* The sea */
 				}}
 			/>
 		</div>

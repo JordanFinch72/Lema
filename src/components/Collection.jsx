@@ -47,12 +47,12 @@ class CollectionNode extends Component
 				<div className={"buttons-container"}>
 					<input type={"color"} defaultValue={this.props.node.colour} onChange={(e) => {
 						// Throttle the onChange; there's no way to have it only change when the user clicks off of it, annoyingly
-						let foo = this;
+						let node = this;
 						window.clearTimeout(changeColourTimeout);
 						changeColourTimeout = window.setTimeout(function()
 						{
-							foo.editNodeColour(e, foo.props.node, e.target.value);
-						}, 500);
+							node.editNodeColour(e, node.props.parentIndex, node.props.childIndex, e.target.value);
+						}, 100);
 					}}/>
 					<Button value={"X"} id={"remove-node"}
 					        onClick={(e) => this.removeNode(e, this.props.parentIndex, this.props.childIndex)}/>
@@ -100,7 +100,7 @@ export class Collection extends Component
 			this.props.childNodes.map((childNode, index) =>
 			{
 				childNodeElements.push(<CollectionNode
-					key={index} type={this.props.type} node={childNode}
+					key={index}  type={this.props.type} node={childNode}
 					editNode={this.editNode}
 					editNodeColour={this.editNodeColour}
 					removeNode={this.removeNode}
