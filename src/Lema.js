@@ -3,7 +3,6 @@ import {Component} from "react";
 import {Banner} from "./components/Banner";
 import {LeftBar} from "./components/LeftBar";
 import {Map} from "./components/Map";
-import {AddEditCollectionModal} from "./components/AddEditCollectionModal";
 
 class Lema extends Component
 {
@@ -141,10 +140,14 @@ class Lema extends Component
 
 	addCollection(e, data)
 	{
+		console.log(data);
+
 		if(data.type === "Cognates") data.type = "cognate";
 		else if(data.type === "Historical journey") data.type = "journey";
 
 		// Data validation
+		// TODO: For cognates, only one cognate per language should be allowed
+		//  - Future feature: for additional cognate collections, change solid colours to patterns of the specified colours instead (e.g. stripes; checks)
 		let errorCollector = "";
 		if(data.header.word === null || data.header.word.length <= 0)
 			errorCollector += "You must enter a word.\n";
@@ -155,12 +158,9 @@ class Lema extends Component
 			alert(errorCollector); // TODO: Proper error handling with toast
 		else
 		{
-			this.setState((prevState) => ({
-				items: [
-					...prevState.items,
-					{type: data.type, header: data.header, childNodes: []}
-				]
-			}), this.closeModal);
+			let items = this.state.items;
+			items.push({type: data.type, header: data.header, childNodes: []});
+			this.setState( {items: items}, this.closeModal);
 		}
 	}
 	editCollection(e, data)

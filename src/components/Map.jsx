@@ -9,7 +9,6 @@ export function Map(props)
 	const items = props.items;
 	let topojson = require("topojson");
 	let countries_data = require("../data/countries/countries.json");
-	const SUPPORTED_LANGUAGES_ONLY = false; // Will only show countries that contain a "languages" property if set to true
 
 	/* Example of using d3-geo in useEffect() instead of custom useD3() */
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
@@ -71,7 +70,7 @@ export function Map(props)
 		}));
 		 */
 
-		// TODO: Clean-up function
+		// Clean-up function (kills all SVG elements upon unmounting)
 		return function cleanup()
 		{
 			svg.selectAll("g").remove();
@@ -80,44 +79,42 @@ export function Map(props)
 	});
 
 	/**
-	 *
-	 * @param d Data attached to DOM element via D3
-	 * @returns {string} The fill colour, as chosen by user
+	 * Determines country SVG fill colour according to countries' language(s) and the specified colour of that language's cognate node(s)
+	 * @param d Data attached to DOM element via D3 (i.e. the country)
+	 * @returns {string} The fill colour, as specified by user in Collection.jsx
 	 */
 	function determineFillColour(d)
 	{
-		// TODO: Determine fill colour by node colour data
-		//  - Find node language, get corresponding country, if this d's name is country then change to node colour
 		let countryLanguages = d.properties.languages || [];
 		let fillColour = "";
 
+		// Search collections
 		for(let collection in items)
 		{
 			if(items.hasOwnProperty(collection))
 			{
 				collection = items[collection];
-				if(collection.type === "cognate") // Only search for cognates, as journeys aren't filled with colour (at the moment)
+
+				// Search for cognates only
+				if(collection.type === "cognate")
 				{
+					// Search for cognates' nodes
 					for(let childNode in collection.childNodes)
 					{
 						if(collection.childNodes.hasOwnProperty(childNode))
 						{
 							childNode = collection.childNodes[childNode];
-							for(let i = 0; i < countryLanguages.length; ++i)
+							// Search for first instance of node's language in country passed into function
+							if(countryLanguages.includes(childNode.language))
 							{
-								if(countryLanguages.includes(childNode.language))
-								{
-									fillColour = childNode.colour;
-									break;
-								}
+								fillColour = childNode.colour;
+								break;
 							}
 						}
-						if(fillColour !== "")
-							break;
 					}
 				}
 			}
-			if(fillColour !== "")
+			if(fillColour !== "") // Set colour only for first node of that language
 				break;
 		}
 		return (fillColour === "") ? "white" : fillColour;
