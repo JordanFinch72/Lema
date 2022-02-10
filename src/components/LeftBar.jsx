@@ -22,6 +22,8 @@ export class LeftBar extends Component
 		this.editNode = this.props.editNode.bind(this);
 		this.editNodeColour = this.props.editNodeColour.bind(this);
 		this.removeNode = this.props.removeNode.bind(this);
+		this.removeCollection = this.props.removeCollection.bind(this);
+
 	}
 
 	updateMapMode(e, mode)
@@ -34,11 +36,11 @@ export class LeftBar extends Component
 		return (
 			<div className={"left-bar-container"}>
 				<ControlBox mapMode={this.state.mapMode} updateMapMode={this.updateMapMode}/>
-				<Collections items={this.props.items}
+				<Collections collections={this.props.collections}
 				             mapMode={this.state.mapMode} openModal={this.openModal} closeModal={this.closeModal}
 				             openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 				             addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
-				             addCollection={this.addCollection} editCollection={this.editCollection}
+				             addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
 				/>
 			</div>
 		);

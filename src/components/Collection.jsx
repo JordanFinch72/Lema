@@ -30,8 +30,8 @@ class CollectionNode extends Component
 						word={this.props.node.word}
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
-						parentIndex={this.props.parentIndex}
-						childIndex={this.props.childIndex}
+						collectionIndex={this.props.collectionIndex}
+						childNodeIndex={this.props.childNodeIndex}
 					/>);
 				}}>{this.props.node.word}</div>
 				<div onClick={(e) =>
@@ -40,8 +40,8 @@ class CollectionNode extends Component
 						word={this.props.node.word}
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
-						parentIndex={this.props.parentIndex}
-						childIndex={this.props.childIndex}
+						collectionIndex={this.props.collectionIndex}
+						childNodeIndex={this.props.childNodeIndex}
 					/>);
 				}}>{this.props.node.language}</div>
 				<div className={"buttons-container"}>
@@ -51,11 +51,11 @@ class CollectionNode extends Component
 						window.clearTimeout(changeColourTimeout);
 						changeColourTimeout = window.setTimeout(function()
 						{
-							node.editNodeColour(e, node.props.parentIndex, node.props.childIndex, e.target.value);
+							node.editNodeColour(e, node.props.collectionIndex, node.props.childNodeIndex, e.target.value);
 						}, 100);
 					}}/>
 					<Button value={"X"} id={"remove-node"}
-					        onClick={(e) => this.removeNode(e, this.props.parentIndex, this.props.childIndex)}/>
+					        onClick={(e) => this.removeNode(e, this.props.collectionIndex, this.props.childNodeIndex)}/>
 				</div>
 			</div>
 		);
@@ -105,8 +105,8 @@ export class Collection extends Component
 					editNodeColour={this.editNodeColour}
 					removeNode={this.removeNode}
 					openModal={this.openModal}
-					parentIndex={this.props.index} // Index of Collection the child node belongs to
-					childIndex={index}             // Index of child node itself within childNodes array
+					collectionIndex={this.props.index} // Index of Collection the child node belongs to
+					childNodeIndex={index}             // Index of child node itself within childNodes array
 				/>);
 			});
 		}

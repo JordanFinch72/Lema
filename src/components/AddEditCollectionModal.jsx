@@ -40,7 +40,7 @@ export class AddEditCollectionModal extends Component
 					<option>Cognates</option>
 				</select>
 				<h3>Language</h3>
-				<Textbox hint={"e.g. \"English (UK)\""} name={"language"} value={this.state.language} onFieldChange={this.onFieldChange} />
+				<Textbox hint={"e.g. \"English (GB)\""} name={"language"} value={this.state.language} onFieldChange={this.onFieldChange} />
 				<Button value={"Submit"} id={"add-collection-modal-submit"} onClick={(e) =>
 				{
 					let data = {type: this.state.type, header: {word: this.state.word, language: this.state.language}, index: this.props.index};

@@ -3,10 +3,19 @@ import * as d3 from "d3";
 import {useD3} from "../hooks/useD3";
 import languageCountries from "../supportedLanguages.json";
 import countries_data from "../data/countries/countries.json";
+import {AddEditNodeModal} from "./AddEditNodeModal";
+import {ContextMenu} from "./ContextMenu";
 
 export function Map(props)
 {
-	const items = props.items;
+	// Prop functions
+	const openContextMenu = props.openContextMenu.bind(this);
+	const addNode = props.addNode.bind(this);
+	const editNode = props.editNode.bind(this);
+	const removeNode = props.removeNode.bind(this);
+	const openModal = props.openModal.bind(this);
+
+	const collections = props.collections;
 	let topojson = require("topojson");
 	let countries_data = require("../data/countries/countries.json");
 
@@ -34,8 +43,63 @@ export function Map(props)
 			.append("path")          // svg->g->path (create new nodes per data)
 			.attr("fill", (d) => determineFillColour(d))
 			.on("click", function(e, d){
-				// TODO: Functions (context menu for right-click; dragging nodes; etc.)
+				// TODO: Functions (dragging nodes; etc.)
+
 				alert("Hello, " + d.properties.name + "! You speak " + d.properties.languages + "!");
+			})
+			.on("contextmenu", function(e, d){
+				e.preventDefault(); // Prevent browser context menu from opening
+				const nodeObject = findNode(d, "cognate");
+
+				if(nodeObject)
+				{
+					const contextMenuItems = [
+						{
+							text: "Add new node (journey)", handler: (e) => {
+								// Add new journey node within the country/region they right-clicked on (there may be multiple nodes in one country/region for journeys)
+								let collectionList = collections.filter(collection => collection.type === "journey"); // Journeys only
+								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} language={d.properties.languages} />);
+							}
+						},
+						{
+							text: "Add sibling node (cognate)", handler: (e) => {
+								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionIndex={nodeObject.collectionIndex} language={d.properties.languages} />);
+							}
+						},
+						{
+							text: "Edit node (cognate)", handler: (e) => {
+								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} collectionIndex={nodeObject.collectionIndex} childNodeIndex={nodeObject.childNodeIndex}
+								                               word={nodeObject.node.word} language={nodeObject.node.language} />);
+							}
+						},
+						{
+							text: "Remove node (cognate)", handler: (e) => {
+								removeNode(e, nodeObject.collectionIndex, nodeObject.childNodeIndex);
+							}
+						}
+					];
+					openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
+				}
+				else
+				{
+					// TODO: Context menu for adding to new collection, adding to existing collection
+					const contextMenuItems = [
+						{
+							text: "Add new node (journey)", handler: (e) => {
+								let collectionList = collections.filter(collection => collection.type === "journey"); // Journeys only
+								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} language={d.properties.languages} />);
+							}
+						},
+						{
+							text: "Add to collection (cognate)", handler: (e) => {
+								let collectionList = collections.filter(collection => collection.type === "cognate"); // Cognates only
+								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} language={d.properties.languages} />);
+							}
+						}
+					]
+					openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
+				}
+
 			})
 			.on("mouseover", function(e, d){
 				let element = d3.select(this);
@@ -78,6 +142,31 @@ export function Map(props)
 
 	});
 
+	function findNode(d, type)
+	{
+		// Search collections
+		for(let c = 0; c < collections.length; ++c)
+		{
+			let collection = collections[c];
+
+			if(type === "cognate")
+			{
+				if(collection.type === "cognate")
+				{
+					for(let n = 0; n < collection.childNodes.length; ++n)
+					{
+						let childNode = collection.childNodes[n];
+
+						if(d.properties.languages.includes(childNode.language))
+						{
+							return {node: childNode, collectionIndex: c, childNodeIndex: n};
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Determines country SVG fill colour according to countries' language(s) and the specified colour of that language's cognate node(s)
 	 * @param d Data attached to DOM element via D3 (i.e. the country)
@@ -85,39 +174,9 @@ export function Map(props)
 	 */
 	function determineFillColour(d)
 	{
-		let countryLanguages = d.properties.languages || [];
-		let fillColour = "";
-
-		// Search collections
-		for(let collection in items)
-		{
-			if(items.hasOwnProperty(collection))
-			{
-				collection = items[collection];
-
-				// Search for cognates only
-				if(collection.type === "cognate")
-				{
-					// Search for cognates' nodes
-					for(let childNode in collection.childNodes)
-					{
-						if(collection.childNodes.hasOwnProperty(childNode))
-						{
-							childNode = collection.childNodes[childNode];
-							// Search for first instance of node's language in country passed into function
-							if(countryLanguages.includes(childNode.language))
-							{
-								fillColour = childNode.colour;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if(fillColour !== "") // Set colour only for first node of that language
-				break;
-		}
-		return (fillColour === "") ? "white" : fillColour;
+		const nodeObject = findNode(d, "cognate"); // Find node in collections
+		if(nodeObject) return nodeObject.node.colour;   // Country has associated collection node? Return the colour
+		else return "white";                            // Otherwise, return white by default for all countries with no associated data
 	}
 
 

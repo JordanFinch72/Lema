@@ -14,7 +14,7 @@ class Lema extends Component
 			activeModal: null, // Either null or a React component
 			activeContextMenu: null, // Either null or a React component
 			mapRef: null,
-			items: [
+			collections: [
 				{
 					type: "journey",
 					header: {word: "horse", language: "English (GB)"},
@@ -52,6 +52,7 @@ class Lema extends Component
 		this.editNode = this.editNode.bind(this);
 		this.editNodeColour = this.editNodeColour.bind(this);
 		this.removeNode = this.removeNode.bind(this);
+		this.removeCollection = this.removeCollection.bind(this);
 	}
 
 	openModal(e, modalComponent)
@@ -79,12 +80,12 @@ class Lema extends Component
 		});
 	}
 
-	editNodeColour(e, parentIndex, childIndex, colour)
+	editNodeColour(e, collectionIndex, childNodeIndex, colour)
 	{
 		// Find node and set colour
-		let newItems = this.state.items;
-		newItems[parentIndex].childNodes[childIndex].colour = colour;
-		this.setState({items: newItems, mapRenderCounter: this.state.mapRenderCounter+1});
+		let newCollections = this.state.collections;
+		newCollections[collectionIndex].childNodes[childNodeIndex].colour = colour;
+		this.setState({collections: newCollections, mapRenderCounter: this.state.mapRenderCounter+1});
 	}
 	addNode(e, data)
 	{
@@ -94,6 +95,20 @@ class Lema extends Component
 			errorCollector += "You must enter a word.\n";
 		if(data.language === null || data.language.length <= 0)
 			errorCollector += "You must enter a language.\n";
+		if(this.state.collections[data.collectionIndex].type === "cognate")
+		{
+			// Check for existing language
+			for(let i = 0; i < this.state.collections[data.collectionIndex].childNodes.length; ++i)
+			{
+				let childNode = this.state.collections[data.collectionIndex].childNodes[i];
+				if(childNode.language === data.language)
+				{
+					errorCollector += "A language may only have one word per cognate collection.\n" +
+									  "Additional cognate collections may re-use languages in other cognate collections.";
+					break;
+				}
+			}
+		}
 
 		if(errorCollector.length > 0)
 			alert(errorCollector); // TODO: Proper error message with toast
@@ -101,14 +116,17 @@ class Lema extends Component
 		{
 			// Create new child node
 			let newChildNode = {word: data.word, language: data.language};
-			let newItems = this.state.items;
-			newItems[data.parentIndex].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.items array)
+			let newCollections = this.state.collections;
+			newCollections[data.collectionIndex].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.collections array)
 
-			this.setState({items: newItems}, this.closeModal);
+			this.setState({collections: newCollections}, this.closeModal);
 		}
 	}
 	editNode(e, data)
 	{
+		console.log(e);
+		console.log(data);
+
 		// Data validation
 		let errorCollector = "";
 		if(data.word === null || data.word.length <= 0)
@@ -122,17 +140,17 @@ class Lema extends Component
 		{
 			// Create new child node
 			let newChildNode = {word: data.word, language: data.language};
-			let newItems = this.state.items;
-			newItems[data.parentIndex].childNodes[data.childIndex] = {word: data.word, language: data.language};
+			let newCollections = this.state.collections;
+			newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {word: data.word, language: data.language};
 
-			this.setState({items: newItems}, this.closeModal);
+			this.setState({collections: newCollections}, this.closeModal);
 		}
 	}
-	removeNode(e, parentIndex, childIndex)
+	removeNode(e, collectionIndex, childNodeIndex)
 	{
-		let newItems = this.state.items;
-		delete newItems[parentIndex].childNodes[childIndex];
-		this.setState({items: newItems}, function()
+		let newCollections = this.state.collections;
+		newCollections[collectionIndex].childNodes.splice(childNodeIndex, 1);
+		this.setState({collections: newCollections}, function()
 		{
 			console.log(this.state);
 		});
@@ -158,9 +176,9 @@ class Lema extends Component
 			alert(errorCollector); // TODO: Proper error handling with toast
 		else
 		{
-			let items = this.state.items;
-			items.push({type: data.type, header: data.header, childNodes: []});
-			this.setState( {items: items}, this.closeModal);
+			let newCollections = this.state.collections;
+			newCollections.push({type: data.type, header: data.header, childNodes: []});
+			this.setState( {collections: newCollections}, this.closeModal);
 		}
 	}
 	editCollection(e, data)
@@ -179,12 +197,20 @@ class Lema extends Component
 			alert(errorCollector); // TODO: Proper error handling with toast
 		else
 		{
-			let newItems = this.state.items;
-			newItems[data.index].type = data.type;
-			newItems[data.index].header = data.header;
-			this.setState({items: newItems, mapRenderCounter: this.state.mapRenderCounter+1}, this.closeModal);
+			let newCollections = this.state.collections;
+			newCollections[data.index].type = data.type;
+			newCollections[data.index].header = data.header;
+			this.setState({collections: newCollections, mapRenderCounter: this.state.mapRenderCounter+1}, this.closeModal);
 		}
-
+	}
+	removeCollection(e, collectionIndex)
+	{
+		let newCollections = this.state.collections;
+		newCollections.splice(collectionIndex, 1);
+		this.setState({collections: newCollections}, function()
+		{
+			console.log(this.state);
+		});
 	}
 
 	render()
@@ -205,17 +231,22 @@ class Lema extends Component
 				<div className={"context-menu-container"} onClick={this.closeContextMenu}>{activeContextMenu}</div>;
 		}
 
+		console.log(this.state.collections);
+
 		return (
 			<div className="Lema">
 				<Banner/>
 				<div className={"main-view-container"}>
-					<LeftBar items={this.state.items}
+					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					         addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
-					         addCollection={this.addCollection} editCollection={this.editCollection}
+					         addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
 					/>
-					<Map items={this.state.items} mapRenderCounter={this.state.mapRenderCounter} />
+					<Map collections={this.state.collections} mapRenderCounter={this.state.mapRenderCounter}
+					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
+					     openModal={this.openModal} closeModal={this.closeModal}
+						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode} />
 				</div>
 				{modalContainer}
 				{contextMenuContainer}
