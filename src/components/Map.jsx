@@ -121,30 +121,106 @@ export function Map(props)
 		const labelG = svg.append("g");
 		const labels = labelG.classed("labels", true);
 		countryPaths.each(function(f, i) {
-
 			// Only place labels of countries with associated cognate data
-			// TODO: Make this be a setting
-			if(findNode(f, "cognate"))
+			// TODO: Make this a setting
+			let node = findNode(f, "cognate");
+			if(node)
 			{
+				node = node.node;
 				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
+				let fontSize = "initial";                           // Font size of the label
+				let text = node.language;                           // Language by default
+				if(node.labelType === "country") text = f.properties.name_long;
+				else if(node.labelType === "custom") text = node.customLabel;
 
-				// Scale factor depending on size of country (to stop oversized text from escaping country)
-				// TODO: Each country should have a font scale factor,
-				let textLength = "initial";
-				if(f.properties.languages.length !== 0)
+				// Initial scale factor depending on size of country (to stop oversized text from escaping country)
+				if(text.length !== 0)
 				{
-					if(boundingBox.width < (f.properties.languages[0].length * 16))
-						textLength = boundingBox.width/8 + "px";
+					if(boundingBox.width < (text.length * 16))
+						fontSize = boundingBox.width/8 + "px";
 				}
 
 				// Append labels to paths, with co-ordinates according to feature's position on map
-				labelG.append("text")
+				let label = labelG.append("text")
 					.attr("x", (boundingBox.x + boundingBox.width/4)).attr("y", (boundingBox.y + boundingBox.height/2))
-					.style("font-size", textLength)
-					.text(f.properties.languages[0]);
+					.style("font-size", fontSize)
+					.text(text);
+
+				// Dragging/resizing handlers
+				let startXOffset, startYOffset, resizing = false, startX, startY, startSize;
+				label
+					.on("mousemove", (e) => {
+						let labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
+						let mouseX = e.layerX, mouseY = e.layerY;
+
+						// Determine corner of text's box
+						const southEastCorner = {
+							xStart: labelX + label.node().getBBox().width - 5,
+							xEnd: labelX + label.node().getBBox().width + 15,
+							yStart: labelY,
+							yEnd: labelY + 10
+						}
+
+						// Check corner
+						if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
+							&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
+						{
+							label.style("cursor", "se-resize");
+						}
+						else
+							label.style("cursor", "grab");
+					})
+					.call(d3.drag()
+						.on("start", (e) => {
+							let labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
+							let mouseX = e.x, mouseY = e.y;
+							startXOffset = mouseX - labelX;
+							startYOffset = mouseY - labelY;
+
+							// Determine corner of text's box
+							const southEastCorner = {
+								xStart: labelX + label.node().getBBox().width - 5,
+								xEnd: labelX + label.node().getBBox().width + 15,
+								yStart: labelY,
+								yEnd: labelY + 10
+							}
+
+							// Check corner
+							if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
+								&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
+							{
+								resizing = true;
+								startX = mouseX;
+								startY = mouseY;
+								startSize = parseFloat(label.style("font-size"));
+							}
+						})
+						.on("drag", (e) => {
+							let mouseX = e.x, mouseY = e.y;
+							if(resizing)
+							{
+								// Resize the label
+								if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
+								{
+									let deltaX = mouseX - startX;
+									let newSize = startSize + (deltaX / 10);
+									if(newSize < 5) newSize = 5; // Floor of 5px to prevent it shrinking into nothingness
+									label.style("font-size", newSize + "px");
+								}
+							}
+							else
+							{
+								// Move the label
+								const x = mouseX - startXOffset;
+								const y = mouseY - startYOffset;
+								label.attr("x", x).attr("y", y);
+							}
+						})
+						.on("end", () => {
+							resizing = false;
+						})
+				);
 			}
-
-
 		});
 
 		// Graticules (lines on the map)

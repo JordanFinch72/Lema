@@ -55,18 +55,18 @@ class Lema extends Component
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
 					childNodes: [
-						{word: "smith", language: "English (GB)", colour: "#f5b60d"},
-						{word: "smid", language: "Dutch", colour: "#f5b60d"},
-						{word: "Schmidt", language: "German", colour: "#f5b60d"},
-						{word: "smed", language: "Danish", colour: "#f5b60d"},
-						{word: "smed", language: "Norwegian", colour: "#f5b60d"},
-						{word: "smed", language: "Swedish", colour: "#f5b60d"},
-						{word: "smiður", language: "Icelandic", colour: "#f5b60d"},
-						{word: "forgeron", language: "French", colour: "#0000ff"},
-						{word: "fabbro", language: "Italian", colour: "#0000ff"},
-						{word: "Kovář", language: "Czech", colour: "#ff0000"},
-						{word: "kováč", language: "Slovak", colour: "#ff0000"},
-						{word: "kowal", language: "Polish", colour: "#ff0000"}
+						{word: "smith", language: "English (GB)", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "smid", language: "Dutch", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "Schmidt", language: "German", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "smed", language: "Danish", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "smed", language: "Norwegian", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "smed", language: "Swedish", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "smiður", language: "Icelandic", colour: "#f5b60d", labelType: "country", customLabel: ""},
+						{word: "forgeron", language: "French", colour: "#0000ff", labelType: "country", customLabel: ""},
+						{word: "fabbro", language: "Italian", colour: "#0000ff", labelType: "country", customLabel: ""},
+						{word: "Kovář", language: "Czech", colour: "#ff0000", labelType: "country", customLabel: ""},
+						{word: "kováč", language: "Slovak", colour: "#ff0000", labelType: "country", customLabel: ""},
+						{word: "kowal", language: "Polish", colour: "#ff0000", labelType: "country", customLabel: ""}
 					]
 				}
 			],

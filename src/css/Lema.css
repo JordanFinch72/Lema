@@ -191,3 +191,8 @@ div.context-menu div.context-menu-item:hover {
 div.context-menu div.context-menu-item:last-child {
     border-bottom: none;
 }
+
+/* Map */
+div.map-container * {
+    user-select: none;
+}
