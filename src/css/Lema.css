@@ -38,7 +38,6 @@ div.left-bar-container {
     flex-flow: column;
     border-right: 1px solid black;
     padding: 0.2em;
-    overflow-y: auto;
 }
 
 div.map-container {
@@ -81,6 +80,7 @@ div.collections-container {
     padding: 0.2em;
     border-top: 1px solid black;
     align-items: center;
+    overflow-y: auto;
 }
 div.collections-container div.header-container
 {
