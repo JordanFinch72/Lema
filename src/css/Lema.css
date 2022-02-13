@@ -38,6 +38,7 @@ div.left-bar-container {
     flex-flow: column;
     border-right: 1px solid black;
     padding: 0.2em;
+    overflow-y: auto;
 }
 
 div.map-container {

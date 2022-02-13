@@ -27,17 +27,48 @@ class Lema extends Component
 					]
 				},
 				{
-					type: "cognate",
-					header: {word: "horse", language: "English (GB)"},
+					type: "journey",
+					header: {word: "Pferd", language: "German"},
 					childNodes: [
-						{word: "horse", language: "English (GB)", colour: "#ff0000"},
+						{word: "upo", language: "Proto-Indo-European", colour: "#000000"},
+						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000"},
+						{word: "werēdos", language: "Gaulish", colour: "#000000"},
+						{word: "veredus", language: "Latin", colour: "#000000"},
+						{word: "paraveredus", language: "Late Latin", colour: "#000000"},
+						{word: "pfarifrit", language: "Old High German", colour: "#000000"},
+						{word: "Pferd", language: "German", colour: "#000000"}
+					]
+				},
+				{   /* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors */
+					type: "cognate",
+					header: {word: "palfrey", language: "English (GB)"},
+					childNodes: [
+						{word: "palfrey", language: "English (GB)", colour: "#f5b60d"},
 						{word: "paard", language: "Dutch", colour: "#f5b60d"},
 						{word: "Pferd", language: "German", colour: "#f5b60d"},
-						{word: "hest", language: "Danish", colour: "#0000ff"},
-						{word: "hest", language: "Norwegian", colour: "#0000ff"},
-						{word: "häst", language: "Swedish", colour: "#0000ff"}
+						{word: "Päerd", language: "Luxembourgish", colour: "#f5b60d"},
+						{word: "פערד", language: "Yiddish", colour: "#f5b60d"}
 					]
-				}
+				},
+				/* TODO: Multiple cognate collections at once (separate layers/patterned colours)
+				{   /!* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. *!/
+					type: "cognate",
+					header: {word: "smith", language: "English (GB)"},
+					childNodes: [
+						{word: "smith", language: "English (GB)", colour: "#f5b60d"},
+						{word: "smid", language: "Dutch", colour: "#f5b60d"},
+						{word: "Schmidt", language: "German", colour: "#f5b60d"},
+						{word: "smed", language: "Danish", colour: "#f5b60d"},
+						{word: "smed", language: "Norwegian", colour: "#f5b60d"},
+						{word: "smed", language: "Swedish", colour: "#f5b60d"},
+						{word: "smiður", language: "Icelandic", colour: "#f5b60d"},
+						{word: "forgeron", language: "French", colour: "#0000ff"},
+						{word: "fabbro", language: "Italian", colour: "#0000ff"},
+						{word: "Kovář", language: "Czech", colour: "#ff0000"},
+						{word: "kováč", language: "Slovak", colour: "#ff0000"},
+						{word: "kowal", language: "Polish", colour: "#ff0000"}
+					]
+				}*/
 			],
 			mapRenderCounter: 0
 		};
