@@ -36,7 +36,7 @@ export function Map(props)
 		const path = d3.geoPath().projection(projection);
 
 		// Draw countries, bind data and handlers
-		svg.append("g")
+		let countryPaths = svg.append("g")
 			.selectAll("path") // svg->g->path
 			.data(countries)         // svg->g->path
 			.enter()                 // svg->g->path (create new nodes per data)
@@ -44,8 +44,6 @@ export function Map(props)
 			.attr("fill", (d) => determineFillColour(d))
 			.on("click", function(e, d){
 				// TODO: Functions (dragging nodes; etc.)
-
-				alert("Hello, " + d.properties.name + "! You speak " + d.properties.languages + "!");
 			})
 			.on("contextmenu", function(e, d){
 				e.preventDefault(); // Prevent browser context menu from opening
@@ -118,6 +116,36 @@ export function Map(props)
 			.attr("stroke", "black")
 			.attr("stroke-linejoin", "round")
 			.attr("d", path);
+
+		// Cognate labels
+		const labelG = svg.append("g");
+		const labels = labelG.classed("labels", true);
+		countryPaths.each(function(f, i) {
+
+			// Only place labels of countries with associated cognate data
+			// TODO: Make this be a setting
+			if(findNode(f, "cognate"))
+			{
+				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
+
+				// Scale factor depending on size of country (to stop oversized text from escaping country)
+				// TODO: Each country should have a font scale factor,
+				let textLength = "initial";
+				if(f.properties.languages.length !== 0)
+				{
+					if(boundingBox.width < (f.properties.languages[0].length * 16))
+						textLength = boundingBox.width/8 + "px";
+				}
+
+				// Append labels to paths, with co-ordinates according to feature's position on map
+				labelG.append("text")
+					.attr("x", (boundingBox.x + boundingBox.width/4)).attr("y", (boundingBox.y + boundingBox.height/2))
+					.style("font-size", textLength)
+					.text(f.properties.languages[0]);
+			}
+
+
+		});
 
 		// Graticules (lines on the map)
 		const g = svg.append("g");
