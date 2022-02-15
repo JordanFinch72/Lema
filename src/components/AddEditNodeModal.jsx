@@ -43,7 +43,7 @@ export class AddEditNodeModal extends Component
 		let labelType;
 		if(data.id === 0) labelType = "language";
 		else if(data.id === 1) labelType = "country";
-		else if(data.id === 2) labelType = "customLabel";
+		else if(data.id === 2) labelType = "customText";
 
 		this.setState({labelType: labelType});
 	}
@@ -103,7 +103,7 @@ export class AddEditNodeModal extends Component
 				<div className={"label-controls-container"}>,
 					<h4>Text:</h4>
 					<RadioGroup buttons={buttons} name={"custom-label"} onButtonClick={this.onLabelRadioClick} />
-					<Textbox hint={"Custom label text..."} name={"customLabel"} value={this.state.customText} onFieldChange={this.onFieldChange} />
+					<Textbox hint={"Custom label text..."} name={"customText"} value={this.state.customText} onFieldChange={this.onFieldChange} />
 					<div className={"label-colour-container"}>
 						<h4>Font colour: </h4>
 						<input type={"textbox"} name={"fontColour"} value={this.state.fontColour} onChange={this.onFieldChange} />

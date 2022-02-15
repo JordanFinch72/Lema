@@ -171,14 +171,14 @@ class Lema extends Component
 		else
 		{
 			// Create new child node
-			let newChildNode = {
+			let newCollections = this.state.collections;
+			newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {
 				word: data.word, language: data.language, colour: data.colour,
 				label: {
-					x: data.labelX, y: data.labelY, type: data.labelType, customText: data.customText, fontColour: data.fontColour
+					...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].label,
+					type: data.labelType, customText: data.customText, fontColour: data.fontColour
 				}
 			};
-			let newCollections = this.state.collections;
-			newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = newChildNode;
 
 			this.setState({collections: newCollections}, this.closeModal);
 		}
@@ -202,8 +202,6 @@ class Lema extends Component
 
 	addCollection(e, data)
 	{
-		console.log(data);
-
 		if(data.type === "Cognates") data.type = "cognate";
 		else if(data.type === "Historical journey") data.type = "journey";
 
