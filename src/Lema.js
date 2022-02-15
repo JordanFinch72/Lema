@@ -55,18 +55,18 @@ class Lema extends Component
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
 					childNodes: [
-						{word: "smith", language: "English (GB)", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "smid", language: "Dutch", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "Schmidt", language: "German", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "smed", language: "Danish", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "smed", language: "Norwegian", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "smed", language: "Swedish", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "smiður", language: "Icelandic", colour: "#f5b60d", labelType: "country", customLabel: ""},
-						{word: "forgeron", language: "French", colour: "#0000ff", labelType: "country", customLabel: ""},
-						{word: "fabbro", language: "Italian", colour: "#0000ff", labelType: "country", customLabel: ""},
-						{word: "Kovář", language: "Czech", colour: "#ff0000", labelType: "country", customLabel: ""},
-						{word: "kováč", language: "Slovak", colour: "#ff0000", labelType: "country", customLabel: ""},
-						{word: "kowal", language: "Polish", colour: "#ff0000", labelType: "country", customLabel: ""}
+						{word: "smith", language: "English (GB)", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "smid", language: "Dutch", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "Schmidt", language: "German", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "smed", language: "Danish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "smed", language: "Norwegian", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "smed", language: "Swedish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "smiður", language: "Icelandic", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "forgeron", language: "French", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "fabbro", language: "Italian", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "Kovář", language: "Czech", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
+						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}}
 					]
 				}
 			],
@@ -83,6 +83,7 @@ class Lema extends Component
 		this.editNode = this.editNode.bind(this);
 		this.editNodeColour = this.editNodeColour.bind(this);
 		this.removeNode = this.removeNode.bind(this);
+		this.moveLabel = this.moveLabel.bind(this);
 		this.removeCollection = this.removeCollection.bind(this);
 	}
 
@@ -170,9 +171,14 @@ class Lema extends Component
 		else
 		{
 			// Create new child node
-			let newChildNode = {word: data.word, language: data.language};
+			let newChildNode = {
+				word: data.word, language: data.language, colour: data.colour,
+				label: {
+					x: data.labelX, y: data.labelY, type: data.labelType, customText: data.customText, fontColour: data.fontColour
+				}
+			};
 			let newCollections = this.state.collections;
-			newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {word: data.word, language: data.language};
+			newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = newChildNode;
 
 			this.setState({collections: newCollections}, this.closeModal);
 		}
@@ -185,6 +191,13 @@ class Lema extends Component
 		{
 			console.log(this.state);
 		});
+	}
+	moveLabel(collectionIndex, childNodeIndex, x, y)
+	{
+		let newCollections = this.state.collections;
+		newCollections[collectionIndex].childNodes[childNodeIndex].label.x = x;
+		newCollections[collectionIndex].childNodes[childNodeIndex].label.y = y;
+		this.setState({collections: newCollections});
 	}
 
 	addCollection(e, data)
@@ -277,7 +290,7 @@ class Lema extends Component
 					<Map collections={this.state.collections} mapRenderCounter={this.state.mapRenderCounter}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					     openModal={this.openModal} closeModal={this.closeModal}
-						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode} />
+						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode} moveLabel={this.moveLabel} />
 				</div>
 				{modalContainer}
 				{contextMenuContainer}

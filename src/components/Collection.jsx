@@ -27,7 +27,7 @@ class CollectionNode extends Component
 				<div onClick={(e) =>
 				{
 					this.openModal(e, <AddEditNodeModal
-						word={this.props.node.word}
+						node={this.props.node}
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
 						collectionIndex={this.props.collectionIndex}
@@ -37,7 +37,7 @@ class CollectionNode extends Component
 				<div onClick={(e) =>
 				{
 					this.openModal(e, <AddEditNodeModal
-						word={this.props.node.word}
+						node={this.props.node}
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
 						collectionIndex={this.props.collectionIndex}

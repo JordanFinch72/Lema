@@ -13,6 +13,7 @@ export function Map(props)
 	const addNode = props.addNode.bind(this);
 	const editNode = props.editNode.bind(this);
 	const removeNode = props.removeNode.bind(this);
+	const moveLabel = props.moveLabel.bind(this);
 	const openModal = props.openModal.bind(this);
 
 	const collections = props.collections;
@@ -123,15 +124,15 @@ export function Map(props)
 		countryPaths.each(function(f, i) {
 			// Only place labels of countries with associated cognate data
 			// TODO: Make this a setting
-			let node = findNode(f, "cognate");
-			if(node)
+			let nodeObject = findNode(f, "cognate");
+			if(nodeObject)
 			{
-				node = node.node;
+				let node = nodeObject.node;
 				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 				let fontSize = "initial";                           // Font size of the label
 				let text = node.language;                           // Language by default
-				if(node.labelType === "country") text = f.properties.name_long;
-				else if(node.labelType === "custom") text = node.customLabel;
+				if(node.label.type === "country") text = f.properties.name_long;
+				else if(node.label.type === "customText") text = node.label.customText;
 
 				// Initial scale factor depending on size of country (to stop oversized text from escaping country)
 				if(text.length !== 0)
@@ -141,8 +142,11 @@ export function Map(props)
 				}
 
 				// Append labels to paths, with co-ordinates according to feature's position on map
+				let x = (node.label.x === null) ? (boundingBox.x + boundingBox.width/4) : node.label.x;
+				let y = (node.label.y === null) ? (boundingBox.y + boundingBox.height/2) : node.label.y;
 				let label = labelG.append("text")
-					.attr("x", (boundingBox.x + boundingBox.width/4)).attr("y", (boundingBox.y + boundingBox.height/2))
+					.attr("x", x).attr("y", y)
+					.attr("fill", node.label.fontColour)
 					.style("font-size", fontSize)
 					.text(text);
 
@@ -211,13 +215,14 @@ export function Map(props)
 							else
 							{
 								// Move the label
-								const x = mouseX - startXOffset;
-								const y = mouseY - startYOffset;
-								label.attr("x", x).attr("y", y);
+								x = mouseX - startXOffset;
+								y = mouseY - startYOffset;
+								label.attr("x", x).attr("y", y); // Only visually
 							}
 						})
 						.on("end", () => {
 							resizing = false;
+							moveLabel(nodeObject.collectionIndex, nodeObject.childNodeIndex, x, y); // Set final co-ordinates
 						})
 				);
 			}
