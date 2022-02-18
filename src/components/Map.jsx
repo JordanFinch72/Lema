@@ -270,10 +270,6 @@ export function Map(props)
 						vertexX += xOffset;
 					}
 
-					// Set initial vertex position // TODO: Do it for label, too
-					if(!node.vertex.x || !node.vertex.y)
-						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, radius);
-
 					// Prepare text element. This is required to calculate circle radius based on text element's width
 					let vertexG = labelVertexG.append("g"); // Group required to have circle and text together
 					let preparedText = vertexG.append("text")
@@ -293,6 +289,10 @@ export function Map(props)
 						if(radius < innerTextWidth) radius = innerTextWidth/2 + 5; // Convert text "diameter" to radius, add padding
 					}
 					preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
+
+					// Set initial vertex position // TODO: Do it for label, too
+					if(!node.vertex.x || !node.vertex.y)
+						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, radius);
 
 					let vertex = vertexG.append("circle")
 						.attr("cx", vertexX).attr("cy", vertexY)
@@ -345,7 +345,7 @@ export function Map(props)
 							.attr("x2", nextNode.vertex.x + endEdgeXOffset)
 							.attr("y2", nextNode.vertex.y + endEdgeYOffset)
 							.attr("stroke", "black")     // TODO: User choice
-							.attr("stroke-width", "4px"); // TODO: User choice
+							.attr("stroke-width", "2px"); // TODO: User choice
 							//.attr("marker-end", "url(#arrow)");
 					}
 
