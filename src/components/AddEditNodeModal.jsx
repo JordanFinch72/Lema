@@ -43,7 +43,8 @@ export class AddEditNodeModal extends Component
 		let labelType;
 		if(data.id === 0) labelType = "language";
 		else if(data.id === 1) labelType = "country";
-		else if(data.id === 2) labelType = "customText";
+		else if(data.id === 2) labelType = "word";
+		else if(data.id === 3) labelType = "customText";
 
 		this.setState({labelType: labelType});
 	}
@@ -89,15 +90,23 @@ export class AddEditNodeModal extends Component
 			];
 		}
 
-		// RadioGroup buttons
-		const buttons = [{active: false, label: "Node language"}, {active: false, label: "Node country/region"}, {active: false, label: "Custom label:"}];
-		let labelTypeIndex = (this.state.labelType === "language") ? 0 : (this.state.labelType === "country") ? 1 : 2;
-		buttons[labelTypeIndex].active = true;
-
 		// Label components (if appropriate)
 		let labelControls = [];
 		if(this.props.node.label)
 		{
+			// RadioGroup buttons
+			const buttons = [{active: false, label: "Node language"}, {active: false, label: "Node country/region"}, {active: false, label: "Word"}, {active: false, label: "Custom label:"}];
+			let labelTypeIndex;
+			if(this.state.labelType === "language")
+				labelTypeIndex = 0;
+			else if(this.state.labelType === "country")
+				labelTypeIndex = 1;
+			else if(this.state.labelType === "word")
+				labelTypeIndex = 2;
+			else if(this.state.labelType === "customText")
+				labelTypeIndex = 3;
+			buttons[labelTypeIndex].active = true;
+
 			labelControls = [
 				<h3>Label</h3>,
 				<div className={"label-controls-container"}>,

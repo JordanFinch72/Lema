@@ -19,24 +19,24 @@ class Lema extends Component
 					type: "journey",
 					header: {word: "horse", language: "English (GB)"},
 					childNodes: [
-						{word: "kers", language: "Proto-Indo-European", colour: "#000000"},
-						{word: "krsos", language: "Proto-Indo-European", colour: "#000000"},
-						{word: "hrussa", language: "Proto-Germanic", colour: "#000000"},
-						{word: "hross", language: "Proto-West-Germanic", colour: "#000000"},
-						{word: "horse", language: "English (GB)", colour: "#000000"}
+						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "hross", language: "Proto-West-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}}
 					]
 				},
 				{
 					type: "journey",
 					header: {word: "Pferd", language: "German"},
 					childNodes: [
-						{word: "upo", language: "Proto-Indo-European", colour: "#000000"},
-						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000"},
-						{word: "werēdos", language: "Gaulish", colour: "#000000"},
-						{word: "veredus", language: "Latin", colour: "#000000"},
-						{word: "paraveredus", language: "Late Latin", colour: "#000000"},
-						{word: "pfarifrit", language: "Old High German", colour: "#000000"},
-						{word: "Pferd", language: "German", colour: "#000000"}
+						{word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
+						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}}
 					]
 				},
 				/*{   /!* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors *!/
@@ -51,7 +51,7 @@ class Lema extends Component
 					]
 				},*/
 					// TODO: Multiple cognate collections at once (separate layers/patterned colours)
-				{   /* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. */
+				/*{   /!* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. *!/
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
 					childNodes: [
@@ -68,7 +68,7 @@ class Lema extends Component
 						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
 						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}}
 					]
-				}
+				}*/
 			],
 			mapRenderCounter: 0
 		};
@@ -80,10 +80,12 @@ class Lema extends Component
 		this.addCollection = this.addCollection.bind(this);
 		this.editCollection = this.editCollection.bind(this);
 		this.addNode = this.addNode.bind(this);
+		this.addNodeDefault = this.addNodeDefault.bind(this);
 		this.editNode = this.editNode.bind(this);
 		this.editNodeColour = this.editNodeColour.bind(this);
 		this.removeNode = this.removeNode.bind(this);
 		this.moveLabel = this.moveLabel.bind(this);
+		this.moveVertex = this.moveVertex.bind(this);
 		this.removeCollection = this.removeCollection.bind(this);
 	}
 
@@ -154,6 +156,23 @@ class Lema extends Component
 			this.setState({collections: newCollections}, this.closeModal);
 		}
 	}
+	addNodeDefault(e, data)
+	{
+		// Create new child node
+		let newChildNode;
+		if(data.type === "journey")
+		{
+			newChildNode = {word: "word", language: "language", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}};
+		}
+		else if(data.type === "cognate")
+		{
+			newChildNode = {word: "word", language: "language", colour: "#000000", label: {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}};
+		}
+		let newCollections = this.state.collections;
+		newCollections[data.collectionIndex].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.collections array)
+
+		this.setState({collections: newCollections}, this.closeModal);
+	}
 	editNode(e, data)
 	{
 		console.log(e);
@@ -172,13 +191,28 @@ class Lema extends Component
 		{
 			// Create new child node
 			let newCollections = this.state.collections;
-			newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {
-				word: data.word, language: data.language, colour: data.colour,
-				label: {
-					...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].label,
-					type: data.labelType, customText: data.customText, fontColour: data.fontColour, fontSize: data.fontSize
-				}
-			};
+
+			if(newCollections[data.collectionIndex].type === "journey")
+			{
+				newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {
+					word: data.word, language: data.language, colour: data.colour,
+					vertex: {
+						...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].vertex,
+						//type: data.labelType, customText: data.customText, fontColour: data.fontColour, fontSize: data.fontSize
+					}
+				};
+			}
+			else if(newCollections[data.collectionIndex].type === "cognate")
+			{
+				newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {
+					word: data.word, language: data.language, colour: data.colour,
+					label: {
+						...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].label,
+						type: data.labelType, customText: data.customText, fontColour: data.fontColour, fontSize: data.fontSize
+					}
+				};
+			}
+
 
 			this.setState({collections: newCollections}, this.closeModal);
 		}
@@ -199,6 +233,16 @@ class Lema extends Component
 		newCollections[collectionIndex].childNodes[childNodeIndex].label.y = y;
 		if(fontSize)
 			newCollections[collectionIndex].childNodes[childNodeIndex].label.fontSize = fontSize;
+		this.setState({collections: newCollections},
+			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
+	}
+	moveVertex(collectionIndex, childNodeIndex, x, y, radius = null)
+	{
+		let newCollections = this.state.collections;
+		newCollections[collectionIndex].childNodes[childNodeIndex].vertex.x = x;
+		newCollections[collectionIndex].childNodes[childNodeIndex].vertex.y = y;
+		if(radius)
+			newCollections[collectionIndex].childNodes[childNodeIndex].vertex.radius = radius;
 		this.setState({collections: newCollections},
 			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
 	}
@@ -285,13 +329,13 @@ class Lema extends Component
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-					         addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
+					         addNode={this.addNode} addNodeDefault={this.addNodeDefault} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
 					         addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
 					/>
 					<Map collections={this.state.collections} mapRenderCounter={this.state.mapRenderCounter}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-					     openModal={this.openModal} closeModal={this.closeModal}
-						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode} moveLabel={this.moveLabel} />
+					     openModal={this.openModal} closeModal={this.closeModal} moveLabel={this.moveLabel} moveVertex={this.moveVertex}
+						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}  />
 				</div>
 				{modalContainer}
 				{contextMenuContainer}

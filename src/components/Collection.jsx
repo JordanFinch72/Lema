@@ -121,7 +121,7 @@ export class Collection extends Component
 			{
 				text: "Add node (default)", handler: (e) =>
 				{
-					this.cAddNodeDefault(e, this.props.index);
+					this.cAddNodeDefault(e, {type: this.props.type, collectionIndex: this.props.index});
 				}
 			},
 			{

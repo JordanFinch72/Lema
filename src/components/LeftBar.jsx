@@ -19,6 +19,7 @@ export class LeftBar extends Component
 		this.addCollection = this.props.addCollection.bind(this);
 		this.editCollection = this.props.editCollection.bind(this);
 		this.addNode = this.props.addNode.bind(this);
+		this.addNodeDefault = this.props.addNodeDefault.bind(this);
 		this.editNode = this.props.editNode.bind(this);
 		this.editNodeColour = this.props.editNodeColour.bind(this);
 		this.removeNode = this.props.removeNode.bind(this);
@@ -39,7 +40,7 @@ export class LeftBar extends Component
 				<Collections collections={this.props.collections}
 				             mapMode={this.state.mapMode} openModal={this.openModal} closeModal={this.closeModal}
 				             openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-				             addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
+				             addNode={this.addNode} addNodeDefault={this.addNodeDefault} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
 				             addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
 				/>
 			</div>

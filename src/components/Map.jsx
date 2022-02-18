@@ -14,6 +14,7 @@ export function Map(props)
 	const editNode = props.editNode.bind(this);
 	const removeNode = props.removeNode.bind(this);
 	const moveLabel = props.moveLabel.bind(this);
+	const moveVertex = props.moveVertex.bind(this);
 	const openModal = props.openModal.bind(this);
 
 	const collections = props.collections;
@@ -44,11 +45,11 @@ export function Map(props)
 			.append("path")          // svg->g->path (create new nodes per data)
 			.attr("fill", (d) => determineFillColour(d))
 			.on("click", function(e, d){
-				// TODO: Functions (dragging nodes; etc.)
+				// TODO: Possibly same functions as context menu (see about calling this.onContextMenu() to keep things nice and DRY)
 			})
 			.on("contextmenu", function(e, d){
 				e.preventDefault(); // Prevent browser context menu from opening
-				const nodeObject = findNode(d, "cognate");
+				const nodeObject = findNodes(d, "cognate");
 
 				if(nodeObject)
 				{
@@ -118,37 +119,40 @@ export function Map(props)
 			.attr("stroke-linejoin", "round")
 			.attr("d", path);
 
-		// Cognate labels
-		const labelG = svg.append("g");
-		const labels = labelG.classed("labels", true);
+		// Cognate labels, journey vertices
+		const labelVertexG = svg.append("g");
+		const labels = labelVertexG.classed("labels", true);
 		countryPaths.each(function(f, i) {
 			// Only place labels of countries with associated cognate data
 			// TODO: Make this a setting
-			let nodeObject = findNode(f, "cognate");
-			if(nodeObject)
+			let cognateNodeObject = findNodes(f, "cognate");
+			let journeyNodeObjects = findNodes(f, "journey");
+			if(cognateNodeObject)
 			{
-				let node = nodeObject.node;
+				/* Cognate visualisations */
+				let node = cognateNodeObject.node;
 				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
-				let fontSize = node.label.fontSize;                       // Font size of the label
-				let text = node.language;                           // Language by default
-				if(node.label.type === "country") text = f.properties.name_long;
-				else if(node.label.type === "customText") text = node.label.customText;
+				let fontSize = node.label.fontSize;                 // Font size of the label
+				let labelText = node.language;                      // Language by default
+				if(node.label.type === "country") labelText = f.properties.name_long;
+				else if(node.label.type === "customText") labelText = node.label.customText;
+				else if(node.label.type === "word") labelText = node.word;
 
 				// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
-				if(text.length !== 0 && !node.fontSize) // Only scale if font size hasn't been set by user
+				if(labelText.length !== 0 && !node.fontSize) // Only scale if font size hasn't been set by user
 				{
-					if(boundingBox.width < (text.length * 16))
+					if(boundingBox.width < (labelText.length * 16))
 						fontSize = boundingBox.width/8 + "px";
 				}
 
 				// Append labels to paths, with co-ordinates according to feature's position on map
 				let x = (node.label.x === null) ? (boundingBox.x + boundingBox.width/4) : node.label.x;
 				let y = (node.label.y === null) ? (boundingBox.y + boundingBox.height/2) : node.label.y;
-				let label = labelG.append("text")
+				let label = labelVertexG.append("text")
 					.attr("x", x).attr("y", y)
 					.attr("fill", node.label.fontColour)
 					.style("font-size", fontSize)
-					.text(text);
+					.text(labelText);
 
 				// Dragging/resizing handlers
 				let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newSize;
@@ -222,9 +226,216 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							moveLabel(nodeObject.collectionIndex, nodeObject.childNodeIndex, x, y, newSize); // Set final properties
+							moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.childNodeIndex, x, y, newSize); // Set final properties
 						})
 				);
+			}
+			if(journeyNodeObjects)
+			{
+				/* Journey visualisations */
+
+				// Loop through all journey nodes inside this country/region
+				let xOffset = 0, yOffset = 0, prevDiameter = 0;
+				for(let i = 0; i < journeyNodeObjects.length; ++i)
+				{
+					let journeyNodeObject = journeyNodeObjects[i];
+					let node = journeyNodeObject.node;
+					let nextNodeObject = findNextNode(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex);
+					let nextNode = (nextNodeObject) ? nextNodeObject.node : null;
+					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
+					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
+					let vertexText = node.language;                     // Language by default
+					if(node.vertex.type === "country") vertexText = f.properties.name_long;
+					else if(node.vertex.type === "customText") vertexText = node.vertex.customText;
+					else if(node.vertex.type === "word") vertexText = node.word;
+
+					// Initial co-ordinates
+					// TODO: Vertex xOffset, yOffset attributes in country/region data
+					let vertexX = (node.vertex.x === null) ? (boundingBox.x) : node.vertex.x;
+					let vertexY = (node.vertex.y === null) ? (boundingBox.y) : node.vertex.y;
+
+					// If vertex's default position would exit country/regions' bounds, push it down
+					if(!node.vertex.x && !node.vertex.y)
+					{
+						if((vertexX + xOffset*2) > (boundingBox.x + boundingBox.width))
+						{
+							yOffset += prevDiameter;
+							xOffset = 0;
+						}
+						else // Otherwise, increase the offset by the previous vertex's diameter
+						{
+							xOffset += prevDiameter;
+						}
+						vertexY += yOffset;
+						vertexX += xOffset;
+					}
+
+					// Set initial vertex position // TODO: Do it for label, too
+					if(!node.vertex.x || !node.vertex.y)
+						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, radius);
+
+					// Prepare text element. This is required to calculate circle radius based on text element's width
+					let vertexG = labelVertexG.append("g"); // Group required to have circle and text together
+					let preparedText = vertexG.append("text")
+						.attr("x", vertexX).attr("y", vertexY)
+						.attr("fill", node.vertex.strokeColour)
+						.attr("text-anchor", "middle")        // Centre of circle
+						.attr("alignment-baseline", "middle") // Centre of circle
+						.style("font-size", "16px")
+						.text(vertexText);
+
+					// Determine initial radius of circle
+					// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
+					if(vertexText.length !== 0 && !node.vertex.radius) // Only scale if font size hasn't been set by user
+					{
+						radius = boundingBox.width/8;
+						let innerTextWidth = preparedText.node().getBBox().width;
+						if(radius < innerTextWidth) radius = innerTextWidth/2 + 5; // Convert text "diameter" to radius, add padding
+					}
+					preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
+
+					let vertex = vertexG.append("circle")
+						.attr("cx", vertexX).attr("cy", vertexY)
+						.attr("r", radius + "px")
+						.attr("stroke", node.vertex.strokeColour)
+						.attr("fill", node.vertex.fillColour);
+					let text = vertexG.append("text")
+						.attr("x", vertexX).attr("y", vertexY)
+						.attr("fill", node.vertex.strokeColour)
+						.attr("text-anchor", "middle")        // Centre of circle
+						.attr("alignment-baseline", "middle") // Centre of circle
+						.style("font-size", "16px")
+						.text(vertexText);
+					prevDiameter = radius*2;
+
+					// Place edge between this node and next node
+					let edge;
+					if(nextNode)
+					{
+						// TODO: Make this work
+						/*
+						labelVertexG.append("defs")
+							.append("marker")
+							.attr("id", "arrow")
+							.attr("markerWidth", 5).attr("markerHeight", 4)
+							.attr("refX", 0).attr("refY", 2)
+							.attr("orient", "auto")
+							.append("polygon")
+							.attr("points", "0 0, 5 2, 0 4");
+						 */
+
+						let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0;
+
+						// Determine edge start position
+						if(node.vertex.edgeStart === "top") startEdgeYOffset = -(node.vertex.radius);
+						else if(node.vertex.edgeStart === "right") startEdgeXOffset = node.vertex.radius;
+						else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = node.vertex.radius;
+						else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(node.vertex.radius);
+
+						// Determine edge end position
+						if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(node.vertex.radius);
+						else if(node.vertex.edgeEnd === "right") endEdgeXOffset = node.vertex.radius;
+						else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = node.vertex.radius;
+						else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(node.vertex.radius);
+
+						// Place edge
+						edge = labelVertexG.append("line")
+							.attr("x1", node.vertex.x + startEdgeXOffset)
+							.attr("y1", node.vertex.y + startEdgeYOffset)
+							.attr("x2", nextNode.vertex.x + endEdgeXOffset)
+							.attr("y2", nextNode.vertex.y + endEdgeYOffset)
+							.attr("stroke", "black")     // TODO: User choice
+							.attr("stroke-width", "4px"); // TODO: User choice
+							//.attr("marker-end", "url(#arrow)");
+					}
+
+					// Dragging/resizing handlers
+					let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newSize;
+					vertex.on("mousemove", (e) => {
+						let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
+						let mouseX = e.layerX, mouseY = e.layerY;
+
+						// Dimensions of bottom-right corner
+						let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
+						let circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
+						let cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
+
+						// Determine corner of circle's box
+						const southEastCorner = {
+							xStart: vertexX,
+							xEnd: vertexX + cornerWidth,
+							yStart: vertexY,
+							yEnd: vertexY + cornerWidth
+						}
+
+						// Check corner
+						if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
+							&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
+						{
+							vertex.style("cursor", "se-resize");
+						}
+						else
+							vertex.style("cursor", "grab");
+					})
+					.call(d3.drag()
+						.on("start", (e) => {
+							let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
+							let mouseX = e.x, mouseY = e.y;
+							startXOffset = mouseX - vertexX;
+							startYOffset = mouseY - vertexY;
+
+							// Dimensions of bottom-right corner
+							let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
+							let circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
+							let cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
+
+							// Determine corner of circle's box
+							const southEastCorner = {
+								xStart: vertexX,
+								xEnd: vertexX + cornerWidth,
+								yStart: vertexY,
+								yEnd: vertexY + cornerWidth
+							}
+
+							// Check corner
+							if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
+								&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
+							{
+								resizing = true;
+								startX = mouseX;
+								startY = mouseY;
+								startSize = parseFloat(vertex.attr("r"));
+							}
+						})
+						.on("drag", (e) => {
+							let mouseX = e.x, mouseY = e.y;
+							if(resizing)
+							{
+								// Resize the label
+								if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
+								{
+									let deltaX = mouseX - startX;
+									newSize = startSize + (deltaX / 10);
+									if(newSize < 5) newSize = 5; // Floor of 5px to prevent it shrinking into nothingness
+									vertex.attr("r", newSize + "px"); // Only visually, not updating state itself
+								}
+							}
+							else
+							{
+								// Move the label
+								vertexX = mouseX - startXOffset;
+								vertexY = mouseY - startYOffset;
+								vertex.attr("cx", vertexX).attr("cy", vertexY); // Only visually
+								text.attr("x", vertexX).attr("y", vertexY); // Only visually
+							}
+						})
+						.on("end", () => {
+							resizing = false;
+							moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, newSize); // Set final properties
+						})
+					);
+				}
+
 			}
 		});
 
@@ -251,7 +462,7 @@ export function Map(props)
 
 	});
 
-	function findNode(d, type)
+	function findNodes(d, type)
 	{
 		// Search collections
 		for(let c = 0; c < collections.length; ++c)
@@ -273,7 +484,31 @@ export function Map(props)
 					}
 				}
 			}
+			else if(type === "journey")
+			{
+				let countryNodes = [];
+				if(collection.type === "journey")
+				{
+					for(let n = 0; n < collection.childNodes.length; ++n)
+					{
+						let childNode = collection.childNodes[n];
+
+						if(d.properties.languages.includes(childNode.language))
+							countryNodes.push({node: childNode, collectionIndex: c, childNodeIndex: n});
+					}
+					return countryNodes;
+				}
+			}
 		}
+	}
+	function findNextNode(collectionIndex, childIndex)
+	{
+		let nextNode;
+		if(collections[collectionIndex].childNodes[childIndex+1])
+			return {node: collections[collectionIndex].childNodes[childIndex+1], collectionIndex: collectionIndex, childNodeIndex: childIndex+1}
+		else
+			return null;
+
 	}
 
 	/**
@@ -283,7 +518,7 @@ export function Map(props)
 	 */
 	function determineFillColour(d)
 	{
-		const nodeObject = findNode(d, "cognate"); // Find node in collections
+		const nodeObject = findNodes(d, "cognate"); // Find node in collections
 		if(nodeObject) return nodeObject.node.colour;   // Country has associated collection node? Return the colour
 		else return "white";                            // Otherwise, return white by default for all countries with no associated data
 	}

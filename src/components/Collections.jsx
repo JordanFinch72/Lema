@@ -22,7 +22,7 @@ export class Collections extends Component
 		this.removeNode = this.props.removeNode.bind(this);
 		this.removeCollection = this.props.removeCollection.bind(this);
 		this.cAddNode = this.cAddNode.bind(this);
-		this.cAddNodeDefault = this.cAddNodeDefault.bind(this);
+		this.cAddNodeDefault = this.props.addNodeDefault.bind(this);
 		this.cRemoveCollection = this.cRemoveCollection.bind(this);
 
 		/* Prop functions */
@@ -40,9 +40,9 @@ export class Collections extends Component
 		// Open the AddEditNodeModal
 		this.openModal(e, <AddEditNodeModal onNodeSubmit={this.addNode} collectionIndex={collectionIndex}/>);
 	}
-	cAddNodeDefault(e, collectionIndex)
+	cAddNodeDefault(e, data)
 	{
-		this.addNode(e, {word: "word", language: "language", collectionIndex: collectionIndex});
+		this.addNodeDefault(e, data);
 	}
 	cRemoveCollection(e, collectionIndex)
 	{
