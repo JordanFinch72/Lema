@@ -55,18 +55,18 @@ class Lema extends Component
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
 					childNodes: [
-						{word: "smith", language: "English (GB)", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "smid", language: "Dutch", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "Schmidt", language: "German", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "smed", language: "Danish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "smed", language: "Norwegian", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "smed", language: "Swedish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "smiður", language: "Icelandic", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "forgeron", language: "French", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "fabbro", language: "Italian", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "Kovář", language: "Czech", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}},
-						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", x: null, y: null}}
+						{word: "smith", language: "English (GB)", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "smid", language: "Dutch", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "Schmidt", language: "German", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "smed", language: "Danish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "smed", language: "Norwegian", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "smed", language: "Swedish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "smiður", language: "Icelandic", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "forgeron", language: "French", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "fabbro", language: "Italian", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "Kovář", language: "Czech", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
+						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}}
 					]
 				}
 			],
@@ -176,7 +176,7 @@ class Lema extends Component
 				word: data.word, language: data.language, colour: data.colour,
 				label: {
 					...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].label,
-					type: data.labelType, customText: data.customText, fontColour: data.fontColour
+					type: data.labelType, customText: data.customText, fontColour: data.fontColour, fontSize: data.fontSize
 				}
 			};
 
@@ -192,12 +192,15 @@ class Lema extends Component
 			console.log(this.state);
 		});
 	}
-	moveLabel(collectionIndex, childNodeIndex, x, y)
+	moveLabel(collectionIndex, childNodeIndex, x, y, fontSize = null)
 	{
 		let newCollections = this.state.collections;
 		newCollections[collectionIndex].childNodes[childNodeIndex].label.x = x;
 		newCollections[collectionIndex].childNodes[childNodeIndex].label.y = y;
-		this.setState({collections: newCollections});
+		if(fontSize)
+			newCollections[collectionIndex].childNodes[childNodeIndex].label.fontSize = fontSize;
+		this.setState({collections: newCollections},
+			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
 	}
 
 	addCollection(e, data)

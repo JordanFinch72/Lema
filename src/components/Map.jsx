@@ -129,13 +129,13 @@ export function Map(props)
 			{
 				let node = nodeObject.node;
 				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
-				let fontSize = "initial";                           // Font size of the label
+				let fontSize = node.label.fontSize;                       // Font size of the label
 				let text = node.language;                           // Language by default
 				if(node.label.type === "country") text = f.properties.name_long;
 				else if(node.label.type === "customText") text = node.label.customText;
 
-				// Initial scale factor depending on size of country (to stop oversized text from escaping country)
-				if(text.length !== 0)
+				// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
+				if(text.length !== 0 && !node.fontSize) // Only scale if font size hasn't been set by user
 				{
 					if(boundingBox.width < (text.length * 16))
 						fontSize = boundingBox.width/8 + "px";
@@ -151,7 +151,7 @@ export function Map(props)
 					.text(text);
 
 				// Dragging/resizing handlers
-				let startXOffset, startYOffset, resizing = false, startX, startY, startSize;
+				let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newSize;
 				label
 					.on("mousemove", (e) => {
 						let labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
@@ -207,9 +207,9 @@ export function Map(props)
 								if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
 								{
 									let deltaX = mouseX - startX;
-									let newSize = startSize + (deltaX / 10);
+									newSize = startSize + (deltaX / 10);
 									if(newSize < 5) newSize = 5; // Floor of 5px to prevent it shrinking into nothingness
-									label.style("font-size", newSize + "px");
+									label.style("font-size", newSize + "px"); // Only visually, not updating state itself
 								}
 							}
 							else
@@ -222,7 +222,7 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							moveLabel(nodeObject.collectionIndex, nodeObject.childNodeIndex, x, y); // Set final co-ordinates
+							moveLabel(nodeObject.collectionIndex, nodeObject.childNodeIndex, x, y, newSize); // Set final properties
 						})
 				);
 			}
