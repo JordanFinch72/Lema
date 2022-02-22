@@ -20,26 +20,26 @@ class Lema extends Component
 					type: "journey",
 					header: {word: "horse", language: "English (GB)"},
 					childNodes: [
-						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "hross", language: "Proto-West-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "hross", language: "Proto-West-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
 					]
 				},*/
-				/*{
+				{
 					type: "journey",
 					header: {word: "Pferd", language: "German"},
 					childNodes: [
-						{word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+						{word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
 					]
-				},*/
+				},
 				/*{   /!* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors *!/
 					type: "cognate",
 					header: {word: "palfrey", language: "English (GB)"},
@@ -52,7 +52,7 @@ class Lema extends Component
 					]
 				},*/
 					// TODO: Multiple cognate collections at once (separate layers/patterned colours)
-				{   /* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. */
+				/*{   /!* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. *!/
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
 					childNodes: [
@@ -69,7 +69,7 @@ class Lema extends Component
 						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
 						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}}
 					]
-				}
+				}*/
 			],
 			mapRenderCounter: 0
 		};
@@ -163,7 +163,7 @@ class Lema extends Component
 		let newChildNode;
 		if(data.type === "journey")
 		{
-			newChildNode = {word: "word", language: "language", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}};
+			newChildNode = {word: "word", language: "language", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}};
 		}
 		else if(data.type === "cognate")
 		{
@@ -237,13 +237,15 @@ class Lema extends Component
 		this.setState({collections: newCollections},
 			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
 	}
-	moveVertex(collectionIndex, childNodeIndex, x, y, radius = null)
+	moveVertex(collectionIndex, childNodeIndex, x, y, radius = null, fontSize = null)
 	{
 		let newCollections = this.state.collections;
 		newCollections[collectionIndex].childNodes[childNodeIndex].vertex.x = x;
 		newCollections[collectionIndex].childNodes[childNodeIndex].vertex.y = y;
 		if(radius)
 			newCollections[collectionIndex].childNodes[childNodeIndex].vertex.radius = radius;
+		if(fontSize)
+			newCollections[collectionIndex].childNodes[childNodeIndex].vertex.fontSize = fontSize;
 		this.setState({collections: newCollections},
 			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
 	}

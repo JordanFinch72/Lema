@@ -244,6 +244,7 @@ export function Map(props)
 					let nextNode = (nextNodeObject) ? nextNodeObject.node : null;
 					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
+					let fontSize = node.vertex.fontSize;
 					let vertexText = node.language;                     // Language by default
 					if(node.vertex.type === "country") vertexText = f.properties.name_long;
 					else if(node.vertex.type === "customText") vertexText = node.vertex.customText;
@@ -282,10 +283,10 @@ export function Map(props)
 
 					// Determine initial radius of circle
 					// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
+					let innerTextWidth = preparedText.node().getBBox().width;
 					if(vertexText.length !== 0 && !node.vertex.radius) // Only scale if font size hasn't been set by user
 					{
 						radius = boundingBox.width/8;
-						let innerTextWidth = preparedText.node().getBBox().width;
 						if(radius < innerTextWidth) radius = innerTextWidth/2 + 5; // Convert text "diameter" to radius, add padding
 					}
 					preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
@@ -345,12 +346,12 @@ export function Map(props)
 						.attr("fill", node.vertex.strokeColour)
 						.attr("text-anchor", "middle")        // Centre of circle
 						.attr("alignment-baseline", "middle") // Centre of circle
-						.style("font-size", "16px")
+						.style("font-size", fontSize)
 						.text(vertexText);
 					prevDiameter = radius*2;
 
 					// Dragging/resizing handlers
-					let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newSize;
+					let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newVertexSize, newLabelSize;
 					vertex.on("mousemove", (e) => {
 						let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
 						let mouseX = e.layerX, mouseY = e.layerY;
@@ -413,13 +414,19 @@ export function Map(props)
 							let mouseX = e.x, mouseY = e.y;
 							if(resizing)
 							{
-								// Resize the label
 								if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
 								{
+									// Resize the vertex
 									let deltaX = mouseX - startX;
-									newSize = startSize + (deltaX / 10);
-									if(newSize < 5) newSize = 5; // Floor of 5px to prevent it shrinking into nothingness
-									vertex.attr("r", newSize + "px"); // Only visually, not updating state itself
+									newVertexSize = startSize + (deltaX / 10);
+									if(newVertexSize < 10) newVertexSize = 10; // Floor of 10px to prevent it shrinking into nothingness
+									vertex.attr("r", newVertexSize + "px"); // Only visually, not updating state itself
+
+									// Resize the vertex's text
+									const paddingOffset = 10;
+									newLabelSize = ((((newVertexSize*2) - paddingOffset) / innerTextWidth) * 100) + "%";
+									console.log(newLabelSize);
+									text.style("font-size", newLabelSize);
 								}
 							}
 							else
@@ -447,7 +454,7 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, newSize); // Set final properties
+							moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
 						})
 					);
 				}
