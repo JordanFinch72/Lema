@@ -16,28 +16,28 @@ class Lema extends Component
 			mapRef: null,
 			collections: [
 
-				{
+				/*{
 					type: "journey",
 					header: {word: "horse", language: "English (GB)"},
 					childNodes: [
-						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "hross", language: "Proto-West-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}}
+						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "hross", language: "Proto-West-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
 					]
-				},
+				},*/
 				{
 					type: "journey",
 					header: {word: "Pferd", language: "German"},
 					childNodes: [
-						{word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}},
-						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}}
+						{word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
+						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
 					]
 				},
 				/*{   /!* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors *!/
@@ -163,7 +163,7 @@ class Lema extends Component
 		let newChildNode;
 		if(data.type === "journey")
 		{
-			newChildNode = {word: "word", language: "language", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "left", edgeEnd: "right"}};
+			newChildNode = {word: "word", language: "language", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}};
 		}
 		else if(data.type === "cognate")
 		{

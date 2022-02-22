@@ -119,8 +119,8 @@ export function Map(props)
 			.attr("d", path);
 
 		// Cognate labels, journey vertices
-		const labelVertexG = svg.append("g");
-		const labels = labelVertexG.classed("labels", true);
+		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
+		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
 			// Only place labels of countries with associated cognate data
 			// TODO: Make this a setting
@@ -147,7 +147,7 @@ export function Map(props)
 				// Append labels to paths, with co-ordinates according to feature's position on map
 				let x = (node.label.x === null) ? (boundingBox.x + boundingBox.width/4) : node.label.x;
 				let y = (node.label.y === null) ? (boundingBox.y + boundingBox.height/2) : node.label.y;
-				let label = labelVertexG.append("text")
+				let label = verticesLabelsG.append("text")
 					.attr("x", x).attr("y", y)
 					.attr("fill", node.label.fontColour)
 					.style("font-size", fontSize)
@@ -235,6 +235,7 @@ export function Map(props)
 
 				// Loop through all journey nodes inside this country/region
 				let xOffset = 0, yOffset = 0, prevDiameter = 0;
+				let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0; // Centre by default
 				for(let i = 0; i < journeyNodeObjects.length; ++i)
 				{
 					let journeyNodeObject = journeyNodeObjects[i];
@@ -270,7 +271,7 @@ export function Map(props)
 					}
 
 					// Prepare text element. This is required to calculate circle radius based on text element's width
-					let vertexG = labelVertexG.append("g"); // Group required to have circle and text together
+					let vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
 					let preparedText = vertexG.append("text")
 						.attr("x", vertexX).attr("y", vertexY)
 						.attr("fill", node.vertex.strokeColour)
@@ -293,38 +294,21 @@ export function Map(props)
 					if(!node.vertex.x || !node.vertex.y)
 						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, radius);
 
-					let vertex = vertexG.append("circle")
-						.attr("cx", vertexX).attr("cy", vertexY)
-						.attr("r", radius + "px")
-						.attr("stroke", node.vertex.strokeColour)
-						.attr("fill", node.vertex.fillColour);
-					let text = vertexG.append("text")
-						.attr("x", vertexX).attr("y", vertexY)
-						.attr("fill", node.vertex.strokeColour)
-						.attr("text-anchor", "middle")        // Centre of circle
-						.attr("alignment-baseline", "middle") // Centre of circle
-						.style("font-size", "16px")
-						.text(vertexText);
-					prevDiameter = radius*2;
-
 					// Place edge between this node and next node
 					let edge;
 					if(nextNode)
 					{
 						// TODO: Arrowheads
 						/*
-						labelVertexG.append("defs")
-							.append("marker")
-							.attr("id", "arrow")
-							.attr("markerWidth", 5).attr("markerHeight", 4)
-							.attr("refX", 0).attr("refY", 2)
-							.attr("orient", "auto")
-							.append("polygon")
-							.attr("points", "0 0, 5 2, 0 4");
+						 labelVertexG.append("defs")
+						 .append("marker")
+						 .attr("id", "arrow")
+						 .attr("markerWidth", 5).attr("markerHeight", 4)
+						 .attr("refX", 0).attr("refY", 2)
+						 .attr("orient", "auto")
+						 .append("polygon")
+						 .attr("points", "0 0, 5 2, 0 4");
 						 */
-
-						// Centre by default
-						let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0;
 
 						// Determine edge start position
 						if(node.vertex.edgeStart === "top") startEdgeYOffset = -(node.vertex.radius);
@@ -339,15 +323,31 @@ export function Map(props)
 						else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(node.vertex.radius);
 
 						// Place edge
-						edge = labelVertexG.append("line")
+						edge = vertexEdgesG.append("line")
 							.attr("x1", node.vertex.x + startEdgeXOffset)
 							.attr("y1", node.vertex.y + startEdgeYOffset)
 							.attr("x2", nextNode.vertex.x + endEdgeXOffset)
 							.attr("y2", nextNode.vertex.y + endEdgeYOffset)
 							.attr("stroke", "black")     // TODO: User choice
-							.attr("stroke-width", "2px"); // TODO: User choice
-							//.attr("marker-end", "url(#arrow)");
+							.attr("stroke-width", "2px") // TODO: User choice
+							.attr("data-start", journeyNodeObject.collectionIndex + "|" + journeyNodeObject.childNodeIndex) // For finding attached edges later
+							.attr("data-end", nextNodeObject.collectionIndex + "|" + nextNodeObject.childNodeIndex);
+						//.attr("marker-end", "url(#arrow)");
 					}
+
+					let vertex = vertexG.append("circle")
+						.attr("cx", vertexX).attr("cy", vertexY)
+						.attr("r", radius + "px")
+						.attr("stroke", node.vertex.strokeColour)
+						.attr("fill", node.vertex.fillColour);
+					let text = vertexG.append("text")
+						.attr("x", vertexX).attr("y", vertexY)
+						.attr("fill", node.vertex.strokeColour)
+						.attr("text-anchor", "middle")        // Centre of circle
+						.attr("alignment-baseline", "middle") // Centre of circle
+						.style("font-size", "16px")
+						.text(vertexText);
+					prevDiameter = radius*2;
 
 					// Dragging/resizing handlers
 					let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newSize;
@@ -366,7 +366,7 @@ export function Map(props)
 							xEnd: vertexX + cornerWidth,
 							yStart: vertexY,
 							yEnd: vertexY + cornerWidth
-						}
+						};
 
 						// Check corner
 						if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
@@ -381,6 +381,8 @@ export function Map(props)
 						.on("start", (e) => {
 							let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
 							let mouseX = e.x, mouseY = e.y;
+							startX = vertexX;
+							startY = vertexY;
 							startXOffset = mouseX - vertexX;
 							startYOffset = mouseY - vertexY;
 
@@ -422,11 +424,25 @@ export function Map(props)
 							}
 							else
 							{
-								// Move the label
+								// Move the vertex
 								vertexX = mouseX - startXOffset;
 								vertexY = mouseY - startYOffset;
 								vertex.attr("cx", vertexX).attr("cy", vertexY); // Only visually
 								text.attr("x", vertexX).attr("y", vertexY); // Only visually
+
+								// Move the edges
+								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.childNodeIndex;
+								let attachedEdges = d3.selectAll("line[data-end=\""+dataEnd+"\"]"); // Find all edges that end on this node
+								if(attachedEdges)
+								{
+									attachedEdges.attr("x2", vertexX + startEdgeXOffset)
+										.attr("y2", vertexY + startEdgeYOffset);
+								}
+								if(edge)
+								{
+									edge.attr("x1", vertexX + startEdgeXOffset)
+										.attr("y1", vertexY + startEdgeYOffset);
+								}
 							}
 						})
 						.on("end", () => {
