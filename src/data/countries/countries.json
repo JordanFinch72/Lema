@@ -5570,7 +5570,8 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "Swiss German"
+          "Swiss German",
+		  "Gaulish"
         ]
       },
       "geometry": {
@@ -7396,7 +7397,8 @@
         "languages": [
           "German",
           "Proto-West-Germanic",
-          "Proto-Germanic"
+          "Proto-Germanic",
+		  "Old High German"
         ]
       },
       "geometry": {
@@ -34602,7 +34604,9 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "Italian"
+          "Italian",
+		  "Latin",
+		  "Late Latin"
         ]
       },
       "geometry": {
@@ -38234,7 +38238,8 @@
         "tiny": 5,
         "homepart": 1,
         "languages": [
-          "Luxembourgish"
+          "Luxembourgish",
+		  "Proto-Celtic"
         ]
       },
       "geometry": {

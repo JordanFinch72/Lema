@@ -125,7 +125,7 @@ export function Map(props)
 			// Only place labels of countries with associated cognate data
 			// TODO: Make this a setting
 			let cognateNodeObject = findNodes(f, "cognate");
-			let journeyNodeObjects = findNodes(f, "journey");
+			let journeyNodeObjects = findNodes(f, "journey"); // All nodes across all journey collections belonging to this country/region
 			if(cognateNodeObject)
 			{
 				/* Cognate visualisations */
@@ -311,7 +311,7 @@ export function Map(props)
 					let edge;
 					if(nextNode)
 					{
-						// TODO: Make this work
+						// TODO: Arrowheads
 						/*
 						labelVertexG.append("defs")
 							.append("marker")
@@ -323,6 +323,7 @@ export function Map(props)
 							.attr("points", "0 0, 5 2, 0 4");
 						 */
 
+						// Centre by default
 						let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0;
 
 						// Determine edge start position
@@ -461,15 +462,19 @@ export function Map(props)
 
 	});
 
+	/**
+	 * Finds all nodes in all collections of specified type where the node's language is within the feature's language array
+	 * @param {*} d The dataset feature (country/region) currently being rendered
+	 * @param {string} type The type of collection to search for ("journey" or "cognate")
+	 */
 	function findNodes(d, type)
 	{
 		// Search collections
-		for(let c = 0; c < collections.length; ++c)
+		if(type === "cognate")
 		{
-			let collection = collections[c];
-
-			if(type === "cognate")
+			for(let c = 0; c < collections.length; ++c)
 			{
+				let collection = collections[c];
 				if(collection.type === "cognate")
 				{
 					for(let n = 0; n < collection.childNodes.length; ++n)
@@ -478,14 +483,18 @@ export function Map(props)
 
 						if(d.properties.languages.includes(childNode.language))
 						{
-							return {node: childNode, collectionIndex: c, childNodeIndex: n};
+							return {node: childNode, collectionIndex: c, childNodeIndex: n}; // TODO: Currently only returns first cognate
 						}
 					}
 				}
 			}
-			else if(type === "journey")
+		}
+		else if(type === "journey")
+		{
+			let countryNodes = [];
+			for(let c = 0; c < collections.length; ++c) // Search for all nodes in all collections for this country/region
 			{
-				let countryNodes = [];
+				let collection = collections[c];
 				if(collection.type === "journey")
 				{
 					for(let n = 0; n < collection.childNodes.length; ++n)
@@ -495,10 +504,11 @@ export function Map(props)
 						if(d.properties.languages.includes(childNode.language))
 							countryNodes.push({node: childNode, collectionIndex: c, childNodeIndex: n});
 					}
-					return countryNodes;
 				}
 			}
+			return countryNodes;
 		}
+
 	}
 	function findNextNode(collectionIndex, childIndex)
 	{
@@ -507,7 +517,6 @@ export function Map(props)
 			return {node: collections[collectionIndex].childNodes[childIndex+1], collectionIndex: collectionIndex, childNodeIndex: childIndex+1}
 		else
 			return null;
-
 	}
 
 	/**
