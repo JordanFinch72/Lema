@@ -9,6 +9,7 @@ export class AddEditNodeModal extends Component
 	{
 		super(props);
 		this.state = {
+			// Node properties
 			word: this.props.node.word || null,
 			colour: this.props.node.colour || null,
 			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,

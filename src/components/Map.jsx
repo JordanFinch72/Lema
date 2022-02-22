@@ -57,18 +57,18 @@ export function Map(props)
 							text: "Add new node (journey)", handler: (e) => {
 								// Add new journey node within the country/region they right-clicked on (there may be multiple nodes in one country/region for journeys)
 								let collectionList = collections.filter(collection => collection.type === "journey"); // Journeys only
-								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} language={d.properties.languages} />);
+								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} node={nodeObject.node} language={d.properties.languages} />);
 							}
 						},
 						{
 							text: "Add sibling node (cognate)", handler: (e) => {
-								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionIndex={nodeObject.collectionIndex} language={d.properties.languages} />);
+								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionIndex={nodeObject.collectionIndex} node={nodeObject.node} language={d.properties.languages} />);
 							}
 						},
 						{
 							text: "Edit node (cognate)", handler: (e) => {
 								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} collectionIndex={nodeObject.collectionIndex} childNodeIndex={nodeObject.childNodeIndex}
-								                               word={nodeObject.node.word} language={nodeObject.node.language} />);
+								                               node={nodeObject.node} language={nodeObject.node.language} />);
 							}
 						},
 						{

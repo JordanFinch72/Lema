@@ -27,7 +27,7 @@ class Lema extends Component
 						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
 					]
 				},*/
-				{
+				/*{
 					type: "journey",
 					header: {word: "Pferd", language: "German"},
 					childNodes: [
@@ -39,7 +39,7 @@ class Lema extends Component
 						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
 						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
 					]
-				},
+				},*/
 				/*{   /!* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors *!/
 					type: "cognate",
 					header: {word: "palfrey", language: "English (GB)"},
@@ -52,7 +52,7 @@ class Lema extends Component
 					]
 				},*/
 					// TODO: Multiple cognate collections at once (separate layers/patterned colours)
-				/*{   /!* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. *!/
+				{   /* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. */
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
 					childNodes: [
@@ -69,7 +69,7 @@ class Lema extends Component
 						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
 						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}}
 					]
-				}*/
+				}
 			],
 			mapRenderCounter: 0
 		};
