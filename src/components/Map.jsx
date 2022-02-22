@@ -21,7 +21,6 @@ export function Map(props)
 	let topojson = require("topojson");
 	let countries_data = require("../data/countries/countries.json");
 
-	/* Example of using d3-geo in useEffect() instead of custom useD3() */
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
 		let svg = d3.selectAll(".map-container").selectAll("svg");
@@ -139,7 +138,7 @@ export function Map(props)
 				else if(node.label.type === "word") labelText = node.word;
 
 				// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
-				if(labelText.length !== 0 && !node.fontSize) // Only scale if font size hasn't been set by user
+				if(labelText.length !== 0 && !node.label.fontSize) // Only scale if font size hasn't been set by user
 				{
 					if(boundingBox.width < (labelText.length * 16))
 						fontSize = boundingBox.width/8 + "px";
