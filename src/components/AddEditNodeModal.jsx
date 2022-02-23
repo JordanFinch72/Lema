@@ -49,6 +49,11 @@ export class AddEditNodeModal extends Component
 
 		this.setState({labelType: labelType});
 	}
+	validation()
+	{
+		// TODO: Validate form data
+		return true;
+	}
 
 	render()
 	{
@@ -142,10 +147,33 @@ export class AddEditNodeModal extends Component
 				{selectCollection}
 				<Button value={"Submit"} id={"add-node-modal-submit"} onClick={(e) =>
 				{
-					let data = this.state;
-					data.collectionIndex = this.props.collectionIndex;
-					data.childNodeIndex = this.props.childNodeIndex;
-					this.props.onNodeSubmit(e, data);
+					if(this.validation())
+					{
+						// Build data to match node structure
+						let data = {node: null, collectionIndex: this.props.collectionIndex, indexChain: this.props.indexChain};
+						if(this.props.type === "journey")
+						{
+							data.node = {
+								word: this.state.word, language: this.state.language, colour: this.state.colour,
+								vertex: {
+									...this.props.node.vertex,
+									fontColour: this.state.fontColour
+								}
+							};
+						}
+						else if(this.props.type === "cognate")
+						{
+							data.node = {
+								word: this.state.word, language: this.state.language, colour: this.state.colour,
+								label: {
+									...this.props.node.label,
+									type: this.state.labelType, customText: this.state.customText, fontColour: this.state.fontColour, fontSize: this.state.fontSize
+								}
+							};
+						}
+						this.props.onNodeSubmit(e, data);
+					}
+
 				}}/>
 			</div>
 		);

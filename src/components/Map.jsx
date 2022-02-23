@@ -67,13 +67,13 @@ export function Map(props)
 						},
 						{
 							text: "Edit node (cognate)", handler: (e) => {
-								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} collectionIndex={nodeObject.collectionIndex} childNodeIndex={nodeObject.childNodeIndex}
+								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} collectionIndex={nodeObject.collectionIndex} wordIndex={nodeObject.wordIndex}
 								                               node={nodeObject.node} language={nodeObject.node.language} />);
 							}
 						},
 						{
 							text: "Remove node (cognate)", handler: (e) => {
-								removeNode(e, nodeObject.collectionIndex, nodeObject.childNodeIndex);
+								removeNode(e, nodeObject.collectionIndex, nodeObject.wordIndex);
 							}
 						}
 					];
@@ -225,7 +225,7 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.childNodeIndex, x, y, newSize); // Set final properties
+							moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.wordIndex, x, y, newSize); // Set final properties
 						})
 				);
 			}
@@ -240,7 +240,7 @@ export function Map(props)
 				{
 					let journeyNodeObject = journeyNodeObjects[i];
 					let node = journeyNodeObject.node;
-					let nextNodeObject = findNextNode(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex);
+					let nextNodeObject = findNextNode(journeyNodeObject.collectionIndex, journeyNodeObject.wordIndex);
 					let nextNode = (nextNodeObject) ? nextNodeObject.node : null;
 					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
@@ -293,7 +293,7 @@ export function Map(props)
 
 					// Set initial vertex position // TODO: Do it for label, too
 					if(!node.vertex.x || !node.vertex.y)
-						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, radius);
+						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.wordIndex, vertexX, vertexY, radius);
 
 					// Place edge between this node and next node
 					let edge;
@@ -331,8 +331,8 @@ export function Map(props)
 							.attr("y2", nextNode.vertex.y + endEdgeYOffset)
 							.attr("stroke", "black")     // TODO: User choice
 							.attr("stroke-width", "2px") // TODO: User choice
-							.attr("data-start", journeyNodeObject.collectionIndex + "|" + journeyNodeObject.childNodeIndex) // For finding attached edges later
-							.attr("data-end", nextNodeObject.collectionIndex + "|" + nextNodeObject.childNodeIndex);
+							.attr("data-start", journeyNodeObject.collectionIndex + "|" + journeyNodeObject.wordIndex) // For finding attached edges later
+							.attr("data-end", nextNodeObject.collectionIndex + "|" + nextNodeObject.wordIndex);
 						//.attr("marker-end", "url(#arrow)");
 					}
 
@@ -438,7 +438,7 @@ export function Map(props)
 								text.attr("x", vertexX).attr("y", vertexY); // Only visually
 
 								// Move the edges
-								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.childNodeIndex;
+								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.wordIndex;
 								let attachedEdges = d3.selectAll("line[data-end=\""+dataEnd+"\"]"); // Find all edges that end on this node
 								if(attachedEdges)
 								{
@@ -454,7 +454,7 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.childNodeIndex, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
+							moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.wordIndex, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
 						})
 					);
 				}
@@ -500,13 +500,13 @@ export function Map(props)
 				let collection = collections[c];
 				if(collection.type === "cognate")
 				{
-					for(let n = 0; n < collection.childNodes.length; ++n)
+					for(let n = 0; n < collection.words.length; ++n)
 					{
-						let childNode = collection.childNodes[n];
+						let childNode = collection.words[n];
 
 						if(d.properties.languages.includes(childNode.language))
 						{
-							return {node: childNode, collectionIndex: c, childNodeIndex: n}; // TODO: Currently only returns first cognate
+							return {node: childNode, collectionIndex: c, wordIndex: n}; // TODO: Currently only returns first cognate
 						}
 					}
 				}
@@ -520,12 +520,12 @@ export function Map(props)
 				let collection = collections[c];
 				if(collection.type === "journey")
 				{
-					for(let n = 0; n < collection.childNodes.length; ++n)
+					for(let n = 0; n < collection.words.length; ++n)
 					{
-						let childNode = collection.childNodes[n];
+						let childNode = collection.words[n];
 
 						if(d.properties.languages.includes(childNode.language))
-							countryNodes.push({node: childNode, collectionIndex: c, childNodeIndex: n});
+							countryNodes.push({node: childNode, collectionIndex: c, wordIndex: n});
 					}
 				}
 			}
@@ -536,8 +536,8 @@ export function Map(props)
 	function findNextNode(collectionIndex, childIndex)
 	{
 		let nextNode;
-		if(collections[collectionIndex].childNodes[childIndex+1])
-			return {node: collections[collectionIndex].childNodes[childIndex+1], collectionIndex: collectionIndex, childNodeIndex: childIndex+1}
+		if(collections[collectionIndex].words[childIndex+1])
+			return {node: collections[collectionIndex].words[childIndex+1], collectionIndex: collectionIndex, wordIndex: childIndex+1}
 		else
 			return null;
 	}

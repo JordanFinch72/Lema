@@ -19,7 +19,7 @@ class Lema extends Component
 				/*{
 					type: "journey",
 					header: {word: "horse", language: "English (GB)"},
-					childNodes: [
+					words: [
 						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
 						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
 						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
@@ -30,20 +30,37 @@ class Lema extends Component
 				{
 					type: "journey",
 					header: {word: "Pferd", language: "German"},
-					childNodes: [
-						{word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+					words: [
+						{id: 1, word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+								{id: 2, word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+										{id: 4, word: "paraveredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+												{id: 6, word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+														{id: 8, word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+																{id: 10, word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+																		{id: 12, word: "uɸo", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+																				{id: 14, word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+																			]},
+																		{id: 13, word: "rēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+																	]}
+															]}
+													]}
+											]},
+										{id: 5, word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+												{id: 7, word: "παρά", language: "Ancient Greek", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+														{id: 9, word: "preh₂-", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
+																{id: 11, word: "per-", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+															]}
+													]}
+											]}
+									]},
+								{id: 3, word: "pferift", language: "Middle High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
+							]}
 					]
 				},
 				/*{   /!* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors *!/
 					type: "cognate",
 					header: {word: "palfrey", language: "English (GB)"},
-					childNodes: [
+					words: [
 						{word: "palfrey", language: "English (GB)", colour: "#f5b60d"},
 						{word: "paard", language: "Dutch", colour: "#f5b60d"},
 						{word: "Pferd", language: "German", colour: "#f5b60d"},
@@ -55,7 +72,7 @@ class Lema extends Component
 				/*{   /!* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. *!/
 					type: "cognate",
 					header: {word: "smith", language: "English (GB)"},
-					childNodes: [
+					words: [
 						{word: "smith", language: "English (GB)", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
 						{word: "smid", language: "Dutch", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
 						{word: "Schmidt", language: "German", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
@@ -83,7 +100,6 @@ class Lema extends Component
 		this.addNode = this.addNode.bind(this);
 		this.addNodeDefault = this.addNodeDefault.bind(this);
 		this.editNode = this.editNode.bind(this);
-		this.editNodeColour = this.editNodeColour.bind(this);
 		this.removeNode = this.removeNode.bind(this);
 		this.moveLabel = this.moveLabel.bind(this);
 		this.moveVertex = this.moveVertex.bind(this);
@@ -115,13 +131,6 @@ class Lema extends Component
 		});
 	}
 
-	editNodeColour(e, collectionIndex, childNodeIndex, colour)
-	{
-		// Find node and set colour
-		let newCollections = this.state.collections;
-		newCollections[collectionIndex].childNodes[childNodeIndex].colour = colour;
-		this.setState({collections: newCollections, mapRenderCounter: this.state.mapRenderCounter+1});
-	}
 	addNode(e, data)
 	{
 		// Data validation
@@ -133,9 +142,9 @@ class Lema extends Component
 		if(this.state.collections[data.collectionIndex].type === "cognate")
 		{
 			// Check for existing language
-			for(let i = 0; i < this.state.collections[data.collectionIndex].childNodes.length; ++i)
+			for(let i = 0; i < this.state.collections[data.collectionIndex].words.length; ++i)
 			{
-				let childNode = this.state.collections[data.collectionIndex].childNodes[i];
+				let childNode = this.state.collections[data.collectionIndex].words[i];
 				if(childNode.language === data.language)
 				{
 					errorCollector += "A language may only have one word per cognate collection.\n" +
@@ -152,7 +161,7 @@ class Lema extends Component
 			// Create new child node
 			let newChildNode = {word: data.word, language: data.language};
 			let newCollections = this.state.collections;
-			newCollections[data.collectionIndex].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.collections array)
+			newCollections[data.collectionIndex].words.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.collections array)
 
 			this.setState({collections: newCollections}, this.closeModal);
 		}
@@ -170,84 +179,66 @@ class Lema extends Component
 			newChildNode = {word: "word", language: "language", colour: "#000000", label: {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}};
 		}
 		let newCollections = this.state.collections;
-		newCollections[data.collectionIndex].childNodes.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.collections array)
+		newCollections[data.collectionIndex].words.push(newChildNode); // Data contains parent Journey component's index (its location in this.state.collections array)
 
 		this.setState({collections: newCollections}, this.closeModal);
 	}
+
+	/**
+	 * Updates the state's collections array with updated node
+	 * @param e React SyntheticEvent
+	 * @param data Data object containing collectionIndex, indexChain, and updated node object
+	 */
 	editNode(e, data)
 	{
-		console.log(e);
-		console.log(data);
+		// Create new child node
+		let newCollections = this.state.collections;
+		let indexChain = data.indexChain.split("->"); // Note: indexes are returned as strings, but JS doesn't seem to mind
 
-		// Data validation
-		let errorCollector = "";
-		if(data.word === null || data.word.length <= 0)
-			errorCollector += "You must enter a word.\n";
-		if(data.language === null || data.language.length <= 0)
-			errorCollector += "You must enter a language.\n";
-
-		if(errorCollector.length > 0)
-			alert(errorCollector); // TODO: Proper error message with toast
-		else
+		// Find node via index chain
+		let node = newCollections[data.collectionIndex].words[indexChain[0]]; // Beginning of chain is always 0
+		for(let i = 1; i < indexChain.length; ++i)
 		{
-			// Create new child node
-			let newCollections = this.state.collections;
-
-			if(newCollections[data.collectionIndex].type === "journey")
-			{
-				newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {
-					word: data.word, language: data.language, colour: data.colour,
-					vertex: {
-						...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].vertex,
-						//type: data.labelType, customText: data.customText, fontColour: data.fontColour, fontSize: data.fontSize
-					}
-				};
-			}
-			else if(newCollections[data.collectionIndex].type === "cognate")
-			{
-				newCollections[data.collectionIndex].childNodes[data.childNodeIndex] = {
-					word: data.word, language: data.language, colour: data.colour,
-					label: {
-						...newCollections[data.collectionIndex].childNodes[data.childNodeIndex].label,
-						type: data.labelType, customText: data.customText, fontColour: data.fontColour, fontSize: data.fontSize
-					}
-				};
-			}
-
-
-			this.setState({collections: newCollections}, this.closeModal);
+			node = node.parents[indexChain[i]];
 		}
+
+		// Update in collection object by reference
+		for(let index in data.node)
+			if(node[index]) node[index] = data.node[index];
+
+		this.setState({collections: newCollections}, this.closeModal);
 	}
-	removeNode(e, collectionIndex, childNodeIndex)
+
+	removeNode(e, collectionIndex, wordIndex)
 	{
 		let newCollections = this.state.collections;
-		newCollections[collectionIndex].childNodes.splice(childNodeIndex, 1);
+		newCollections[collectionIndex].words.splice(wordIndex, 1);
 		this.setState({collections: newCollections}, function()
 		{
 			console.log(this.state);
 		});
 	}
-	moveLabel(collectionIndex, childNodeIndex, x, y, fontSize = null)
+	moveLabel(collectionIndex, wordIndex, x, y, fontSize = null)
 	{
 		let newCollections = this.state.collections;
-		newCollections[collectionIndex].childNodes[childNodeIndex].label.x = x;
-		newCollections[collectionIndex].childNodes[childNodeIndex].label.y = y;
+		newCollections[collectionIndex].words[wordIndex].label.x = x;
+		newCollections[collectionIndex].words[wordIndex].label.y = y;
 		if(fontSize)
-			newCollections[collectionIndex].childNodes[childNodeIndex].label.fontSize = fontSize;
+			newCollections[collectionIndex].words[wordIndex].label.fontSize = fontSize;
 		this.setState({collections: newCollections},
-			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
+			(e) => {console.log(this.state.collections[collectionIndex].words[wordIndex])});
 	}
-	moveVertex(collectionIndex, childNodeIndex, x, y, radius = null, fontSize = null)
+	moveVertex(collectionIndex, wordIndex, x, y, radius = null, fontSize = null)
 	{
 		let newCollections = this.state.collections;
-		newCollections[collectionIndex].childNodes[childNodeIndex].vertex.x = x;
-		newCollections[collectionIndex].childNodes[childNodeIndex].vertex.y = y;
+		newCollections[collectionIndex].words[wordIndex].vertex.x = x;
+		newCollections[collectionIndex].words[wordIndex].vertex.y = y;
 		if(radius)
-			newCollections[collectionIndex].childNodes[childNodeIndex].vertex.radius = radius;
+			newCollections[collectionIndex].words[wordIndex].vertex.radius = radius;
 		if(fontSize)
-			newCollections[collectionIndex].childNodes[childNodeIndex].vertex.fontSize = fontSize;
+			newCollections[collectionIndex].words[wordIndex].vertex.fontSize = fontSize;
 		this.setState({collections: newCollections},
-			(e) => {console.log(this.state.collections[collectionIndex].childNodes[childNodeIndex])});
+			(e) => {console.log(this.state.collections[collectionIndex].words[wordIndex])});
 	}
 
 	addCollection(e, data)
@@ -269,7 +260,7 @@ class Lema extends Component
 		else
 		{
 			let newCollections = this.state.collections;
-			newCollections.push({type: data.type, header: data.header, childNodes: []});
+			newCollections.push({type: data.type, header: data.header, words: []});
 			this.setState( {collections: newCollections}, this.closeModal);
 		}
 	}

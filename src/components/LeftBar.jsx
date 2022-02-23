@@ -12,18 +12,6 @@ export class LeftBar extends Component
 		};
 
 		this.updateMapMode = this.updateMapMode.bind(this);
-		this.openModal = this.props.openModal.bind(this);
-		this.closeModal = this.props.closeModal.bind(this);
-		this.openContextMenu = this.props.openContextMenu.bind(this);
-		this.closeContextMenu = this.props.closeContextMenu.bind(this);
-		this.addCollection = this.props.addCollection.bind(this);
-		this.editCollection = this.props.editCollection.bind(this);
-		this.addNode = this.props.addNode.bind(this);
-		this.addNodeDefault = this.props.addNodeDefault.bind(this);
-		this.editNode = this.props.editNode.bind(this);
-		this.editNodeColour = this.props.editNodeColour.bind(this);
-		this.removeNode = this.props.removeNode.bind(this);
-		this.removeCollection = this.props.removeCollection.bind(this);
 
 	}
 
@@ -38,10 +26,10 @@ export class LeftBar extends Component
 			<div className={"left-bar-container"}>
 				<ControlBox mapMode={this.state.mapMode} updateMapMode={this.updateMapMode}/>
 				<Collections collections={this.props.collections}
-				             mapMode={this.state.mapMode} openModal={this.openModal} closeModal={this.closeModal}
-				             openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-				             addNode={this.addNode} addNodeDefault={this.addNodeDefault} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
-				             addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
+				             mapMode={this.state.mapMode} openModal={this.props.openModal} closeModal={this.props.closeModal}
+				             openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}
+				             addNode={this.props.addNode} addNodeDefault={this.props.addNodeDefault} editNode={this.props.editNode} editNodeColour={this.props.editNodeColour} removeNode={this.props.removeNode}
+				             addCollection={this.props.addCollection} editCollection={this.props.editCollection} removeCollection={this.props.removeCollection}
 				/>
 			</div>
 		);

@@ -14,22 +14,9 @@ export class Collections extends Component
 		};
 
 		/* Click, event handlers */
-		this.addCollection = this.props.addCollection.bind(this);
-		this.editCollection = this.props.editCollection.bind(this);
-		this.addNode = this.props.addNode.bind(this);
-		this.editNode = this.props.editNode.bind(this);
-		this.editNodeColour = this.props.editNodeColour.bind(this);
-		this.removeNode = this.props.removeNode.bind(this);
-		this.removeCollection = this.props.removeCollection.bind(this);
 		this.cAddNode = this.cAddNode.bind(this);
 		this.cAddNodeDefault = this.props.addNodeDefault.bind(this);
 		this.cRemoveCollection = this.cRemoveCollection.bind(this);
-
-		/* Prop functions */
-		this.openModal = this.props.openModal.bind(this);
-		this.closeModal = this.props.closeModal.bind(this);
-		this.openContextMenu = this.props.openContextMenu.bind(this);
-		this.closeContextMenu = this.props.closeContextMenu.bind(this);
 	}
 
 
@@ -38,41 +25,41 @@ export class Collections extends Component
 	cAddNode(e, collectionIndex)
 	{
 		// Open the AddEditNodeModal
-		this.openModal(e, <AddEditNodeModal onNodeSubmit={this.addNode} collectionIndex={collectionIndex}/>);
+		this.props.openModal(e, <AddEditNodeModal onNodeSubmit={this.props.addNode} collectionIndex={collectionIndex}/>);
 	}
 	cAddNodeDefault(e, data)
 	{
-		this.addNodeDefault(e, data);
+		this.props.addNodeDefault(e, data);
 	}
 	cRemoveCollection(e, collectionIndex)
 	{
-		this.removeCollection(e, collectionIndex);
+		this.props.removeCollection(e, collectionIndex);
 	}
 
 
 	render()
 	{
 		let journeys = null, cognates = null;
-		let journeyElements = [], cognateElements = [];
+		let journeyCollections = [], cognateCollections = [];
 		this.state.collections.map((item, index) =>
 		{
 			if(typeof item !== "undefined")
 			{
 				let component = <Collection
-					key={index} index={index} type={item.type} header={item.header} openModal={this.openModal}
-					childNodes={item.childNodes} editCollection={this.editCollection}
-					openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
+					key={index} index={index} type={item.type} header={item.header} openModal={this.props.openModal}
+					words={item.words} editCollection={this.props.editCollection}
+					openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}
 					cAddNode={this.cAddNode} cAddNodeDefault={this.cAddNodeDefault} cRemoveCollection={this.cRemoveCollection}
-					addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode} editNodeColour={this.editNodeColour}
+					addNode={this.props.addNode} editNode={this.props.editNode} removeNode={this.props.removeNode}
 				/>;
 				if(item.type === "journey")
-					journeyElements.push(component);
+					journeyCollections.push(component);
 				else if(item.type === "cognate")
-					cognateElements.push(component);
+					cognateCollections.push(component);
 			}
 		});
 
-		if(journeyElements.length <= 0 && cognateElements.length <= 0) // Default just say "Collections"; re-using journeys variable
+		if(journeyCollections.length <= 0 && cognateCollections.length <= 0) // Default just say "Collections"; re-using journeys variable
 		{
 			journeys =
 				<>
@@ -80,7 +67,7 @@ export class Collections extends Component
 						<h2>Collections</h2>
 						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
 						        onClick={(e) => {
-							        this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.addCollection}/>);
+							        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection}/>);
 						        }}
 						/>
 					</div>
@@ -94,11 +81,11 @@ export class Collections extends Component
 						<h2>Journeys</h2>
 						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
 						        onClick={(e) => {
-							        this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.addCollection}/>);
+							        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection}/>);
 						        }}
 						/>
 					</div>
-					{journeyElements}
+					{journeyCollections}
 				</>;
 			cognates =
 				<>
@@ -106,11 +93,11 @@ export class Collections extends Component
 						<h2>Cognates</h2>
 						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
 						        onClick={(e) => {
-							        this.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.addCollection} type={"cognate"}/>);
+							        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection} type={"cognate"}/>);
 						        }}
 						/>
 					</div>
-					{cognateElements}
+					{cognateCollections}
 				</>;
 		}
 

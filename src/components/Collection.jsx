@@ -10,10 +10,6 @@ class CollectionNode extends Component
 	constructor(props)
 	{
 		super(props);
-		this.openModal = this.props.openModal.bind(this);
-		this.editNodeColour = this.props.editNodeColour.bind(this);
-		this.editNode = this.props.editNode.bind(this);
-		this.removeNode = this.props.removeNode.bind(this);
 	}
 
 	render()
@@ -26,22 +22,24 @@ class CollectionNode extends Component
 				{/* Flex-row */}
 				<div onClick={(e) =>
 				{
-					this.openModal(e, <AddEditNodeModal
+					this.props.openModal(e, <AddEditNodeModal
+						type={this.props.type}
 						node={this.props.node}
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
 						collectionIndex={this.props.collectionIndex}
-						childNodeIndex={this.props.childNodeIndex}
+						indexChain={this.props.indexChain}
 					/>);
 				}}>{this.props.node.word}</div>
 				<div onClick={(e) =>
 				{
-					this.openModal(e, <AddEditNodeModal
+					this.props.openModal(e, <AddEditNodeModal
+						type={this.props.type}
 						node={this.props.node}
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
 						collectionIndex={this.props.collectionIndex}
-						childNodeIndex={this.props.childNodeIndex}
+						indexChain={this.props.indexChain}
 					/>);
 				}}>{this.props.node.language}</div>
 				<div className={"buttons-container"}>
@@ -51,11 +49,15 @@ class CollectionNode extends Component
 						window.clearTimeout(changeColourTimeout);
 						changeColourTimeout = window.setTimeout(function()
 						{
-							node.editNodeColour(e, node.props.collectionIndex, node.props.childNodeIndex, e.target.value);
+							let data = {collectionIndex: node.props.collectionIndex, indexChain: node.props.indexChain, node: {
+								...node,
+									colour: e.target.value
+								}};
+							node.props.editNode(e, data);
 						}, 100);
 					}}/>
 					<Button value={"X"} id={"remove-node"}
-					        onClick={(e) => this.removeNode(e, this.props.collectionIndex, this.props.childNodeIndex)}/>
+					        onClick={(e) => this.props.removeNode(e, this.props.collectionIndex, this.props.wordIndex)}/>
 				</div>
 			</div>
 		);
@@ -72,18 +74,7 @@ export class Collection extends Component
 		};
 
 		this.toggleCollapse = this.toggleCollapse.bind(this);
-
-		this.openContextMenu = this.props.openContextMenu.bind(this);
-		this.closeContextMenu = this.props.closeContextMenu.bind(this);
-		this.openModal = this.props.openModal.bind(this);
-		this.cAddNode = this.props.cAddNode.bind(this);
-		this.cAddNodeDefault = this.props.cAddNodeDefault.bind(this);
-		this.cRemoveCollection = this.props.cRemoveCollection.bind(this);
-		this.editCollection = this.props.editCollection.bind(this);
-		this.addNode = this.props.addNode.bind(this);
-		this.editNode = this.props.editNode.bind(this);
-		this.editNodeColour = this.props.editNodeColour.bind(this);
-		this.removeNode = this.props.removeNode.bind(this);
+		this.getCollectionWords = this.getCollectionWords.bind(this);
 	}
 
 	toggleCollapse(e)
@@ -91,43 +82,68 @@ export class Collection extends Component
 		this.setState({collapsed: !this.state.collapsed});
 	}
 
+
+	/**
+	 * Recursive algorithm that adds a CollectionNode component for each word in a collection
+	 * @param {*} wordComponents An initially empty array that contains the CollectionNode components
+	 * @param {*} node The currently worked-on node for this depth level
+	 * @param {number} i The index of the currently worked-on node
+	 * @param {string} indexChain The chain of indexes required to get to the node (e.g. this.props.words[0].parents[1].parents[4] would have a chain of 0,1,4)
+	 * @param {string} collectionIndex The index of the collection that the node belongs to
+	 */
+	getCollectionWords(wordComponents, node, i, indexChain, collectionIndex)
+	{
+		indexChain += String(i);
+		if(node.parents)
+		{
+			for(let j = 0; j < node.parents.length; ++j)
+			{
+				wordComponents = this.getCollectionWords(wordComponents, node.parents[j], j, indexChain + "->", collectionIndex);
+			}
+		}
+
+		//indexChain = indexChain.slice(2, indexChain.length); // Clip initial "->"
+		wordComponents.push(<CollectionNode
+			key={indexChain}
+			type={this.props.type}
+			node={node}
+			editNode={this.props.editNode}
+			removeNode={this.props.removeNode}
+			openModal={this.props.openModal}
+			collectionIndex={collectionIndex}  // Index of collection the node belongs to
+			indexChain={indexChain}            // Index chain pointing to word in the tree
+		/>);
+
+		return wordComponents;
+	}
+
 	render()
 	{
-		let childNodeElements = [];
+		let wordComponents = []; // All word ele
 
 		if(!this.state.collapsed)
 		{
-			this.props.childNodes.map((childNode, index) =>
-			{
-				childNodeElements.push(<CollectionNode
-					key={index}  type={this.props.type} node={childNode}
-					editNode={this.editNode}
-					editNodeColour={this.editNodeColour}
-					removeNode={this.removeNode}
-					openModal={this.openModal}
-					collectionIndex={this.props.index} // Index of Collection the child node belongs to
-					childNodeIndex={index}             // Index of child node itself within childNodes array
-				/>);
-			});
+			if(this.props.words.length > 0)
+				wordComponents = this.getCollectionWords(wordComponents, this.props.words[0], 0, "", this.props.index);
 		}
 
 		let meatballItems = [
 			{
 				text: "Add node", handler: (e) =>
 				{
-					this.cAddNode(e, this.props.index);
+					this.props.cAddNode(e, this.props.index);
 				}
 			},
 			{
 				text: "Add node (default)", handler: (e) =>
 				{
-					this.cAddNodeDefault(e, {type: this.props.type, collectionIndex: this.props.index});
+					this.props.cAddNodeDefault(e, {type: this.props.type, collectionIndex: this.props.index});
 				}
 			},
 			{
 				text: "Remove collection", handler: (e) =>
 				{
-					this.cRemoveCollection(e, this.props.index);
+					this.props.cRemoveCollection(e, this.props.index);
 				}
 			}
 		];
@@ -142,7 +158,7 @@ export class Collection extends Component
 							type={this.props.type}
 							word={this.props.header.word}
 							language={this.props.header.language}
-							onCollectionSubmit={this.editCollection}
+							onCollectionSubmit={this.props.editCollection}
 							index={this.props.index}
 						/>);
 					}}>{this.props.header.word}</div>
@@ -152,17 +168,17 @@ export class Collection extends Component
 							type={this.props.type}
 							word={this.props.header.word}
 							language={this.props.header.language}
-							onCollectionSubmit={this.editCollection}
+							onCollectionSubmit={this.props.editCollection}
 							index={this.props.index}
 						/>);
 					}}>{this.props.header.language}</div>
 					<div className={"meatball-collapser-container"}>
-						<Meatballs openModal={this.openModal} openContextMenu={this.openContextMenu}
-						           closeContextMenu={this.closeContextMenu} contextMenuItems={meatballItems}/>
+						<Meatballs openModal={this.props.openModal} openContextMenu={this.props.openContextMenu}
+						           closeContextMenu={this.props.closeContextMenu} contextMenuItems={meatballItems}/>
 						<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed}/>
 					</div>
 				</div>
-				{childNodeElements}
+				{wordComponents}
 			</div>
 		);
 	}

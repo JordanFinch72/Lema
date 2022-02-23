@@ -49,7 +49,6 @@ export class RadioGroup extends Component
 	{
 		let buttonElements = this.state.buttons.map((button, index) =>
 		{
-			console.log(this.props.name);
 			return <RadioButton active={button.active} label={button.label} name={this.props.name} id={index}
 			                    onButtonClick={(e, id) => {
 									this.updateGroup(id); // Internal RadioGroup state update
