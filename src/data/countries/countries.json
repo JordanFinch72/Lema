@@ -7398,7 +7398,8 @@
           "German",
           "Proto-West-Germanic",
           "Proto-Germanic",
-		  "Old High German"
+		  "Old High German",
+		  "Middle High German"
         ]
       },
       "geometry": {
@@ -24873,7 +24874,8 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "Greek"
+          "Greek",
+		  "Ancient Greek"
         ]
       },
       "geometry": {
@@ -49834,7 +49836,8 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "Polish"
+          "Polish",
+		  "Proto-Indo-European"
         ]
       },
       "geometry": {
@@ -53462,8 +53465,7 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "Russian",
-          "Proto-Indo-European"
+          "Russian"
         ]
       },
       "geometry": {

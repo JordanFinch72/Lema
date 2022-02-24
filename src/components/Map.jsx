@@ -13,13 +13,21 @@ export function Map(props)
 	const addNode = props.addNode.bind(this);
 	const editNode = props.editNode.bind(this);
 	const removeNode = props.removeNode.bind(this);
-	const moveLabel = props.moveLabel.bind(this);
-	const moveVertex = props.moveVertex.bind(this);
 	const openModal = props.openModal.bind(this);
 
 	const collections = props.collections;
+	let flattenedCollections = [];
+	for(let i = 0; i < collections.length; ++i)
+	{
+		let flattenedTree = [];
+		flattenedTree = flattenTree(flattenedTree, collections[i].words[0], 0, "", i);
+		flattenedCollections.push({type: collections[i].type, words: flattenedTree});
+	}
+	console.log("[== MAP RENDER ==]");
+
 	let topojson = require("topojson");
 	let countries_data = require("../data/countries/countries.json");
+
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
@@ -32,9 +40,11 @@ export function Map(props)
 		const height = svg._groups[0][0].clientHeight;
 		const projection = d3.geoConicConformal()
 			.center([8, 52.823]) // Middle of Europe(ish)
-			.scale(1360)
+			.scale(1650)
 			.translate([width/2, height/2]);
 		const path = d3.geoPath().projection(projection);
+
+
 
 		// Draw countries, bind data and handlers
 		let countryPaths = svg.append("g")
@@ -225,7 +235,9 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.wordIndex, x, y, newSize); // Set final properties
+							node.x = x; node.y = y; node.newSize = newSize;
+							editNode(null, cognateNodeObject.collectionIndex, cognateNodeObject.node.indexChain, node);
+							//moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.node.indexChain, x, y, newSize); // Set final properties
 						})
 				);
 			}
@@ -252,8 +264,8 @@ export function Map(props)
 
 					// Initial co-ordinates
 					// TODO: Vertex xOffset, yOffset attributes in country/region data
-					let vertexX = (node.vertex.x === null) ? (boundingBox.x) : node.vertex.x;
-					let vertexY = (node.vertex.y === null) ? (boundingBox.y) : node.vertex.y;
+					let vertexX = (node.vertex.x === null) ? (boundingBox.x + boundingBox.width/2) : node.vertex.x;
+					let vertexY = (node.vertex.y === null) ? (boundingBox.y + boundingBox.height/2) : node.vertex.y;
 
 					// If vertex's default position would exit country/regions' bounds, push it down
 					if(!node.vertex.x && !node.vertex.y)
@@ -269,6 +281,13 @@ export function Map(props)
 						}
 						vertexY += yOffset;
 						vertexX += xOffset;
+					}
+
+					// Set initial vertex position // TODO: Do it for label, too
+					if(!node.vertex.x || !node.vertex.y)
+					{
+						node.vertex.x = vertexX; node.vertex.y = vertexY;
+						return editNode(null, journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, node);
 					}
 
 					// Prepare text element. This is required to calculate circle radius based on text element's width
@@ -291,49 +310,56 @@ export function Map(props)
 					}
 					preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
 
-					// Set initial vertex position // TODO: Do it for label, too
-					if(!node.vertex.x || !node.vertex.y)
-						moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.wordIndex, vertexX, vertexY, radius);
-
 					// Place edge between this node and next node
-					let edge;
-					if(nextNode)
+					if(node.parents)
 					{
-						// TODO: Arrowheads
-						/*
-						 labelVertexG.append("defs")
-						 .append("marker")
-						 .attr("id", "arrow")
-						 .attr("markerWidth", 5).attr("markerHeight", 4)
-						 .attr("refX", 0).attr("refY", 2)
-						 .attr("orient", "auto")
-						 .append("polygon")
-						 .attr("points", "0 0, 5 2, 0 4");
-						 */
+						// Create edge for each parent, originating from this node
+						for(let i = 0; i < node.parents.length; ++i)
+						{
+							// TODO: Arrowheads
+							/*
+							 labelVertexG.append("defs")
+							 .append("marker")
+							 .attr("id", "arrow")
+							 .attr("markerWidth", 5).attr("markerHeight", 4)
+							 .attr("refX", 0).attr("refY", 2)
+							 .attr("orient", "auto")
+							 .append("polygon")
+							 .attr("points", "0 0, 5 2, 0 4");
+							 */
 
-						// Determine edge start position
-						if(node.vertex.edgeStart === "top") startEdgeYOffset = -(node.vertex.radius);
-						else if(node.vertex.edgeStart === "right") startEdgeXOffset = node.vertex.radius;
-						else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = node.vertex.radius;
-						else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(node.vertex.radius);
+							let parentNode = node.parents[i];
 
-						// Determine edge end position
-						if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(node.vertex.radius);
-						else if(node.vertex.edgeEnd === "right") endEdgeXOffset = node.vertex.radius;
-						else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = node.vertex.radius;
-						else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(node.vertex.radius);
+							// Determine edge start position
+							if(node.vertex.edgeStart === "top") startEdgeYOffset = -(node.vertex.radius);
+							else if(node.vertex.edgeStart === "right") startEdgeXOffset = node.vertex.radius;
+							else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = node.vertex.radius;
+							else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(node.vertex.radius);
+							else {
+								startEdgeXOffset = 0; startEdgeYOffset = 0;
+							}
 
-						// Place edge
-						edge = vertexEdgesG.append("line")
-							.attr("x1", node.vertex.x + startEdgeXOffset)
-							.attr("y1", node.vertex.y + startEdgeYOffset)
-							.attr("x2", nextNode.vertex.x + endEdgeXOffset)
-							.attr("y2", nextNode.vertex.y + endEdgeYOffset)
-							.attr("stroke", "black")     // TODO: User choice
-							.attr("stroke-width", "2px") // TODO: User choice
-							.attr("data-start", journeyNodeObject.collectionIndex + "|" + journeyNodeObject.wordIndex) // For finding attached edges later
-							.attr("data-end", nextNodeObject.collectionIndex + "|" + nextNodeObject.wordIndex);
-						//.attr("marker-end", "url(#arrow)");
+							// Determine edge end position
+							if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(node.vertex.radius);
+							else if(node.vertex.edgeEnd === "right") endEdgeXOffset = node.vertex.radius;
+							else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = node.vertex.radius;
+							else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(node.vertex.radius);
+							else {
+								endEdgeXOffset = 0; endEdgeYOffset = 0;
+							}
+
+							// Place edge
+							vertexEdgesG.append("line")
+								.attr("x1", node.vertex.x + startEdgeXOffset)
+								.attr("y1", node.vertex.y + startEdgeYOffset)
+								.attr("x2", parentNode.vertex.x + endEdgeXOffset)
+								.attr("y2", parentNode.vertex.y + endEdgeYOffset)
+								.attr("stroke", "black")     // TODO: User choice
+								.attr("stroke-width", "2px") // TODO: User choice
+								.attr("data-start", journeyNodeObject.collectionIndex + "|" + node.indexChain) // For finding attached edges later
+								.attr("data-end", journeyNodeObject.collectionIndex + "|" + parentNode.indexChain);
+							//.attr("marker-end", "url(#arrow)");
+						}
 					}
 
 					let vertex = vertexG.append("circle")
@@ -425,7 +451,6 @@ export function Map(props)
 									// Resize the vertex's text
 									const paddingOffset = 10;
 									newLabelSize = ((((newVertexSize*2) - paddingOffset) / innerTextWidth) * 100) + "%";
-									console.log(newLabelSize);
 									text.style("font-size", newLabelSize);
 								}
 							}
@@ -438,23 +463,26 @@ export function Map(props)
 								text.attr("x", vertexX).attr("y", vertexY); // Only visually
 
 								// Move the edges
-								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.wordIndex;
-								let attachedEdges = d3.selectAll("line[data-end=\""+dataEnd+"\"]"); // Find all edges that end on this node
+								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.indexChain;
+								let attachedEdges = d3.selectAll("line[data-start=\""+dataEnd+"\"]"); // Find all edges that start on this node
+								let attachedEdges2 = d3.selectAll("line[data-end=\""+dataEnd+"\"]");  // Find all edges that end on this node
 								if(attachedEdges)
 								{
-									attachedEdges.attr("x2", vertexX + startEdgeXOffset)
-										.attr("y2", vertexY + startEdgeYOffset);
+									attachedEdges.attr("x1", vertexX + startEdgeXOffset)
+												 .attr("y1", vertexY + startEdgeYOffset);
 								}
-								if(edge)
+								if(attachedEdges2)
 								{
-									edge.attr("x1", vertexX + startEdgeXOffset)
-										.attr("y1", vertexY + startEdgeYOffset);
+									attachedEdges2.attr("x2", vertexX + startEdgeXOffset)
+												  .attr("y2", vertexY + startEdgeYOffset);
 								}
 							}
 						})
 						.on("end", () => {
 							resizing = false;
-							moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.wordIndex, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
+							node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexSize || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
+							editNode(null, journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, node);
+							//moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
 						})
 					);
 				}
@@ -485,6 +513,22 @@ export function Map(props)
 
 	});
 
+	function flattenTree(wordArray, node, i, indexChain, collectionIndex)
+	{
+		indexChain += String(i);
+		if(node.parents)
+		{
+			for(let j = 0; j < node.parents.length; ++j)
+			{
+				wordArray = flattenTree(wordArray, node.parents[j], j, indexChain + "->", collectionIndex);
+			}
+		}
+
+		node.indexChain = indexChain;
+		wordArray.push(node);
+		return wordArray;
+	}
+
 	/**
 	 * Finds all nodes in all collections of specified type where the node's language is within the feature's language array
 	 * @param {*} d The dataset feature (country/region) currently being rendered
@@ -495,9 +539,9 @@ export function Map(props)
 		// Search collections
 		if(type === "cognate")
 		{
-			for(let c = 0; c < collections.length; ++c)
+			for(let c = 0; c < flattenedCollections.length; ++c)
 			{
-				let collection = collections[c];
+				let collection = flattenedCollections[c];
 				if(collection.type === "cognate")
 				{
 					for(let n = 0; n < collection.words.length; ++n)
@@ -515,9 +559,9 @@ export function Map(props)
 		else if(type === "journey")
 		{
 			let countryNodes = [];
-			for(let c = 0; c < collections.length; ++c) // Search for all nodes in all collections for this country/region
+			for(let c = 0; c < flattenedCollections.length; ++c) // Search for all nodes in all collections for this country/region
 			{
-				let collection = collections[c];
+				let collection = flattenedCollections[c];
 				if(collection.type === "journey")
 				{
 					for(let n = 0; n < collection.words.length; ++n)
@@ -525,19 +569,18 @@ export function Map(props)
 						let childNode = collection.words[n];
 
 						if(d.properties.languages.includes(childNode.language))
-							countryNodes.push({node: childNode, collectionIndex: c, wordIndex: n});
+							countryNodes.push({node: childNode, collectionIndex: c});
 					}
 				}
 			}
 			return countryNodes;
 		}
-
 	}
 	function findNextNode(collectionIndex, childIndex)
 	{
 		let nextNode;
-		if(collections[collectionIndex].words[childIndex+1])
-			return {node: collections[collectionIndex].words[childIndex+1], collectionIndex: collectionIndex, wordIndex: childIndex+1}
+		if(flattenedCollections[collectionIndex].words[childIndex+1])
+			return {node: flattenedCollections[collectionIndex].words[childIndex+1], collectionIndex: collectionIndex, wordIndex: childIndex+1}
 		else
 			return null;
 	}

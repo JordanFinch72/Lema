@@ -101,8 +101,6 @@ class Lema extends Component
 		this.addNodeDefault = this.addNodeDefault.bind(this);
 		this.editNode = this.editNode.bind(this);
 		this.removeNode = this.removeNode.bind(this);
-		this.moveLabel = this.moveLabel.bind(this);
-		this.moveVertex = this.moveVertex.bind(this);
 		this.removeCollection = this.removeCollection.bind(this);
 	}
 
@@ -187,58 +185,58 @@ class Lema extends Component
 	/**
 	 * Updates the state's collections array with updated node
 	 * @param e React SyntheticEvent
-	 * @param data Data object containing collectionIndex, indexChain, and updated node object
+	 * @param collectionIndex Index of collection to which the node belongs
+	 * @param indexChain Index chain to find node within the specified collection
+	 * @param updatedNode The updated node to be set in the collections array
 	 */
-	editNode(e, data)
+	editNode(e, collectionIndex, indexChain, updatedNode)
 	{
-		// Create new child node
 		let newCollections = this.state.collections;
-		let indexChain = data.indexChain.split("->"); // Note: indexes are returned as strings, but JS doesn't seem to mind
+		indexChain = indexChain.split("->"); // Note: indexes are returned as strings, but JS doesn't seem to mind
 
 		// Find node via index chain
-		let node = newCollections[data.collectionIndex].words[indexChain[0]]; // Beginning of chain is always 0
+		let node = newCollections[collectionIndex].words[indexChain[0]]; // Beginning of chain is always 0
 		for(let i = 1; i < indexChain.length; ++i)
 		{
 			node = node.parents[indexChain[i]];
 		}
 
-		// Update in collection object by reference
-		for(let index in data.node)
-			if(node[index]) node[index] = data.node[index];
+		// Update node by reference
+		for(let index in updatedNode)
+			if(node[index]) node[index] = updatedNode[index];
 
-		this.setState({collections: newCollections}, this.closeModal);
-	}
-
-	removeNode(e, collectionIndex, wordIndex)
-	{
-		let newCollections = this.state.collections;
-		newCollections[collectionIndex].words.splice(wordIndex, 1);
-		this.setState({collections: newCollections}, function()
-		{
-			console.log(this.state);
+		this.setState({collections: newCollections}, () => {
+			console.log("Post-edit collections: ");
+			console.log(this.state.collections);
+			if(this.state.activeModal)
+				this.closeModal();
 		});
 	}
-	moveLabel(collectionIndex, wordIndex, x, y, fontSize = null)
+	removeNode(e, collectionIndex, indexChain)
 	{
 		let newCollections = this.state.collections;
-		newCollections[collectionIndex].words[wordIndex].label.x = x;
-		newCollections[collectionIndex].words[wordIndex].label.y = y;
-		if(fontSize)
-			newCollections[collectionIndex].words[wordIndex].label.fontSize = fontSize;
-		this.setState({collections: newCollections},
-			(e) => {console.log(this.state.collections[collectionIndex].words[wordIndex])});
-	}
-	moveVertex(collectionIndex, wordIndex, x, y, radius = null, fontSize = null)
-	{
-		let newCollections = this.state.collections;
-		newCollections[collectionIndex].words[wordIndex].vertex.x = x;
-		newCollections[collectionIndex].words[wordIndex].vertex.y = y;
-		if(radius)
-			newCollections[collectionIndex].words[wordIndex].vertex.radius = radius;
-		if(fontSize)
-			newCollections[collectionIndex].words[wordIndex].vertex.fontSize = fontSize;
-		this.setState({collections: newCollections},
-			(e) => {console.log(this.state.collections[collectionIndex].words[wordIndex])});
+		indexChain = indexChain.split("->"); // Note: indexes are returned as strings, but JS doesn't seem to mind
+
+		// Find node via index chain
+		let node = newCollections[collectionIndex].words[indexChain[0]]; // Beginning of chain is always 0
+		for(let i = 1; i < indexChain.length; ++i)
+		{
+			if(i+1 === indexChain.length) // End of chain == node to delete
+			{
+				let confirmed = false;
+				if(node.parents[indexChain[i]].parents)
+					confirmed = window.confirm("Warning: this node has "+node.parents[indexChain[i]].parents.length+" parent nodes that will be deleted as well. Do you still wish to delete?");
+				else
+					confirmed = window.confirm("Are you sure you wish to delete this node?")
+
+				if(confirmed)
+					node.parents.splice(indexChain[i], 1); // Delete by reference
+			}
+			else
+				node = node.parents[indexChain[i]];
+		}
+
+		this.setState({collections: newCollections}, this.closeModal);
 	}
 
 	addCollection(e, data)
@@ -296,6 +294,7 @@ class Lema extends Component
 		});
 	}
 
+
 	render()
 	{
 		let modalContainer = null, contextMenuContainer = null;
@@ -314,7 +313,7 @@ class Lema extends Component
 				<div className={"context-menu-container"} onClick={this.closeContextMenu}>{activeContextMenu}</div>;
 		}
 
-		console.log(this.state.collections);
+		//console.log(this.state.collections);
 
 		return (
 			<div className="Lema">
@@ -328,7 +327,7 @@ class Lema extends Component
 					/>
 					<Map collections={this.state.collections} mapRenderCounter={this.state.mapRenderCounter}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-					     openModal={this.openModal} closeModal={this.closeModal} moveLabel={this.moveLabel} moveVertex={this.moveVertex}
+					     openModal={this.openModal} closeModal={this.closeModal}
 						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}  />
 				</div>
 				{modalContainer}

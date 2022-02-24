@@ -49,15 +49,15 @@ class CollectionNode extends Component
 						window.clearTimeout(changeColourTimeout);
 						changeColourTimeout = window.setTimeout(function()
 						{
-							let data = {collectionIndex: node.props.collectionIndex, indexChain: node.props.indexChain, node: {
+							let updatedNode = {
 								...node,
 									colour: e.target.value
-								}};
-							node.props.editNode(e, data);
+								};
+							node.props.editNode(e, node.props.collectionIndex, node.props.indexChain, updatedNode);
 						}, 100);
 					}}/>
 					<Button value={"X"} id={"remove-node"}
-					        onClick={(e) => this.props.removeNode(e, this.props.collectionIndex, this.props.wordIndex)}/>
+					        onClick={(e) => this.props.removeNode(e, this.props.collectionIndex, this.props.indexChain)}/>
 				</div>
 			</div>
 		);
@@ -102,7 +102,6 @@ export class Collection extends Component
 			}
 		}
 
-		//indexChain = indexChain.slice(2, indexChain.length); // Clip initial "->"
 		wordComponents.push(<CollectionNode
 			key={indexChain}
 			type={this.props.type}
@@ -119,7 +118,7 @@ export class Collection extends Component
 
 	render()
 	{
-		let wordComponents = []; // All word ele
+		let wordComponents = [];
 
 		if(!this.state.collapsed)
 		{

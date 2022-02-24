@@ -149,11 +149,11 @@ export class AddEditNodeModal extends Component
 				{
 					if(this.validation())
 					{
-						// Build data to match node structure
-						let data = {node: null, collectionIndex: this.props.collectionIndex, indexChain: this.props.indexChain};
+						// Build node structure to match collection type
+						let updatedNode;
 						if(this.props.type === "journey")
 						{
-							data.node = {
+							updatedNode = {
 								word: this.state.word, language: this.state.language, colour: this.state.colour,
 								vertex: {
 									...this.props.node.vertex,
@@ -163,7 +163,7 @@ export class AddEditNodeModal extends Component
 						}
 						else if(this.props.type === "cognate")
 						{
-							data.node = {
+							updatedNode = {
 								word: this.state.word, language: this.state.language, colour: this.state.colour,
 								label: {
 									...this.props.node.label,
@@ -171,7 +171,7 @@ export class AddEditNodeModal extends Component
 								}
 							};
 						}
-						this.props.onNodeSubmit(e, data);
+						this.props.onNodeSubmit(e, this.props.collectionIndex, this.props.indexChain, updatedNode);
 					}
 
 				}}/>
