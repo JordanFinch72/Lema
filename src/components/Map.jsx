@@ -16,18 +16,10 @@ export function Map(props)
 	const openModal = props.openModal.bind(this);
 
 	const collections = props.collections;
-	let flattenedCollections = [];
-	for(let i = 0; i < collections.length; ++i)
-	{
-		let flattenedTree = [];
-		flattenedTree = flattenTree(flattenedTree, collections[i].words[0], 0, "", i);
-		flattenedCollections.push({type: collections[i].type, words: flattenedTree});
-	}
 	console.log("[== MAP RENDER ==]");
 
 	let topojson = require("topojson");
 	let countries_data = require("../data/countries/countries.json");
-
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
@@ -132,9 +124,7 @@ export function Map(props)
 		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
 		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
-			// Only place labels of countries with associated cognate data
-			// TODO: Make this a setting
-			let cognateNodeObject = findNodes(f, "cognate");
+			let cognateNodeObject = findNodes(f, "cognate");  // The first node in any cognate collection that belongs to this country/region
 			let journeyNodeObjects = findNodes(f, "journey"); // All nodes across all journey collections belonging to this country/region
 			if(cognateNodeObject)
 			{
@@ -236,7 +226,7 @@ export function Map(props)
 						.on("end", () => {
 							resizing = false;
 							node.x = x; node.y = y; node.newSize = newSize;
-							editNode(null, cognateNodeObject.collectionIndex, cognateNodeObject.node.indexChain, node);
+							editNode(null, cognateNodeObject.collectionIndex, node);
 							//moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.node.indexChain, x, y, newSize); // Set final properties
 						})
 				);
@@ -287,7 +277,7 @@ export function Map(props)
 					if(!node.vertex.x || !node.vertex.y)
 					{
 						node.vertex.x = vertexX; node.vertex.y = vertexY;
-						return editNode(null, journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, node);
+						return editNode(null, journeyNodeObject.collectionIndex, node);
 					}
 
 					// Prepare text element. This is required to calculate circle radius based on text element's width
@@ -356,8 +346,8 @@ export function Map(props)
 								.attr("y2", parentNode.vertex.y + endEdgeYOffset)
 								.attr("stroke", "black")     // TODO: User choice
 								.attr("stroke-width", "2px") // TODO: User choice
-								.attr("data-start", journeyNodeObject.collectionIndex + "|" + node.indexChain) // For finding attached edges later
-								.attr("data-end", journeyNodeObject.collectionIndex + "|" + parentNode.indexChain);
+								.attr("data-start", journeyNodeObject.collectionIndex + "|" + node.arrayIndex) // For finding attached edges later
+								.attr("data-end", journeyNodeObject.collectionIndex + "|" + parentNode.arrayIndex);
 							//.attr("marker-end", "url(#arrow)");
 						}
 					}
@@ -463,7 +453,7 @@ export function Map(props)
 								text.attr("x", vertexX).attr("y", vertexY); // Only visually
 
 								// Move the edges
-								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.indexChain;
+								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.arrayIndex;
 								let attachedEdges = d3.selectAll("line[data-start=\""+dataEnd+"\"]"); // Find all edges that start on this node
 								let attachedEdges2 = d3.selectAll("line[data-end=\""+dataEnd+"\"]");  // Find all edges that end on this node
 								if(attachedEdges)
@@ -481,7 +471,7 @@ export function Map(props)
 						.on("end", () => {
 							resizing = false;
 							node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexSize || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
-							editNode(null, journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, node);
+							editNode(null, journeyNodeObject.collectionIndex, node);
 							//moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
 						})
 					);
@@ -513,22 +503,6 @@ export function Map(props)
 
 	});
 
-	function flattenTree(wordArray, node, i, indexChain, collectionIndex)
-	{
-		indexChain += String(i);
-		if(node.parents)
-		{
-			for(let j = 0; j < node.parents.length; ++j)
-			{
-				wordArray = flattenTree(wordArray, node.parents[j], j, indexChain + "->", collectionIndex);
-			}
-		}
-
-		node.indexChain = indexChain;
-		wordArray.push(node);
-		return wordArray;
-	}
-
 	/**
 	 * Finds all nodes in all collections of specified type where the node's language is within the feature's language array
 	 * @param {*} d The dataset feature (country/region) currently being rendered
@@ -539,9 +513,9 @@ export function Map(props)
 		// Search collections
 		if(type === "cognate")
 		{
-			for(let c = 0; c < flattenedCollections.length; ++c)
+			for(let c = 0; c < collections.length; ++c)
 			{
-				let collection = flattenedCollections[c];
+				let collection = collections[c];
 				if(collection.type === "cognate")
 				{
 					for(let n = 0; n < collection.words.length; ++n)
@@ -559,9 +533,9 @@ export function Map(props)
 		else if(type === "journey")
 		{
 			let countryNodes = [];
-			for(let c = 0; c < flattenedCollections.length; ++c) // Search for all nodes in all collections for this country/region
+			for(let c = 0; c < collections.length; ++c) // Search for all nodes in all collections for this country/region
 			{
-				let collection = flattenedCollections[c];
+				let collection = collections[c];
 				if(collection.type === "journey")
 				{
 					for(let n = 0; n < collection.words.length; ++n)
@@ -579,8 +553,8 @@ export function Map(props)
 	function findNextNode(collectionIndex, childIndex)
 	{
 		let nextNode;
-		if(flattenedCollections[collectionIndex].words[childIndex+1])
-			return {node: flattenedCollections[collectionIndex].words[childIndex+1], collectionIndex: collectionIndex, wordIndex: childIndex+1}
+		if(collections[collectionIndex].words[childIndex+1])
+			return {node: collections[collectionIndex].words[childIndex+1], collectionIndex: collectionIndex, wordIndex: childIndex+1}
 		else
 			return null;
 	}

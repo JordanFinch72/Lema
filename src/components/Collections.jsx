@@ -10,26 +10,33 @@ export class Collections extends Component
 	{
 		super(props);
 		this.state = {
-			collections: this.props.collections
 		};
 
 		/* Click, event handlers */
 		this.cAddNode = this.cAddNode.bind(this);
-		this.cAddNodeDefault = this.props.addNodeDefault.bind(this);
+		this.cAddNodeDefault = this.cAddNodeDefault.bind(this);
 		this.cRemoveCollection = this.cRemoveCollection.bind(this);
 	}
 
 
 
 	/* Context menu item handlers */
-	cAddNode(e, collectionIndex)
+	cAddNode(e, data)
 	{
-		// Open the AddEditNodeModal
-		this.props.openModal(e, <AddEditNodeModal onNodeSubmit={this.props.addNode} collectionIndex={collectionIndex}/>);
+		// Open the AddEditNodeModal with initial node data
+		let node = {word: "", colour: "#000000", language: "", parents: []};
+		if(data.type === "journey") node.vertex = {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"};
+		if(data.type === "cognate") node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+		this.props.openModal(e, <AddEditNodeModal words={data.words} node={node} type={data.type} onNodeSubmit={this.props.addNode} collectionIndex={data.collectionIndex}/>);
 	}
 	cAddNodeDefault(e, data)
 	{
-		this.props.addNodeDefault(e, data);
+		// Add node with initial node data
+		let node = {word: "New Word", colour: "#000000", language: "Proto-Indo-European", parents: []};
+		if(data.type === "journey") node.vertex = {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"};
+		if(data.type === "cognate") node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+
+		this.props.addNode(e, data.collectionIndex, node);
 	}
 	cRemoveCollection(e, collectionIndex)
 	{
@@ -41,20 +48,20 @@ export class Collections extends Component
 	{
 		let journeys = null, cognates = null;
 		let journeyCollections = [], cognateCollections = [];
-		this.state.collections.map((item, index) =>
+		this.props.collections.map((collection, index) =>
 		{
-			if(typeof item !== "undefined")
+			if(typeof collection !== "undefined")
 			{
 				let component = <Collection
-					key={index} index={index} type={item.type} header={item.header} openModal={this.props.openModal}
-					words={item.words} editCollection={this.props.editCollection}
+					key={index} index={index} type={collection.type} header={collection.header} openModal={this.props.openModal}
+					words={collection.words} editCollection={this.props.editCollection}
 					openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}
 					cAddNode={this.cAddNode} cAddNodeDefault={this.cAddNodeDefault} cRemoveCollection={this.cRemoveCollection}
 					addNode={this.props.addNode} editNode={this.props.editNode} removeNode={this.props.removeNode}
 				/>;
-				if(item.type === "journey")
+				if(collection.type === "journey")
 					journeyCollections.push(component);
-				else if(item.type === "cognate")
+				else if(collection.type === "cognate")
 					cognateCollections.push(component);
 			}
 		});

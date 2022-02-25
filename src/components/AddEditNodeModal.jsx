@@ -15,6 +15,8 @@ export class AddEditNodeModal extends Component
 			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,
 			customText: (this.props.node.label !== undefined) ? this.props.node.label.customText || null : null, // Note: Text can be ""
 			fontColour: (this.props.node.label !== undefined) ? this.props.node.label.fontColour || null : null,
+			parents: this.props.node.parents,
+			selectedParentIndex: 0,
 
 			// Optional or can be overridden
 			language: (typeof this.props.language === "object") ? this.props.language[0] : this.props.language,
@@ -130,6 +132,63 @@ export class AddEditNodeModal extends Component
 			]
 		}
 
+		// TODO: Decide between:
+		//   - (1) changing HCI so that users create a child node from a parent, and can only make a (single) parent node per collection from the collection context menu
+		//   - (2) passing down the collection's words into the modal as a prop. Not sure what kind of performance/memory hit this would induce
+		// Parents
+		let parentList = [], potentialParentList = [], parentControls = [];
+		if(this.props.node.parents)
+		{
+			// Gather current parents
+			for(let i = 0; i < this.props.node.parents.length; ++i)
+			{
+				let parent = this.props.node.parents[i];
+				parentList.push(<div className={"parent-list"}>
+					<div>
+						{parent.word + " (" + parent.language + ")"}
+					</div>
+					<div>
+						<Button value={"X"} onClick={(e) => {
+							this.props.node.parents.splice(i, 1);
+							this.setState({parents: this.props.node.parents});
+						}} />
+					</div>
+				</div>);
+			}
+		}
+		if(this.props.words)
+		{
+			for(let i = 0; i < this.props.words.length; ++i)
+			{
+				// List all potential new parents
+				let word = this.props.words[i];
+				if(this.props.node !== word && !this.props.node.parents.includes(word))
+				{
+					potentialParentList.push(<option key={i} data-index={i}>{word.word + " (" + word.language + ")"}</option>);
+				}
+			}
+		}
+		console.log(potentialParentList);
+		let potentialParents = <select name={"selectedParent"} onChange={(event) => {
+			const selectedIndex = event.target.selectedIndex;
+
+			this.setState({
+				selectedParentIndex: selectedIndex
+			});
+		}
+		}>
+			{potentialParentList}
+		</select>;
+		if(potentialParents)
+		{
+			parentControls = <Button id={"add-node-modal-add-parent"} value={"Add parent"} onClick={(e) => {
+				let selectedParent = potentialParentList[this.state.selectedParentIndex];
+				let parentIndex = selectedParent.props["data-index"];
+				this.props.node.parents.push(this.props.words[parentIndex]);
+				this.setState({parents: this.props.node.parents});
+			}} />
+		}
+
 		return (
 			<div className={"modal"}>
 				<h3>Word</h3>
@@ -143,6 +202,11 @@ export class AddEditNodeModal extends Component
 						this.setState({colour: e.target.value});
 					}}/>
 				</div>
+				<h3>Current Parents</h3>
+				{parentList}
+				<h3>Potential Parents</h3>
+				{potentialParents}
+				{parentControls}
 				{labelControls}
 				{selectCollection}
 				<Button value={"Submit"} id={"add-node-modal-submit"} onClick={(e) =>
@@ -154,6 +218,7 @@ export class AddEditNodeModal extends Component
 						if(this.props.type === "journey")
 						{
 							updatedNode = {
+								...this.props.node,
 								word: this.state.word, language: this.state.language, colour: this.state.colour,
 								vertex: {
 									...this.props.node.vertex,
@@ -164,6 +229,7 @@ export class AddEditNodeModal extends Component
 						else if(this.props.type === "cognate")
 						{
 							updatedNode = {
+								...this.props.node,
 								word: this.state.word, language: this.state.language, colour: this.state.colour,
 								label: {
 									...this.props.node.label,
@@ -171,7 +237,7 @@ export class AddEditNodeModal extends Component
 								}
 							};
 						}
-						this.props.onNodeSubmit(e, this.props.collectionIndex, this.props.indexChain, updatedNode);
+						this.props.onNodeSubmit(e, this.props.collectionIndex, updatedNode);
 					}
 
 				}}/>
