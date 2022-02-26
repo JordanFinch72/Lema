@@ -58,8 +58,10 @@ class Lema extends Component
 					]
 				}*/
 			],
-			mapRenderCounter: 0
+			journeyCount: 0
 		};
+
+		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"]
 
 		this.flattenTree = this.flattenTree.bind(this);
 		this.openModal = this.openModal.bind(this);
@@ -90,39 +92,43 @@ class Lema extends Component
 		}
 
 		// Retrieve word from ED and convert to Lema-compatible object
-		wordObject = edWords[wordID];
-		wordObject = {
-			id: Number(wordID),
-			arrayIndex: wordArray.length,
-			word: wordObject.word,
-			language: wordObject.language_name,
-			parents: [],
-			colour: "#000000",
-			vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}
-		}
-		for(let i = 0; i < parents.length; ++i)
+		if(wordID !== null)
 		{
-			let parentID = Number(parents[i]);
-			let parent = wordArray.find(({id}) => id === parentID);
-			wordObject.parents.push(parent);
+			wordObject = edWords[wordID];
+			wordObject = {
+				id: Number(wordID),
+				arrayIndex: wordArray.length,
+				word: wordObject.word,
+				language: wordObject.language_name,
+				parents: [],
+				colour: "#000000",
+				vertex: {type: "word", strokeColour: "#000000", fillColour: this.defaultJourneyColours[this.state.journeyCount], radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}
+			}
+			for(let i = 0; i < parents.length; ++i)
+			{
+				let parentID = Number(parents[i]);
+				let parent = wordArray.find(({id}) => id === parentID);
+				wordObject.parents.push(parent);
+			}
+			wordArray.push(wordObject);
 		}
-		wordArray.push(wordObject);
+
 		return wordArray;
 	}
 
 	addJourney(edWords, edStructure)
 	{
-		let newCollections = this.state.collections;
+		let newCollections = this.state.collections, newJourneyCount = this.state.journeyCount;
 
 		// Flatten the structure
 		let journeyWords = [];
-		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, Object.keys(edStructure)[0], null);
+		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, null);
 
 		// Create the new journey and add it to collections
 		let newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};
 		newCollections.push(newJourney);
 
-		this.setState({collections: newCollections}, (e) => {console.log(this.state.collections);});
+		this.setState({collections: newCollections, journeyCount: newJourneyCount+1});
 	}
 
 	openModal(e, modalComponent)

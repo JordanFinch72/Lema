@@ -50,6 +50,16 @@ div.search-container {
     flex-flow: row wrap;
     padding: 0.2em;
 }
+div.search-container div.search-fields {
+    display: flex;
+    flex-flow: row;
+    flex-basis: 100%;
+    justify-content: space-evenly;
+}
+div.search-container div.search-fields div.textbox, div.search-container div.search-fields select {
+    flex-basis: 48%;
+}
+
 div.textbox {
     flex-basis: 100%;
 }
