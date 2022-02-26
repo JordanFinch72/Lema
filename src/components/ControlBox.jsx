@@ -10,9 +10,11 @@ export class ControlBox extends Component
 	{
 		super(props);
 		this.state = {
+			mapMode: "journey", // "journey" || "cognate"
 			searchBoxValue: "",
-			searchLanguage: "English" // Default
+			searchLanguage: "English"
 		};
+
 
 		this.onFieldChange = this.onFieldChange.bind(this);
 		this.onButtonClick = this.onButtonClick.bind(this);
@@ -29,42 +31,48 @@ export class ControlBox extends Component
 			[name]: value
 		});
 	}
-	onButtonClick(e, data)
+	onButtonClick()
 	{
 		let word = this.state.searchBoxValue;
 		let language =  this.state.searchLanguage;
 		if(word !== "" && language !== "")
 		{
-			let getString = `https://api.etymologyexplorer.com/dev/get_trees?common_descendant_count=0&language=${language}&word=${word}`;
+			if(this.state.mapMode === "journey")
+			{
+				let getString = `https://api.etymologyexplorer.com/dev/get_trees?common_descendant_count=0&language=${language}&word=${word}`;
+				let edWords, edConnections;
 
-			let edWords, edConnections;
+				axios.get(getString)
+					.then((response) => {
+						console.log(response);
+						edWords = response.data[1].words;
+						edConnections = response.data[2];
 
-			axios.get(getString)
-				.then((response) => {
-					console.log(response);
-					edWords = response.data[1].words;
-					edConnections = response.data[2];
-
-					this.props.addJourney(edWords, edConnections);
-				})
-				.catch((error) => {
-					if(error.response.data['Error message'].indexOf("Could not get an ids") !== -1)
-					{
-						alert("Database error: word not found.");
-					}
-				});
+						this.props.addJourney(edWords, edConnections);
+					})
+					.catch((error) => {
+						if(error.response.data['Error message'].indexOf("Could not get an ids") !== -1)
+						{
+							alert("Database error: word not found.");
+						}
+					});
+			}
+			else if(this.state.mapMode === "cognate")
+			{
+				// TODO
+			}
 		}
 	}
 	onRadioButtonClick(e, data)
 	{
 		// Update parent LeftBar component's state
 		let mode = (data.id === 0) ? "journey" : "cognate";
-		this.props.updateMapMode(e, mode);
+		this.setState({mapMode: mode});
 	}
 
 	render()
 	{
-		const buttons = [{active: (this.props.mapMode === "journey"), label: "Historical journey"}, {active: (this.props.mapMode === "cognate"), label: "Cognates"}];
+		const buttons = [{active: (this.state.mapMode === "journey"), label: "Historical journey"}, {active: (this.state.mapMode === "cognate"), label: "Cognates"}];
 
 		return(
 			<div className={"search-container"}>
