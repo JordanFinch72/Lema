@@ -121,6 +121,7 @@ export function Map(props)
 			.attr("d", path);
 
 		// Cognate labels, journey vertices
+
 		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
 		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
@@ -300,55 +301,61 @@ export function Map(props)
 					}
 					preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
 
-					// Place edge between this node and next node
+					// Place edge between this node and its parents
+					let markerSelectString = ""; // String to select markers so they can move whilst being resized
 					if(node.parents)
 					{
 						// Create edge for each parent, originating from this node
 						for(let i = 0; i < node.parents.length; ++i)
 						{
-							// TODO: Arrowheads
-							/*
-							 labelVertexG.append("defs")
-							 .append("marker")
-							 .attr("id", "arrow")
-							 .attr("markerWidth", 5).attr("markerHeight", 4)
-							 .attr("refX", 0).attr("refY", 2)
-							 .attr("orient", "auto")
-							 .append("polygon")
-							 .attr("points", "0 0, 5 2, 0 4");
-							 */
-
 							let parentNode = node.parents[i];
 
+							// Fingerprint references for marker IDs and data-start/data-end attributes
+							const parentRef = journeyNodeObject.collectionIndex + "|" + parentNode.arrayIndex;
+							const nodeRef = journeyNodeObject.collectionIndex + "|" + node.arrayIndex;
+
+							// Compute arrowheads
+							vertexEdgesG.append("defs")
+								.append("marker")
+							    .attr("id", "arrow" + parentRef + nodeRef)
+							    .attr("markerWidth", 5).attr("markerHeight", 4)
+							    .attr("refX", radius/2 + 5).attr("refY", 2)
+							    .attr("orient", "auto")
+							    .append("polygon")
+							    .attr("points", "0 0, 5 2, 0 4")
+							    .attr("id", nodeRef);
+							markerSelectString += "marker[id=\"arrow"+parentRef+nodeRef+"\"], ";
+
+
 							// Determine edge start position
-							if(node.vertex.edgeStart === "top") startEdgeYOffset = -(node.vertex.radius);
-							else if(node.vertex.edgeStart === "right") startEdgeXOffset = node.vertex.radius;
-							else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = node.vertex.radius;
-							else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(node.vertex.radius);
-							else {
+							if(node.vertex.edgeStart === "top") startEdgeYOffset = -(radius);
+							else if(node.vertex.edgeStart === "right") startEdgeXOffset = radius;
+							else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = radius;
+							else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(radius);
+							else if(node.vertex.edgeStart === "centre") {
 								startEdgeXOffset = 0; startEdgeYOffset = 0;
 							}
 
 							// Determine edge end position
-							if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(node.vertex.radius);
-							else if(node.vertex.edgeEnd === "right") endEdgeXOffset = node.vertex.radius;
-							else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = node.vertex.radius;
-							else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(node.vertex.radius);
-							else {
+							if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(radius);
+							else if(node.vertex.edgeEnd === "right") endEdgeXOffset = radius;
+							else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = radius;
+							else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(radius);
+							else if(node.vertex.edgeStart === "centre") {
 								endEdgeXOffset = 0; endEdgeYOffset = 0;
 							}
 
 							// Place edge
 							vertexEdgesG.append("line")
-								.attr("x1", node.vertex.x + startEdgeXOffset)
-								.attr("y1", node.vertex.y + startEdgeYOffset)
-								.attr("x2", parentNode.vertex.x + endEdgeXOffset)
-								.attr("y2", parentNode.vertex.y + endEdgeYOffset)
+								.attr("x1", parentNode.vertex.x + startEdgeXOffset)
+								.attr("y1", parentNode.vertex.y + startEdgeYOffset)
+								.attr("x2", node.vertex.x + endEdgeXOffset)
+								.attr("y2", node.vertex.y + endEdgeYOffset)
 								.attr("stroke", "black")     // TODO: User choice
 								.attr("stroke-width", "2px") // TODO: User choice
-								.attr("data-start", journeyNodeObject.collectionIndex + "|" + node.arrayIndex) // For finding attached edges later
-								.attr("data-end", journeyNodeObject.collectionIndex + "|" + parentNode.arrayIndex);
-							//.attr("marker-end", "url(#arrow)");
+								.attr("data-start", parentRef) // For finding attached edges later
+								.attr("data-end", nodeRef)
+								.attr("marker-end", "url(#arrow"+parentRef+nodeRef+")");
 						}
 					}
 
@@ -367,7 +374,7 @@ export function Map(props)
 					prevDiameter = radius*2;
 
 					// Dragging/resizing handlers
-					let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newVertexSize, newLabelSize;
+					let startXOffset, startYOffset, resizing = false, startX, startY, startRadius, newVertexRadius, newLabelSize;
 					vertex.on("mousemove", (e) => {
 						let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
 						let mouseX = e.layerX, mouseY = e.layerY;
@@ -423,7 +430,7 @@ export function Map(props)
 								resizing = true;
 								startX = mouseX;
 								startY = mouseY;
-								startSize = parseFloat(vertex.attr("r"));
+								startRadius = parseFloat(vertex.attr("r"));
 							}
 						})
 						.on("drag", (e) => {
@@ -434,14 +441,21 @@ export function Map(props)
 								{
 									// Resize the vertex
 									let deltaX = mouseX - startX;
-									newVertexSize = startSize + (deltaX / 10);
-									if(newVertexSize < 10) newVertexSize = 10; // Floor of 10px to prevent it shrinking into nothingness
-									vertex.attr("r", newVertexSize + "px"); // Only visually, not updating state itself
+									newVertexRadius = startRadius + (deltaX / 10);
+									if(newVertexRadius < 10) newVertexRadius = 10; // Floor of 10px to prevent it shrinking into nothingness
+									vertex.attr("r", newVertexRadius + "px"); // Only visually, not updating state itself
 
 									// Resize the vertex's text
 									const paddingOffset = 10;
-									newLabelSize = ((((newVertexSize*2) - paddingOffset) / innerTextWidth) * 100) + "%";
+									newLabelSize = ((((newVertexRadius*2) - paddingOffset) / innerTextWidth) * 100) + "%";
 									text.style("font-size", newLabelSize);
+
+									// Move arrowheads as it is resized
+									if(markerSelectString)
+									{
+										let selectString = markerSelectString.slice(0, markerSelectString.length-2); // Trim ", " at the end of string
+										d3.selectAll(selectString).attr("refX", newVertexRadius/2+5);
+									}
 								}
 							}
 							else
@@ -470,7 +484,7 @@ export function Map(props)
 						})
 						.on("end", () => {
 							resizing = false;
-							node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexSize || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
+							node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexRadius || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
 							editNode(null, journeyNodeObject.collectionIndex, node);
 							//moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
 						})
