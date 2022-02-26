@@ -2,6 +2,7 @@ import {Component} from "react";
 import {Textbox} from "./Textbox";
 import {RadioGroup} from "./RadioGroup";
 import {Button} from "./Button";
+import axios from "axios";
 
 export class ControlBox extends Component
 {
@@ -13,25 +14,41 @@ export class ControlBox extends Component
 		};
 
 		this.onButtonClick = this.onButtonClick.bind(this);
-		this.updateMapMode = this.props.updateMapMode.bind(this);
+		this.onRadioButtonClick = this.onRadioButtonClick.bind(this);
 	}
 
 	onButtonClick(e, data)
 	{
+		let word = "Pferd";
+		let language =  "German";
+		let getString = `https://api.etymologyexplorer.com/dev/get_trees?common_descendant_count=0&language=${language}&word=${word}`;
+
+		let edWords, edConnections;
+
+		axios.get(getString).then((response) => {
+			console.log(response);
+			edWords = response.data[1].words;
+			edConnections = response.data[2];
+
+			this.props.addJourney(edWords, edConnections);
+		});
+	}
+	onRadioButtonClick(e, data)
+	{
 		// Update parent LeftBar component's state
 		let mode = (data.id === 0) ? "journey" : "cognate";
-		this.updateMapMode(e, mode);
+		this.props.updateMapMode(e, mode);
 	}
 
 	render()
 	{
-		const buttons = [{active: false, label: "Historical journey"}, {active: true, label: "Cognates"}];
+		const buttons = [{active: (this.props.mapMode === "journey"), label: "Historical journey"}, {active: (this.props.mapMode === "cognate"), label: "Cognates"}];
 
 		return(
 			<div className={"search-container"}>
-				<Textbox hint={"Enter a word..."} />
-				<RadioGroup buttons={buttons} name={"map-mode"} onButtonClick={this.onButtonClick} />
-				<Button value={"Search"} id={"search"} />
+				<Textbox hint={"Enter a word..."} /> {/* TODO: This should autocomplete based on the ED's supported languages */}
+				<RadioGroup buttons={buttons} name={"map-mode"} onRadioButtonClick={this.onRadioButtonClick} />
+				<Button value={"Search"} id={"search"} onClick={this.onButtonClick} />
 			</div>
 		)
 	}

@@ -68,71 +68,61 @@ class Lema extends Component
 		this.closeContextMenu = this.closeContextMenu.bind(this);
 		this.addCollection = this.addCollection.bind(this);
 		this.editCollection = this.editCollection.bind(this);
+		this.addJourney = this.addJourney.bind(this);
 		this.addNode = this.addNode.bind(this);
 		this.editNode = this.editNode.bind(this);
 		this.removeNode = this.removeNode.bind(this);
 		this.removeCollection = this.removeCollection.bind(this);
 	}
 
-	flattenTree(wordArray, node)
+	flattenTree(wordArray, edWords, structure, wordID)
 	{
-		if(node.parents)
+		let parents = [], wordObject = {};
+		// Parents
+		if(Object.keys(structure).length > 0)
 		{
-			for(let j = 0; j < node.parents.length; ++j)
+			// Loop through parents
+			for(let wordID in structure)
 			{
-				wordArray = this.flattenTree(wordArray, node.parents[j]);
+				parents.push(wordID);
+				wordArray = this.flattenTree(wordArray, edWords, structure[wordID], wordID);
 			}
 		}
 
-		node.arrayIndex = wordArray.length; // To track where they are in the flattened tree. Required due to duplicate IDs exist in database, so cannot use them as keys
-		wordArray.push(node);
+		// Retrieve word from ED and convert to Lema-compatible object
+		wordObject = edWords[wordID];
+		wordObject = {
+			id: Number(wordID),
+			arrayIndex: wordArray.length,
+			word: wordObject.word,
+			language: wordObject.language_name,
+			parents: [],
+			colour: "#000000",
+			vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}
+		}
+		for(let i = 0; i < parents.length; ++i)
+		{
+			let parentID = Number(parents[i]);
+			let parent = wordArray.find(({id}) => id === parentID);
+			wordObject.parents.push(parent);
+		}
+		wordArray.push(wordObject);
 		return wordArray;
 	}
 
-	componentDidMount()
+	addJourney(edWords, edStructure)
 	{
-		// TODO: Temporary; same operation will be performed on incoming data from API
-		let testJourney =
-			{
-				type: "journey",
-				header: {word: "Pferd", language: "German"},
-				words: [
-					{id: 1, word: "Pferd", language: "German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-							{id: 2, word: "pfarifrit", language: "Old High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-									{id: 4, word: "paraveredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-											{id: 6, word: "veredus", language: "Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-													{id: 8, word: "werēdos", language: "Gaulish", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-															{id: 10, word: "uɸorēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-																	{id: 12, word: "uɸo", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-																			{id: 14, word: "upo", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: []}
-																		]},
-																	{id: 13, word: "rēdos", language: "Proto-Celtic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: []}
-																]}
-														]}
-												]}
-										]},
-									{id: 5, word: "paraveredus", language: "Late Latin", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-											{id: 7, word: "παρά", language: "Ancient Greek", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-													{id: 9, word: "preh₂-", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: [
-															{id: 11, word: "per-", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: []}
-														]}
-												]}
-										]}
-								]},
-							{id: 3, word: "pferift", language: "Middle High German", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}, parents: []}
-						]}
-				]
-			};
+		let newCollections = this.state.collections;
 
-		if(this.state.collections.length <= 0)
-		{
-			let newCollections = [];
-			let journeyWords = [];
-			journeyWords = this.flattenTree(journeyWords, testJourney.words[0]);
-			testJourney.words = journeyWords;
-			newCollections.push(testJourney);
-			this.setState({collections: newCollections}, (e) => {console.log(this.state.collections)});
-		}
+		// Flatten the structure
+		let journeyWords = [];
+		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, Object.keys(edStructure)[0], null);
+
+		// Create the new journey and add it to collections
+		let newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};
+		newCollections.push(newJourney);
+
+		this.setState({collections: newCollections}, (e) => {console.log(this.state.collections);});
 	}
 
 	openModal(e, modalComponent)
@@ -204,6 +194,9 @@ class Lema extends Component
 	editNode(e, collectionIndex, updatedNode)
 	{
 		let newCollections = this.state.collections;
+		console.log(e);
+		console.log(collectionIndex);
+		console.log(updatedNode);
 
 		// Find node
 		let node = newCollections[collectionIndex].words[updatedNode.arrayIndex];
@@ -319,6 +312,7 @@ class Lema extends Component
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
+					         addJourney={this.addJourney}
 					         addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
 					         addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
 					/>

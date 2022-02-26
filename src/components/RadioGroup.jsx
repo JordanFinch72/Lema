@@ -5,7 +5,7 @@ class RadioButton extends Component
 	constructor(props)
 	{
 		super(props);
-		this.onButtonClick = this.props.onButtonClick.bind(this);
+		this.onRadioButtonClick = this.props.onRadioButtonClick.bind(this);
 	}
 
 	render()
@@ -14,7 +14,7 @@ class RadioButton extends Component
 		return (
 			<div className={"radio-button"}>
 				<input type={"radio"} id={this.props.name + this.props.id} name={this.props.name} value={this.props.label}
-				       checked={this.props.active} onChange={(e) => {this.props.onButtonClick(e, this.props.id)}}/>
+				       checked={this.props.active} onChange={(e) => {this.props.onRadioButtonClick(e, this.props.id)}}/>
 				<label htmlFor={this.props.name + this.props.id}>{this.props.label}</label>
 			</div>
 		);
@@ -31,7 +31,7 @@ export class RadioGroup extends Component
 			name: this.props.name
 		};
 
-		this.onButtonClick = this.props.onButtonClick.bind(this);
+		this.onRadioButtonClick = this.props.onRadioButtonClick.bind(this);
 	}
 
 	updateGroup(id)
@@ -50,9 +50,9 @@ export class RadioGroup extends Component
 		let buttonElements = this.state.buttons.map((button, index) =>
 		{
 			return <RadioButton active={button.active} label={button.label} name={this.props.name} id={index}
-			                    onButtonClick={(e, id) => {
+			                    onRadioButtonClick={(e, id) => {
 									this.updateGroup(id); // Internal RadioGroup state update
-									this.onButtonClick(e, {state: this.state, id: id}); // External handler call
+									this.onRadioButtonClick(e, {state: this.state, id: id}); // External handler call
 								}} key={index}/>;
 		});
 
