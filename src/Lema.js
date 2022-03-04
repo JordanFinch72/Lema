@@ -14,54 +14,11 @@ class Lema extends Component
 			activeModal: null, // Either null or a React component
 			activeContextMenu: null, // Either null or a React component
 			mapRef: null,
-			collections: [
-
-				/*{
-					type: "journey",
-					header: {word: "horse", language: "English (GB)"},
-					words: [
-						{word: "kers", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "krsos", language: "Proto-Indo-European", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "hrussa", language: "Proto-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "hross", language: "Proto-West-Germanic", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}},
-						{word: "horse", language: "English (GB)", colour: "#000000", vertex: {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}}
-					]
-				},*/
-				/*{   /!* One word, all cognates (same ancestor). TODO: Legend should detail the ancestors *!/
-					type: "cognate",
-					header: {word: "palfrey", language: "English (GB)"},
-					words: [
-						{word: "palfrey", language: "English (GB)", colour: "#f5b60d"},
-						{word: "paard", language: "Dutch", colour: "#f5b60d"},
-						{word: "Pferd", language: "German", colour: "#f5b60d"},
-						{word: "Päerd", language: "Luxembourgish", colour: "#f5b60d"},
-						{word: "פערד", language: "Yiddish", colour: "#f5b60d"}
-					]
-				},*/
-					// TODO: Multiple cognate collections at once (separate layers/patterned colours)
-				/*{   /!* Multiple words, no shared countries. Demonstrates cognates of same English word across different families/languages. *!/
-					type: "cognate",
-					header: {word: "smith", language: "English (GB)"},
-					words: [
-						{word: "smith", language: "English (GB)", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "smid", language: "Dutch", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "Schmidt", language: "German", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "smed", language: "Danish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "smed", language: "Norwegian", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "smed", language: "Swedish", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "smiður", language: "Icelandic", colour: "#f5b60d", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "forgeron", language: "French", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "fabbro", language: "Italian", colour: "#0000ff", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "Kovář", language: "Czech", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "kováč", language: "Slovak", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}},
-						{word: "kowal", language: "Polish", colour: "#ff0000", label: {type: "country", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null}}
-					]
-				}*/
-			],
+			collections: [],
 			journeyCount: 0
 		};
 
-		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"]
+		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"] // TODO: Better colours
 
 		this.flattenTree = this.flattenTree.bind(this);
 		this.openModal = this.openModal.bind(this);
@@ -77,7 +34,7 @@ class Lema extends Component
 		this.removeCollection = this.removeCollection.bind(this);
 	}
 
-	flattenTree(wordArray, edWords, structure, wordID)
+	flattenTree(wordArray, edWords, structure, wordID, affixesArray = null)
 	{
 		let parents = [], wordObject = {};
 		// Parents
@@ -86,8 +43,12 @@ class Lema extends Component
 			// Loop through parents
 			for(let wordID in structure)
 			{
-				parents.push(wordID);
-				wordArray = this.flattenTree(wordArray, edWords, structure[wordID], wordID);
+				if((affixesArray !== null && !affixesArray.includes(Number(wordID)))
+					|| affixesArray == null)
+				{
+					parents.push(wordID);
+					wordArray = this.flattenTree(wordArray, edWords, structure[wordID], wordID, affixesArray);
+				}
 			}
 		}
 
@@ -108,21 +69,25 @@ class Lema extends Component
 			{
 				let parentID = Number(parents[i]);
 				let parent = wordArray.find(({id}) => id === parentID);
-				wordObject.parents.push(parent);
+				if((affixesArray !== null && !affixesArray.includes(parentID))
+					|| affixesArray === null)
+				{
+					wordObject.parents.push(parent);
+				}
 			}
 			wordArray.push(wordObject);
 		}
-
 		return wordArray;
 	}
 
-	addJourney(edWords, edStructure)
+	addJourney(edWords, edStructure, edAffixes = null)
 	{
 		let newCollections = this.state.collections, newJourneyCount = this.state.journeyCount;
 
 		// Flatten the structure
 		let journeyWords = [];
-		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, null);
+		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, null, edAffixes);
+		console.log(journeyWords);
 
 		// Create the new journey and add it to collections
 		let newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};

@@ -12,7 +12,8 @@ export class ControlBox extends Component
 		this.state = {
 			mapMode: "journey", // "journey" || "cognate"
 			searchBoxValue: "",
-			searchLanguage: "English"
+			searchLanguage: "English",
+			includeAffixes: false
 		};
 
 
@@ -25,7 +26,7 @@ export class ControlBox extends Component
 	{
 		const target = event.target;
 		const name = target.name;
-		let value = target.value;
+		let value = (target.type === "checkbox") ? target.checked : target.value;
 
 		this.setState({
 			[name]: value
@@ -40,15 +41,16 @@ export class ControlBox extends Component
 			if(this.state.mapMode === "journey")
 			{
 				let getString = `https://api.etymologyexplorer.com/dev/get_trees?common_descendant_count=0&language=${language}&word=${word}`;
-				let edWords, edConnections;
+				let edWords, edConnections, edAffixes;
 
 				axios.get(getString)
 					.then((response) => {
 						console.log(response);
 						edWords = response.data[1].words;
 						edConnections = response.data[2];
+						edAffixes = (this.state.includeAffixes) ? null : response.data[1].affixes; // Only pass if user doesn't want affixes (to check against it)
 
-						this.props.addJourney(edWords, edConnections);
+						this.props.addJourney(edWords, edConnections, edAffixes);
 					})
 					.catch((error) => {
 						if(error.response.data['Error message'].indexOf("Could not get an ids") !== -1)
@@ -88,6 +90,9 @@ export class ControlBox extends Component
 						<option>Spanish</option>
 					</select>
 				</div>
+				<input type={"checkbox"} name={"includeAffixes"} checked={this.state.includeAffixes} onChange={this.onFieldChange} />
+				Include affixes <span title={"Some words include affixes (e.g. -y) that have a considerable amount of etymological ancestors, potentially cluttering your map. \n" +
+				"You may tick this checkbox to include them in the return data."}>?</span>
 				<RadioGroup buttons={buttons} name={"map-mode"} onRadioButtonClick={this.onRadioButtonClick} />
 				<Button value={"Search"} id={"search"} onClick={this.onButtonClick} />
 			</div>

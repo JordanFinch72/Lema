@@ -9,6 +9,11 @@ html, body, div#root {
     height: 100%;
 }
 
+span[title] {
+    margin: 0px 0.3em;
+    text-decoration: underline 1px dashed black;
+}
+
 /* Banner */
 div.banner-container {
     display: flex;

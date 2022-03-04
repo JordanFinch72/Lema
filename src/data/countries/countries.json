@@ -16295,7 +16295,8 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "French"
+          "French",
+		  "Old French"
         ]
       },
       "geometry": {
@@ -19988,7 +19989,8 @@
         "homepart": 1,
         "languages": [
           "English",
-		  "Old English"
+		  "Old English",
+		  "Middle English"
         ]
       },
       "geometry": {
@@ -51160,7 +51162,7 @@
         "tiny": -99,
         "homepart": 1,
         "languages": [
-          "Spanish"
+		  "Portuguese"
         ]
       },
       "geometry": {
