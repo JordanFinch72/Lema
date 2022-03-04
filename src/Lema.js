@@ -62,8 +62,7 @@ class Lema extends Component
 				word: wordObject.word,
 				language: wordObject.language_name,
 				parents: [],
-				colour: "#000000",
-				vertex: {type: "word", strokeColour: "#000000", fillColour: this.defaultJourneyColours[this.state.journeyCount], radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"}
+				vertex: {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: this.defaultJourneyColours[this.state.journeyCount], radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"}
 			}
 			for(let i = 0; i < parents.length; ++i)
 			{

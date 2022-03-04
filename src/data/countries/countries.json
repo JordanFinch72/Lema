@@ -7396,7 +7396,8 @@
         "homepart": 1,
         "languages": [
           "German",
-          "Proto-West-Germanic",
+		  "Proto-West-Germanic",
+		  "Proto-West Germanic",
           "Proto-Germanic",
 		  "Old High German",
 		  "Middle High German"

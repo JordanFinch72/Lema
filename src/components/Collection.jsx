@@ -14,7 +14,7 @@ class CollectionNode extends Component
 
 	render()
 	{
-		let nodeColour = this.props.node.colour || "blue"; // TODO: Advanced logic for determining next unused colour (per journey)
+		let nodeColour = this.props.node.colour || this.props.node.vertex.fillColour; // TODO: Advanced logic for determining next unused colour (per journey)
 		let changeColourTimeout;
 
 		return (
@@ -43,16 +43,19 @@ class CollectionNode extends Component
 					/>);
 				}}>{this.props.node.language}</div>
 				<div className={"buttons-container"}>
-					<input type={"color"} defaultValue={this.props.node.colour} onChange={(e) => {
+					<input type={"color"} defaultValue={nodeColour} onChange={(e) => {
 						// Throttle the onChange; there's no way to have it only change when the user clicks off of it, annoyingly
 						let node = this;
 						window.clearTimeout(changeColourTimeout);
 						changeColourTimeout = window.setTimeout(function()
 						{
 							let updatedNode = {
-								...node,
-									colour: e.target.value
-								};
+								...node.props.node
+							};
+							if(node.props.type === "journey")
+								updatedNode.vertex.fillColour = e.target.value;
+							else if(node.props.type === "cognate")
+								updatedNode.colour = e.target.value;
 							node.props.editNode(e, node.props.collectionIndex, updatedNode);
 						}, 100);
 					}}/>
@@ -131,7 +134,7 @@ export class Collection extends Component
 					{/* Flex-row */}
 					<div onClick={(e) =>
 					{
-						this.openModal(e, <AddEditCollectionModal
+						this.props.openModal(e, <AddEditCollectionModal
 							type={this.props.type}
 							word={this.props.header.word}
 							language={this.props.header.language}
@@ -141,7 +144,7 @@ export class Collection extends Component
 					}}>{this.props.header.word}</div>
 					<div onClick={(e) =>
 					{
-						this.openModal(e, <AddEditCollectionModal
+						this.props.openModal(e, <AddEditCollectionModal
 							type={this.props.type}
 							word={this.props.header.word}
 							language={this.props.header.language}

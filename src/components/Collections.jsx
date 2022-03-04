@@ -18,23 +18,31 @@ export class Collections extends Component
 		this.cRemoveCollection = this.cRemoveCollection.bind(this);
 	}
 
-
-
 	/* Context menu item handlers */
 	cAddNode(e, data)
 	{
 		// Open the AddEditNodeModal with initial node data
-		let node = {word: "", colour: "#000000", language: "", parents: []};
-		if(data.type === "journey") node.vertex = {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"};
-		if(data.type === "cognate") node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+		let node = {word: "", language: "", parents: []};
+		if(data.type === "journey")
+			node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
+		if(data.type === "cognate")
+		{
+			node.colour = "#000000";
+			node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+		}
 		this.props.openModal(e, <AddEditNodeModal words={data.words} node={node} type={data.type} onNodeSubmit={this.props.addNode} collectionIndex={data.collectionIndex}/>);
 	}
 	cAddNodeDefault(e, data)
 	{
 		// Add node with initial node data
-		let node = {word: "New Word", colour: "#000000", language: "Proto-Indo-European", parents: []};
-		if(data.type === "journey") node.vertex = {type: "word", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre"};
-		if(data.type === "cognate") node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+		let node = {word: "New Word", language: "Proto-Indo-European", parents: []};
+		if(data.type === "journey")
+			node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
+		if(data.type === "cognate")
+		{
+			node.colour = "#000000";
+			node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+		}
 
 		this.props.addNode(e, data.collectionIndex, node);
 	}

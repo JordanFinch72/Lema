@@ -9,14 +9,28 @@ export class AddEditNodeModal extends Component
 	{
 		super(props);
 		this.state = {
-			// Node properties
+			/* Node properties */
 			word: this.props.node.word || null,
-			colour: this.props.node.colour || null,
-			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,
-			customText: (this.props.node.label !== undefined) ? this.props.node.label.customText || null : null, // Note: Text can be ""
-			fontColour: (this.props.node.label !== undefined) ? this.props.node.label.fontColour || null : null,
 			parents: this.props.node.parents,
 			selectedParentIndex: 0,
+
+			// Cognate properties
+			colour: this.props.node.colour || null,
+			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,
+			labelCustomText: (this.props.node.label !== undefined) ? this.props.node.label.customText || null : null, // Note: Text can be ""
+			labelFontColour: (this.props.node.label !== undefined) ? this.props.node.label.fontColour || null : null,
+
+			// Journey properties
+			vertexTextType: (this.props.node.vertex !== undefined) ? this.props.node.vertex.type || null : null,
+			vertexCustomText: (this.props.node.vertex !== undefined) ? this.props.node.vertex.customText || null : null, // Note: Text can be ""
+			vertexFontColour: (this.props.node.vertex !== undefined) ? this.props.node.vertex.fontColour || null : null,
+			vertexStrokeColour: (this.props.node.vertex !== undefined) ? this.props.node.vertex.strokeColour || null : null,
+			vertexFillColour: (this.props.node.vertex !== undefined) ? this.props.node.vertex.fillColour || null : null,
+			vertexEdgeStrokeColour: (this.props.node.vertex !== undefined) ? this.props.node.vertex.edgeStrokeColour || null : null,
+			vertexEdgeStrokeWidth: (this.props.node.vertex !== undefined) ? this.props.node.vertex.edgeStrokeWidth || null : null,
+			vertexArrowheadEnabled: (this.props.node.vertex !== undefined) ? this.props.node.vertex.edgeArrowheadEnabled || null : null,
+			vertexArrowheadStrokeColour: (this.props.node.vertex !== undefined) ? this.props.node.vertex.edgeArrowheadStrokeColour || null : null,
+			vertexArrowheadFillColour: (this.props.node.vertex !== undefined) ? this.props.node.vertex.edgeArrowheadFillColour || null : null,
 
 			// Optional or can be overridden
 			language: (typeof this.props.language === "object") ? this.props.language[0] : this.props.language,
@@ -27,13 +41,14 @@ export class AddEditNodeModal extends Component
 		this.onNodeSubmit = this.props.onNodeSubmit.bind(this);
 		this.onFieldChange = this.onFieldChange.bind(this);
 		this.onLabelRadioClick = this.onLabelRadioClick.bind(this);
+		this.onVertexRadioClick = this.onVertexRadioClick.bind(this);
 	}
 
 	onFieldChange(event)
 	{
 		const target = event.target;
 		const name = target.name;
-		let value = target.value;
+		let value = (target.type === "checkbox") ? target.checked : target.value;
 
 		this.setState({
 			[name]: value
@@ -50,6 +65,17 @@ export class AddEditNodeModal extends Component
 		else if(data.id === 3) labelType = "customText";
 
 		this.setState({labelType: labelType});
+	}
+	onVertexRadioClick(e, data)
+	{
+		// Update parent LeftBar component's state
+		let vertexTextType;
+		if(data.id === 0) vertexTextType = "language";
+		else if(data.id === 1) vertexTextType = "country";
+		else if(data.id === 2) vertexTextType = "word";
+		else if(data.id === 3) vertexTextType = "customText";
+
+		this.setState({vertexTextType: vertexTextType}, (e) => {console.log(this.state.vertexTextType)});
 	}
 	validation()
 	{
@@ -99,9 +125,19 @@ export class AddEditNodeModal extends Component
 		}
 
 		// Label components (if appropriate)
-		let labelControls = [];
+		let labelControls = [], nodeColourControls = [];
 		if(this.props.node.label)
 		{
+			nodeColourControls.push(
+				<h3>Node Country/Region Colour</h3>,
+				<div className={"node-colour-container"}>
+					<input type={"textbox"} name={"colour"} value={this.state.colour} onChange={this.onFieldChange} />
+					<input type={"color"} defaultValue={this.state.colour} value={this.state.colour} onChange={(e) => {
+						this.setState({colour: e.target.value});
+					}}/>
+				</div>
+			);
+
 			// RadioGroup buttons
 			const buttons = [{active: false, label: "Node language"}, {active: false, label: "Node country/region"}, {active: false, label: "Word"}, {active: false, label: "Custom label:"}];
 			let labelTypeIndex;
@@ -119,18 +155,115 @@ export class AddEditNodeModal extends Component
 				<h3>Label</h3>,
 				<div className={"label-controls-container"}>,
 					<h4>Text:</h4>
-					<RadioGroup buttons={buttons} name={"custom-label"} onButtonClick={this.onLabelRadioClick} />
-					<Textbox hint={"Custom label text..."} name={"customText"} value={this.state.customText} onFieldChange={this.onFieldChange} />
+					<RadioGroup buttons={buttons} name={"custom-label"} onRadioButtonClick={this.onLabelRadioClick} />
+					<Textbox hint={"Custom label text..."} name={"labelCustomText"} value={this.state.labelCustomText} onFieldChange={this.onFieldChange} />
 					<div className={"label-colour-container"}>
 						<h4>Font colour: </h4>
-						<input type={"textbox"} name={"fontColour"} value={this.state.fontColour} onChange={this.onFieldChange} />
-						<input type={"color"} defaultValue={this.state.fontColour} value={this.state.fontColour} onChange={(e) => {
-							this.setState({fontColour: e.target.value});
-						}}/>
+						<div>
+							<input type={"textbox"} name={"labelFontColour"} value={this.state.labelFontColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.labelFontColour} value={this.state.labelFontColour} onChange={(e) => {
+								this.setState({labelFontColour: e.target.value});
+							}}/>
+						</div>
 					</div>
 				</div>
 			]
 		}
+
+		// Vertex properties (if appropriate)
+		let vertexControls = [];
+		if(this.props.node.vertex)
+		{
+			// RadioGroup buttons
+			const buttons = [{active: false, label: "Node language"}, {active: false, label: "Node country/region"}, {active: false, label: "Word"}, {active: false, label: "Custom label:"}];
+			let vertexTextType;
+			if(this.state.vertexTextType === "language")
+				vertexTextType = 0;
+			else if(this.state.vertexTextType === "country")
+				vertexTextType = 1;
+			else if(this.state.vertexTextType === "word")
+				vertexTextType = 2;
+			else if(this.state.vertexTextType === "customText")
+				vertexTextType = 3;
+			buttons[vertexTextType].active = true;
+
+			vertexControls = [
+				<h3>Vertex</h3>,
+				<div className={"vertex-controls-container"}>,
+					<h4>Text:</h4>
+					<RadioGroup buttons={buttons} name={"custom-vertex-text"} onRadioButtonClick={this.onVertexRadioClick} />
+					<Textbox hint={"Custom vertex text..."} name={"vertexCustomText"} value={this.state.vertexCustomText} onFieldChange={this.onFieldChange} />
+					<div className={"label-colour-container"}>
+						<h4>Font colour: </h4>
+						<div>
+							<input type={"textbox"} name={"vertexFontColour"} value={this.state.vertexFontColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.vertexFontColour} value={this.state.vertexFontColour} onChange={(e) => {
+								this.setState({vertexFontColour: e.target.value});
+							}}/>
+						</div>
+					</div>
+					<h4>Vertex:</h4>
+					<div className={"vertex-colour-container"}>
+						<h4>Vertex stroke colour: </h4>
+						<div>
+							<input type={"textbox"} name={"vertexStrokeColour"} value={this.state.vertexStrokeColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.vertexStrokeColour} value={this.state.vertexStrokeColour} onChange={(e) => {
+								this.setState({vertexStrokeColour: e.target.value});
+							}}/>
+						</div>
+					</div>
+					<div className={"vertex-colour-container"}>
+						<h4>Vertex fill colour: </h4>
+						<div>
+							<input type={"textbox"} name={"vertexFillColour"} value={this.state.vertexFillColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.vertexFillColour} value={this.state.vertexFillColour} onChange={(e) => {
+								this.setState({vertexFillColour: e.target.value});
+							}}/>
+						</div>
+					</div>
+					<div className={"vertex-colour-container"}>
+						<h4>Edge colour: </h4>
+						<div>
+							<input type={"textbox"} name={"vertexEdgeStrokeColour"} value={this.state.vertexEdgeStrokeColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.vertexEdgeStrokeColour} value={this.state.vertexEdgeStrokeColour} onChange={(e) => {
+								this.setState({vertexEdgeStrokeColour: e.target.value});
+							}}/>
+						</div>
+					</div>
+					<div className={"vertex-colour-container"}>
+						<h4>Edge stroke width:</h4>
+						<div>
+							<input type={"textbox"} name={"vertexEdgeStrokeWidth"} value={this.state.vertexEdgeStrokeWidth} onChange={this.onFieldChange} />
+						</div>
+					</div>
+					<div className={"vertex-colour-container"}>
+						<h4>Show arrowhead?</h4>
+						<div>
+							<input type={"checkbox"} name={"vertexArrowheadEnabled"} checked={this.state.vertexArrowheadEnabled} onChange={this.onFieldChange} />
+						</div>
+					</div>
+					<div className={"vertex-colour-container"}>
+						<h4>Arrowhead stroke colour:</h4>
+						<div>
+							<input type={"textbox"} name={"vertexArrowheadStrokeColour"} value={this.state.vertexArrowheadStrokeColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.vertexArrowheadStrokeColour} value={this.state.vertexArrowheadStrokeColour} onChange={(e) => {
+								this.setState({vertexArrowheadStrokeColour: e.target.value});
+							}}/>
+						</div>
+					</div>
+					<div className={"vertex-colour-container"}>
+						<h4>Arrowhead fill colour:</h4>
+						<div>
+							<input type={"textbox"} name={"vertexArrowheadFillColour"} value={this.state.vertexArrowheadFillColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.vertexArrowheadFillColour} value={this.state.vertexArrowheadFillColour} onChange={(e) => {
+								this.setState({vertexArrowheadFillColour: e.target.value});
+							}}/>
+						</div>
+					</div>
+				</div>
+			]
+		}
+
 
 		// TODO: Decide between:
 		//   - (1) changing HCI so that users create a child node from a parent, and can only make a (single) parent node per collection from the collection context menu
@@ -175,8 +308,7 @@ export class AddEditNodeModal extends Component
 			this.setState({
 				selectedParentIndex: selectedIndex
 			});
-		}
-		}>
+		}}>
 			{potentialParentList}
 		</select>;
 		if(potentialParents)
@@ -195,19 +327,12 @@ export class AddEditNodeModal extends Component
 				<Textbox hint={"e.g. \"Horse\"..."} name={"word"} value={this.state.word} onFieldChange={this.onFieldChange}/>
 				<h3>Language</h3>
 				{languageInput}
-				<h3>Node Colour</h3>
-				<div className={"node-colour-container"}>
-					<input type={"textbox"} name={"colour"} value={this.state.colour} onChange={this.onFieldChange} />
-					<input type={"color"} defaultValue={this.state.colour} value={this.state.colour} onChange={(e) => {
-						this.setState({colour: e.target.value});
-					}}/>
-				</div>
 				<h3>Current Parents</h3>
-				{parentList}
+				{(parentList.length > 0) ? parentList : "None"}
 				<h3>Potential Parents</h3>
 				{potentialParents}
 				{parentControls}
-				{labelControls}
+				{labelControls} {vertexControls}
 				{selectCollection}
 				<Button value={"Submit"} id={"add-node-modal-submit"} onClick={(e) =>
 				{
@@ -222,7 +347,16 @@ export class AddEditNodeModal extends Component
 								word: this.state.word, language: this.state.language, colour: this.state.colour,
 								vertex: {
 									...this.props.node.vertex,
-									fontColour: this.state.fontColour
+									type: this.state.vertexTextType,
+									customText: this.state.vertexCustomText,
+									fontColour: this.state.vertexFontColour,
+									strokeColour: this.state.vertexStrokeColour,
+									fillColour: this.state.vertexFillColour,
+									edgeStrokeColour: this.state.vertexEdgeStrokeColour,
+									edgeStrokeWidth: this.state.vertexEdgeStrokeWidth,
+									edgeArrowheadEnabled: this.state.vertexArrowheadEnabled,
+									edgeArrowheadStrokeColour: this.state.vertexArrowheadStrokeColour,
+									edgeArrowheadFillColour: this.state.vertexArrowheadFillColour
 								}
 							};
 						}
@@ -233,7 +367,10 @@ export class AddEditNodeModal extends Component
 								word: this.state.word, language: this.state.language, colour: this.state.colour,
 								label: {
 									...this.props.node.label,
-									type: this.state.labelType, customText: this.state.customText, fontColour: this.state.fontColour, fontSize: this.state.fontSize
+									type: this.state.labelType,
+									customText: this.state.labelCustomText,
+									fontColour: this.state.labelFontColour,
+									fontSize: this.state.fontSize
 								}
 							};
 						}

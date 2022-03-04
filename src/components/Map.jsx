@@ -248,10 +248,10 @@ export function Map(props)
 					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
 					let fontSize = node.vertex.fontSize;
-					let vertexText = node.language;                     // Language by default
+					let vertexText = node.word;                     // Word by default
 					if(node.vertex.type === "country") vertexText = f.properties.name_long;
 					else if(node.vertex.type === "customText") vertexText = node.vertex.customText;
-					else if(node.vertex.type === "word") vertexText = node.word;
+					else if(node.vertex.type === "language") vertexText = node.language;
 
 					// Initial co-ordinates
 					// TODO: Vertex xOffset, yOffset attributes in country/region data
@@ -285,7 +285,7 @@ export function Map(props)
 					let vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
 					let preparedText = vertexG.append("text")
 						.attr("x", vertexX).attr("y", vertexY)
-						.attr("fill", node.vertex.strokeColour)
+						.attr("fill", node.vertex.fontColour)
 						.attr("text-anchor", "middle")        // Centre of circle
 						.attr("alignment-baseline", "middle") // Centre of circle
 						.style("font-size", "16px")
@@ -315,17 +315,21 @@ export function Map(props)
 							const nodeRef = journeyNodeObject.collectionIndex + "|" + node.arrayIndex;
 
 							// Compute arrowheads
-							vertexEdgesG.append("defs")
-								.append("marker")
-							    .attr("id", "arrow" + parentRef + nodeRef)
-							    .attr("markerWidth", 5).attr("markerHeight", 4)
-							    .attr("refX", radius/2 + 5).attr("refY", 2)
-							    .attr("orient", "auto")
-							    .append("polygon")
-							    .attr("points", "0 0, 5 2, 0 4")
-							    .attr("id", nodeRef);
-							markerSelectString += "marker[id=\"arrow"+parentRef+nodeRef+"\"], ";
-
+							if(node.vertex.edgeArrowheadEnabled)
+							{
+								vertexEdgesG.append("defs")
+									.append("marker")
+									.attr("id", "arrow" + parentRef + nodeRef)
+									.attr("markerWidth", 5).attr("markerHeight", 4)
+									.attr("refX", radius/2 + 5).attr("refY", 2)
+									.attr("orient", "auto")
+									.append("polygon")
+									.attr("points", "0 0, 5 2, 0 4")
+									.attr("fill", node.vertex.edgeArrowheadFillColour)
+									.attr("stroke", node.vertex.edgeArrowheadStrokeColour)
+									.attr("id", nodeRef);
+								markerSelectString += "marker[id=\"arrow"+parentRef+nodeRef+"\"], ";
+							}
 
 							// Determine edge start position
 							if(node.vertex.edgeStart === "top") startEdgeYOffset = -(radius);
@@ -346,16 +350,18 @@ export function Map(props)
 							}
 
 							// Place edge
-							vertexEdgesG.append("line")
+							const edge = vertexEdgesG.append("line")
 								.attr("x1", parentNode.vertex.x + startEdgeXOffset)
 								.attr("y1", parentNode.vertex.y + startEdgeYOffset)
 								.attr("x2", node.vertex.x + endEdgeXOffset)
 								.attr("y2", node.vertex.y + endEdgeYOffset)
-								.attr("stroke", "black")     // TODO: User choice
-								.attr("stroke-width", "2px") // TODO: User choice
+								.attr("stroke", node.vertex.edgeStrokeColour)
+								.attr("stroke-width", node.vertex.edgeStrokeWidth)
 								.attr("data-start", parentRef) // For finding attached edges later
-								.attr("data-end", nodeRef)
-								.attr("marker-end", "url(#arrow"+parentRef+nodeRef+")");
+								.attr("data-end", nodeRef);
+
+							if(node.vertex.edgeArrowheadEnabled)
+								edge.attr("marker-end", "url(#arrow"+parentRef+nodeRef+")");
 						}
 					}
 
@@ -366,7 +372,7 @@ export function Map(props)
 						.attr("fill", node.vertex.fillColour);
 					let text = vertexG.append("text")
 						.attr("x", vertexX).attr("y", vertexY)
-						.attr("fill", node.vertex.strokeColour)
+						.attr("fill", node.vertex.fontColour)
 						.attr("text-anchor", "middle")        // Centre of circle
 						.attr("alignment-baseline", "middle") // Centre of circle
 						.style("font-size", fontSize)
@@ -581,8 +587,8 @@ export function Map(props)
 	function determineFillColour(d)
 	{
 		const nodeObject = findNodes(d, "cognate"); // Find node in collections
-		if(nodeObject) return nodeObject.node.colour;   // Country has associated collection node? Return the colour
-		else return "white";                            // Otherwise, return white by default for all countries with no associated data
+		if(nodeObject) return nodeObject.node.colour;    // Country has associated collection node? Return the colour
+		else return "white";                             // Otherwise, return white by default for all countries with no associated data
 	}
 
 

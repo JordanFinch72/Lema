@@ -178,10 +178,16 @@ div.modal * {
 div.modal div.textbox, div.modal select {
     width: 100%;
 }
-div.modal div.label-colour-container {
+div.modal div.parent-list {
     display: flex;
     flex-flow: row;
     justify-content: center;
+    align-items: center;
+}
+div.modal div.label-colour-container, div.modal div.vertex-colour-container {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
 }
 
 /* Context menu */
