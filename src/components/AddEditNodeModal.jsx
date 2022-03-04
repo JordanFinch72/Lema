@@ -222,7 +222,7 @@ export class AddEditNodeModal extends Component
 						</div>
 					</div>
 					<div className={"vertex-colour-container"}>
-						<h4>Edge colour: </h4>
+						<h4>Parent edge colour: </h4>
 						<div>
 							<input type={"textbox"} name={"vertexEdgeStrokeColour"} value={this.state.vertexEdgeStrokeColour} onChange={this.onFieldChange} />
 							<input type={"color"} defaultValue={this.state.vertexEdgeStrokeColour} value={this.state.vertexEdgeStrokeColour} onChange={(e) => {
@@ -231,7 +231,7 @@ export class AddEditNodeModal extends Component
 						</div>
 					</div>
 					<div className={"vertex-colour-container"}>
-						<h4>Edge stroke width:</h4>
+						<h4>Parent edge stroke width:</h4>
 						<div>
 							<input type={"textbox"} name={"vertexEdgeStrokeWidth"} value={this.state.vertexEdgeStrokeWidth} onChange={this.onFieldChange} />
 						</div>
