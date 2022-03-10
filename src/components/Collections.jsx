@@ -40,7 +40,8 @@ export class Collections extends Component
 			node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
 		if(data.type === "cognate")
 		{
-			node.colour = "#000000";
+			node.strokeColour = "#000000";
+			node.fillColour = "#FFFFFF";
 			node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
 		}
 

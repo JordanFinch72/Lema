@@ -61,7 +61,7 @@ export class ControlBox extends Component
 			}
 			else if(this.state.mapMode === "cognate")
 			{
-				// TODO
+				// TODO: Find translations for the word in every country shown on the map. Colour code translations that share the same ancestry (are cognates)
 			}
 		}
 	}
@@ -90,10 +90,16 @@ export class ControlBox extends Component
 						<option>Spanish</option>
 					</select>
 				</div>
-				<input type={"checkbox"} name={"includeAffixes"} checked={this.state.includeAffixes} onChange={this.onFieldChange} />
-				Include affixes <span title={"Some words include affixes (e.g. -y) that have a considerable amount of etymological ancestors, potentially cluttering your map. \n" +
-				"You may tick this checkbox to include them in the return data."}>?</span>
-				<RadioGroup buttons={buttons} name={"map-mode"} onRadioButtonClick={this.onRadioButtonClick} />
+				<div className={"affixes-selection"}>
+					<input type={"checkbox"} name={"includeAffixes"} checked={this.state.includeAffixes} onChange={this.onFieldChange} />
+					Include affixes <span title={"Some words include affixes (e.g. -y) that have a considerable amount of etymological ancestors, potentially cluttering your map. \n\n" +
+					"You may tick this checkbox to include them in the return data."}>?</span>
+				</div>
+				<div className={"mode-selection"}>
+					<RadioGroup buttons={buttons} name={"map-mode"} onRadioButtonClick={this.onRadioButtonClick} /> <span title={"Historical journey mode: A new Journey collection will be created and auto-populated with nodes according to the chronological journey of that word through time (usually starting in PIE).\n\n" +
+					"Cognate mode: A new Cognate collection will be created and automatically populated with translations of the searched words, with all translations that are cognates filled with the same colour."}>?</span>
+				</div>
+
 				<Button value={"Search"} id={"search"} onClick={this.onButtonClick} />
 			</div>
 		)

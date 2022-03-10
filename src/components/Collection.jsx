@@ -14,7 +14,7 @@ class CollectionNode extends Component
 
 	render()
 	{
-		let nodeColour = this.props.node.colour || this.props.node.vertex.fillColour; // TODO: Advanced logic for determining next unused colour (per journey)
+		let nodeColour = this.props.node.fillColour || this.props.node.vertex.fillColour; // TODO: Advanced logic for determining next unused colour (per journey)
 		let changeColourTimeout;
 
 		return (
@@ -55,7 +55,7 @@ class CollectionNode extends Component
 							if(node.props.type === "journey")
 								updatedNode.vertex.fillColour = e.target.value;
 							else if(node.props.type === "cognate")
-								updatedNode.colour = e.target.value;
+								updatedNode.strokeColour = e.target.value;
 							node.props.editNode(e, node.props.collectionIndex, updatedNode);
 						}, 100);
 					}}/>

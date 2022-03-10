@@ -45,6 +45,9 @@ export function Map(props)
 			.enter()                 // svg->g->path (create new nodes per data)
 			.append("path")          // svg->g->path (create new nodes per data)
 			.attr("fill", (d) => determineFillColour(d))
+			.attr("stroke", (d) => determineStrokeColour(d))
+			.attr("stroke-linejoin", "round")
+			.attr("d", path)
 			.on("click", function(e, d){
 				// TODO: Possibly same functions as context menu (see about calling this.onContextMenu() to keep things nice and DRY)
 			})
@@ -115,10 +118,7 @@ export function Map(props)
 					element.attr("fill", "white")
 				else
 					element.attr("fill-opacity", "1");
-			})
-			.attr("stroke", "black")
-			.attr("stroke-linejoin", "round")
-			.attr("d", path);
+			});
 
 		// Cognate labels, journey vertices
 		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
@@ -585,8 +585,19 @@ export function Map(props)
 	function determineFillColour(d)
 	{
 		const nodeObject = findNodes(d, "cognate"); // Find node in collections
-		if(nodeObject) return nodeObject.node.colour;    // Country has associated collection node? Return the colour
+		if(nodeObject) return nodeObject.node.fillColour;    // Country has associated collection node? Return the colour
 		else return "white";                             // Otherwise, return white by default for all countries with no associated data
+	}
+	/**
+	 * Determines country SVG stroke colour according to countries' language(s) and the specified colour of that language's cognate node(s)
+	 * @param d Data attached to DOM element via D3 (i.e. the country)
+	 * @returns {string} The fill colour, as specified by user in Collection.jsx
+	 */
+	function determineStrokeColour(d)
+	{
+		const nodeObject = findNodes(d, "cognate");       // Find node in collections
+		if(nodeObject) return nodeObject.node.strokeColour;    // Country has associated collection node? Return the colour
+		else return "black";                                   // Otherwise, return black by default for all countries with no associated data
 	}
 
 

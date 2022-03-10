@@ -12,9 +12,11 @@ export class Button extends Component
 
 	render()
 	{
+		const className = "button" + ((this.props.disabled) ? " disabled" : "");
+		const onClick = (this.props.disabled) ? null : this.props.onClick; // To prevent it from being clickable even if they remove the "disabled" attribute in inspect element
 		return(
-			<div className={"button"} onClick={this.props.onClick} >
-				<button id={this.props.id}>{this.props.value}</button>
+			<div className={className}>
+				<button disabled={this.props.disabled} id={this.props.id} onClick={onClick}>{this.props.value}</button>
 			</div>
 		)
 	}

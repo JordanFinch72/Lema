@@ -64,17 +64,25 @@ div.search-container div.search-fields {
 div.search-container div.search-fields div.textbox, div.search-container div.search-fields select {
     flex-basis: 48%;
 }
-
-div.textbox {
+div.search-container div.affixes-selection {
+    display: flex;
+    flex-flow: row wrap;
     flex-basis: 100%;
 }
-div.textbox input {
-    width: 97%;
-}
-div.radio-group {
+div.search-container div.mode-selection {
     display: flex;
     flex-flow: row;
-    flex-basis: 76%;
+}
+
+div.search-container div.textbox {
+    flex-basis: 100%;
+}
+div.search-container div.textbox input {
+    width: 97%;
+}
+div.search-container div.mode-selection div.radio-group {
+    display: flex;
+    flex-flow: row;
 }
 div.radio-group div.radio-button {
     display: flex;
@@ -171,24 +179,87 @@ div.modal {
     align-items: center;
     background-color: white;
 }
+
 div.modal * {
-    margin: 0.2em 0;
-    vertical-align: middle;
+    margin: 0;
 }
-div.modal div.textbox, div.modal select {
-    width: 100%;
-}
-div.modal div.parent-list {
+div.modal div.top {
     display: flex;
     flex-flow: row;
+
+    flex-basis: 90%;
+}
+div.modal div.top div.left, div.modal div.top div.right {
+    display: flex;
+    flex-flow: column;
+}
+div.modal div.top div.left h3, div.modal div.top div.right h3 {
+    align-self: center;
+}
+div.modal div.top div.left {
+    width: 20em;
+}
+div.modal div.top div.right {
+    width: 25em;
+}
+div.modal div.top div.node-data, div.modal div.top div.node-appearance {
+    margin: 1em 0;
+}
+
+div.modal div.top div.left div.section, div.modal div.top div.right div.section {
+    display: flex;
+    flex-flow: column;
+    margin-bottom: 0.5em;
+}
+div.modal div.section div.form {
+    display: flex;
+    flex-flow: column;
+}
+div.modal div.section div.form div.label {
+    flex: 1;
+}
+div.modal div.section div.form div.control {
+    flex: 2;
+}
+div.modal div.section div.form div.labeled-control {
+    display: flex;
+    flex-flow: row;
+}
+div.modal div.section div.form div.labeled-control div.control {
+    display: flex;
+    flex-flow: row;
+}
+
+div.modal div.section div.parent-node-list {
+    display: flex;
+    flex-flow: column;
+
+    overflow-y: auto;
+}
+div.modal div.section div.parent-node-list div.parent-node {
+    display: flex;
+    flex-flow: row;
+}
+div.modal div.section div.parent-node-list div.parent-node div.word {
+    flex: 1;
+}
+div.modal div.section div.parent-node-list div.parent-node div.buttons {
+    display: flex;
+    flex-flow: row;
+    flex: 2;
+}
+div.modal div.bottom {
+    display: flex;
+    flex-flow: row;
+    width: 100%;
     justify-content: center;
     align-items: center;
+
+    flex-basis: 10%;
 }
-div.modal div.label-colour-container, div.modal div.vertex-colour-container {
-    display: flex;
-    flex-flow: row;
-    justify-content: space-between;
-}
+/*div.modal div.textbox, div.modal select {
+    width: 100%;
+}*/
 
 /* Context menu */
 div.context-menu-container {
@@ -222,4 +293,12 @@ div.context-menu div.context-menu-item:last-child {
 /* Map */
 div.map-container * {
     user-select: none;
+}
+
+/* Button.jsx */
+div.button {
+
+}
+div.button.disabled {
+
 }

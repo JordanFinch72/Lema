@@ -15,7 +15,8 @@ export class AddEditNodeModal extends Component
 			selectedParentIndex: 0,
 
 			// Cognate properties
-			colour: this.props.node.colour || null,
+			strokeColour: this.props.node.fillColour || null,
+			fillColour: this.props.node.fillColour || null,
 			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,
 			labelCustomText: (this.props.node.label !== undefined) ? this.props.node.label.customText || null : null, // Note: Text can be ""
 			labelFontColour: (this.props.node.label !== undefined) ? this.props.node.label.fontColour || null : null,
@@ -150,9 +151,9 @@ export class AddEditNodeModal extends Component
 					<div className={"label-colour-container"}>
 						<h4>Node country/region colour: </h4>
 						<div className={"node-colour-container"}>
-							<input type={"textbox"} name={"colour"} value={this.state.colour} onChange={this.onFieldChange} />
-							<input type={"color"} defaultValue={this.state.colour} value={this.state.colour} onChange={(e) => {
-								this.setState({colour: e.target.value});
+							<input type={"textbox"} name={"colour"} value={this.state.fillColour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.colourfillColour} value={this.state.fillColour} onChange={(e) => {
+								this.setState({fillColour: e.target.value});
 							}}/>
 						</div>
 					</div>
@@ -322,61 +323,167 @@ export class AddEditNodeModal extends Component
 
 		return (
 			<div className={"modal"}>
-				<h3>Word</h3>
-				<Textbox hint={"e.g. \"Horse\"..."} name={"word"} value={this.state.word} onFieldChange={this.onFieldChange}/>
-				<h3>Language</h3>
-				{languageInput}
-				<h3>Current Parents</h3>
-				{(parentList.length > 0) ? parentList : "None"}
-				<h3>Potential Parents</h3>
-				{potentialParents}
-				{parentControls}
-				{labelControls} {vertexControls}
-				{selectCollection}
-				<Button value={"Submit"} id={"add-node-modal-submit"} onClick={(e) =>
-				{
-					if(this.validation())
-					{
-						// Build node structure to match collection type
-						let updatedNode;
-						if(this.props.type === "journey")
-						{
-							updatedNode = {
-								...this.props.node,
-								word: this.state.word, language: this.state.language, colour: this.state.colour,
-								vertex: {
-									...this.props.node.vertex,
-									type: this.state.vertexTextType,
-									customText: this.state.vertexCustomText,
-									fontColour: this.state.vertexFontColour,
-									strokeColour: this.state.vertexStrokeColour,
-									fillColour: this.state.vertexFillColour,
-									edgeStrokeColour: this.state.vertexEdgeStrokeColour,
-									edgeStrokeWidth: this.state.vertexEdgeStrokeWidth,
-									edgeArrowheadEnabled: this.state.vertexArrowheadEnabled,
-									edgeArrowheadStrokeColour: this.state.vertexArrowheadStrokeColour,
-									edgeArrowheadFillColour: this.state.vertexArrowheadFillColour
-								}
-							};
-						}
-						else if(this.props.type === "cognate")
-						{
-							updatedNode = {
-								...this.props.node,
-								word: this.state.word, language: this.state.language, colour: this.state.colour,
-								label: {
-									...this.props.node.label,
-									type: this.state.labelType,
-									customText: this.state.labelCustomText,
-									fontColour: this.state.labelFontColour,
-									fontSize: this.state.fontSize
-								}
-							};
-						}
-						this.props.onNodeSubmit(e, this.props.collectionIndex, updatedNode);
-					}
+				<div className={"top"}>
+					<div className={"left"}>
+						<h3>Node Data</h3>
+						<div className={"node-data"}>
+							{/* cognateWordLanguage */}
+							<div className={"section"}>
+								<h4>Word / Language</h4>
+								<div className={"form"}>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Word:</div>
+										<div className={"control"}>
+											<Textbox hint={"Enter node word..."} />
+										</div>
+									</div>
+									<div className={"labeled-control"}>
+										<div className={"label"}>Language:</div>
+										<div className={"control"}>
+											<Textbox hint={"Enter node language..."} />
+										</div>
+									</div>
+								</div>
+							</div>
+							{/* parentNodes */}
+							<div className={"section"}>
+								<h4>Parent Nodes:</h4>
+								<div className={"parent-node-list"}>
+									<div className={"parent-node"}> {/* TODO: Convert to component? */}
+										<div className={"word"}>*kers-</div>
+										<div className={"buttons"}>
+											<Button value={"+"} onClick={(e) => {alert("Temporary");}} />
+											<Button value={"X"} disabled={true} onClick={(e) => {alert("Temporary");}} />
+										</div>
+									</div>
+									<div className={"parent-node"}>
+										<div className={"word"}>*krsós</div>
+										<div className={"buttons"}>
+											<Button value={"+"} onClick={(e) => {alert("Temporary");}} />
+											<Button value={"X"} disabled={true} onClick={(e) => {alert("Temporary");}} />
+										</div>
+									</div>
+									<div className={"parent-node"}>
+										<div className={"word"}>*hrussa</div>
+										<div className={"buttons"}>
+											<Button value={"+"} disabled={true} onClick={(e) => {alert("Temporary");}} />
+											<Button value={"X"} onClick={(e) => {alert("Temporary");}} />
+										</div>
+									</div>
+									<div className={"parent-node"}>
+										<div className={"word"}>horse</div>
+										<div className={"buttons"}>
+											<Button value={"+"} onClick={(e) => {alert("Temporary");}} />
+											<Button value={"X"} disabled={true} onClick={(e) => {alert("Temporary");}} />
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div className={"right"}>
+						<h3>Node Appearance</h3>
+						<div className={"node-appearance"}>
+							<div className={"section"}>
+								<h4>Vertex</h4>
+								<div className={"form"}>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Stroke colour: </div>
+										<div className={"control"}>
+											<Textbox value={"#000000"} hint={"Hexadecimal value (e.g. #000000)"} />
+											<input type={"color"} defaultValue={"#000000"} onChange={(e) => {console.log("Temporary");}} />
+										</div>
+									</div>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Fill colour: </div>
+										<div className={"control"}>
+											<Textbox value={"#FF0000"} hint={"Hexadecimal value (e.g. #000000)"} />
+											<input type={"color"} defaultValue={"#FF0000"} onChange={(e) => {console.log("Temporary");}} />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className={"section"}>
+								<h4>Parent Edge</h4>
+								<div className={"form"}>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Stroke colour: </div>
+										<div className={"control"}>
+											<Textbox value={"#000000"} hint={"Hexadecimal value (e.g. #000000)"} />
+											<input type={"color"} defaultValue={"#000000"} onChange={(e) => {console.log("Temporary");}} />
+										</div>
 
-				}}/>
+									</div>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Stroke width: </div>
+										<div className={"control"}>
+											<Textbox value={"2px"} hint={"Pixel value (e.g. 2px)"} />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className={"section"}>
+								<h4>Edge Arrowhead</h4>
+								<div className={"form"}>
+									<div className={"labeled-control"}> {/* TODO: Convert to component? */}
+										<div className={"label"}>Visible?</div>
+										<div className={"control"}>
+											<input type={"checkbox"} checked={true} onChange={(e) => {console.log("Temporary");}} />
+										</div>
+									</div>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Stroke colour: </div>
+										<div className={"control"}>
+											<Textbox value={"#000000"} hint={"Hexadecimal value (e.g. #000000)"} />
+											<input type={"color"} defaultValue={"#000000"} onChange={(e) => {console.log("Temporary");}} />
+										</div>
+									</div>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Fill colour: </div>
+										<div className={"control"}>
+											<Textbox value={"#000000"} hint={"Hexadecimal value (e.g. #000000)"} />
+											<input type={"color"} defaultValue={"#000000"} onChange={(e) => {console.log("Temporary");}} />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className={"section"}>
+								<h4>Label</h4>
+								<div className={"form"}>
+									<div className={"labeled-control"}> {/* TODO: Convert to component? */}
+										<div className={"label"}>Text:</div>
+										<div className={"control"}>
+											<select value={"Word"} onChange={(e) => {console.log("Temporary");}}>
+												<option>Word</option>
+												<option>Language</option>
+												<option>Country/region</option>
+												<option>Custom text</option>
+											</select>
+										</div>
+									</div>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Custom text: </div>
+										<div className={"control"}>
+											<Textbox value={"2px"} hint={"Pixel value (e.g. 2px)"} onChange={(e) => { alert("Select \"Country/region\" in dropdown"); }} />
+										</div>
+									</div>
+									<div className={"labeled-control"}> {/* TODO: Convert to component */}
+										<div className={"label"}>Font colour: </div>
+										<div className={"control"}>
+											<Textbox value={"#000000"} hint={"Hexadecimal value (e.g. #000000)"} />
+											<input type={"color"} defaultValue={"#000000"} onChange={(e) => {console.log("Temporary");}} />
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div className={"bottom"}>
+					<div className={"buttons-container"}>
+						<Button value={"Add Node / Save Changes"} onChange={(e) => {alert("Temporary");}} />
+					</div>
+				</div>
 			</div>
 		);
 	}
