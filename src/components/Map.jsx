@@ -121,7 +121,6 @@ export function Map(props)
 			.attr("d", path);
 
 		// Cognate labels, journey vertices
-
 		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
 		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
@@ -221,14 +220,14 @@ export function Map(props)
 								// Move the label
 								x = mouseX - startXOffset;
 								y = mouseY - startYOffset;
+								newSize = node.label.fontSize;
 								label.attr("x", x).attr("y", y); // Only visually
 							}
 						})
 						.on("end", () => {
 							resizing = false;
-							node.x = x; node.y = y; node.newSize = newSize;
+							node.label.x = x; node.label.y = y; node.label.fontSize = newSize;
 							editNode(null, cognateNodeObject.collectionIndex, node);
-							//moveLabel(cognateNodeObject.collectionIndex, cognateNodeObject.node.indexChain, x, y, newSize); // Set final properties
 						})
 				);
 			}
@@ -492,7 +491,6 @@ export function Map(props)
 							resizing = false;
 							node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexRadius || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
 							editNode(null, journeyNodeObject.collectionIndex, node);
-							//moveVertex(journeyNodeObject.collectionIndex, journeyNodeObject.node.indexChain, vertexX, vertexY, newVertexSize, newLabelSize); // Set final properties
 						})
 					);
 				}

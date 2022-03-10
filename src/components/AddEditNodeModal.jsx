@@ -128,16 +128,6 @@ export class AddEditNodeModal extends Component
 		let labelControls = [], nodeColourControls = [];
 		if(this.props.node.label)
 		{
-			nodeColourControls.push(
-				<h3>Node Country/Region Colour</h3>,
-				<div className={"node-colour-container"}>
-					<input type={"textbox"} name={"colour"} value={this.state.colour} onChange={this.onFieldChange} />
-					<input type={"color"} defaultValue={this.state.colour} value={this.state.colour} onChange={(e) => {
-						this.setState({colour: e.target.value});
-					}}/>
-				</div>
-			);
-
 			// RadioGroup buttons
 			const buttons = [{active: false, label: "Node language"}, {active: false, label: "Node country/region"}, {active: false, label: "Word"}, {active: false, label: "Custom label:"}];
 			let labelTypeIndex;
@@ -157,6 +147,15 @@ export class AddEditNodeModal extends Component
 					<h4>Text:</h4>
 					<RadioGroup buttons={buttons} name={"custom-label"} onRadioButtonClick={this.onLabelRadioClick} />
 					<Textbox hint={"Custom label text..."} name={"labelCustomText"} value={this.state.labelCustomText} onFieldChange={this.onFieldChange} />
+					<div className={"label-colour-container"}>
+						<h4>Node country/region colour: </h4>
+						<div className={"node-colour-container"}>
+							<input type={"textbox"} name={"colour"} value={this.state.colour} onChange={this.onFieldChange} />
+							<input type={"color"} defaultValue={this.state.colour} value={this.state.colour} onChange={(e) => {
+								this.setState({colour: e.target.value});
+							}}/>
+						</div>
+					</div>
 					<div className={"label-colour-container"}>
 						<h4>Font colour: </h4>
 						<div>
