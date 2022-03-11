@@ -1,8 +1,8 @@
 import {Component} from "react";
-import {Textbox} from "../generic/Textbox";
-import {Button} from "../generic/Button";
-import {LabeledControl} from "./LabeledControl";
-import {ColourSelector} from "../generic/ColourSelector";
+import {Textbox} from "../controls/Textbox";
+import {Button} from "../controls/Button";
+import {LabeledControl} from "../controls/LabeledControl";
+import {ColourSelector} from "../controls/ColourSelector";
 
 export class AddEditNodeModal extends Component
 {
@@ -123,6 +123,7 @@ export class AddEditNodeModal extends Component
 
 		return (
 			<div className={"modal"}>
+				<h2>New Node</h2>
 				<div className={"top"}>
 					<div className={"left"}>
 						<h3>Node Data</h3>

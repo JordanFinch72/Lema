@@ -96,7 +96,7 @@ div.button button#search {
 }
 
 
-/* Collections */
+/* CollectionArea */
 div.collections-container {
     display: flex;
     flex-flow: column;
@@ -110,9 +110,9 @@ div.collections-container div.header-container
     display: flex;
     align-items: center;
 }
-div.collections-container div.header-container h2
+div.collections-container div.header-container h3
 {
-    margin-right: 0.1em;
+    margin-right: 0.5em;
 }
 div.collection-container {
     display: flex;
@@ -183,6 +183,10 @@ div.modal {
 div.modal * {
     margin: 0;
 }
+div.modal input[type=color] {
+    height: 1.75em;
+    width: 1.75em;
+}
 div.modal div.top {
     display: flex;
     flex-flow: row;
@@ -193,14 +197,14 @@ div.modal div.top div.left, div.modal div.top div.right {
     display: flex;
     flex-flow: column;
 }
-div.modal div.top div.left h3, div.modal div.top div.right h3 {
+div.modal div.top div.left h2, div.modal div.top div.right h2, div.modal div.top div.left h3, div.modal div.top div.right h3 {
     align-self: center;
 }
 div.modal div.top div.left {
     width: 20em;
 }
 div.modal div.top div.right {
-    width: 25em;
+    width: 20em;
 }
 div.modal div.top div.node-data, div.modal div.top div.node-appearance {
     margin: 1em 0;
@@ -241,12 +245,12 @@ div.modal div.section div.parent-node-list div.parent-node {
     flex-flow: row;
 }
 div.modal div.section div.parent-node-list div.parent-node div.word {
-    flex: 1;
+    flex: 3;
 }
 div.modal div.section div.parent-node-list div.parent-node div.buttons {
     display: flex;
     flex-flow: row;
-    flex: 2;
+    flex: 1;
 }
 div.modal div.bottom {
     display: flex;

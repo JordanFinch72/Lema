@@ -1,9 +1,9 @@
 import React, {Component} from "react";
-import {Meatballs} from "./Meatballs";
-import {Collapser} from "./Collapser";
+import {Meatballs} from "./controls/Meatballs";
+import {Collapser} from "./controls/Collapser";
 import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
-import {Button} from "./generic/Button";
+import {Button} from "./controls/Button";
 
 class CollectionNode extends Component
 {
@@ -55,7 +55,7 @@ class CollectionNode extends Component
 							if(node.props.type === "journey")
 								updatedNode.vertex.fillColour = e.target.value;
 							else if(node.props.type === "cognate")
-								updatedNode.strokeColour = e.target.value;
+								updatedNode.fillColour = e.target.value;
 							node.props.editNode(e, node.props.collectionIndex, updatedNode);
 						}, 100);
 					}}/>

@@ -1,5 +1,5 @@
 import {Component} from "react";
-import {Textbox} from "../generic/Textbox";
+import {Textbox} from "./Textbox";
 
 export class LabeledControl extends Component
 {

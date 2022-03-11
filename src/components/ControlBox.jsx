@@ -1,7 +1,7 @@
 import {Component} from "react";
-import {Textbox} from "./generic/Textbox";
-import {RadioGroup} from "./RadioGroup";
-import {Button} from "./generic/Button";
+import {Textbox} from "./controls/Textbox";
+import {RadioGroup} from "./controls/RadioGroup";
+import {Button} from "./controls/Button";
 import axios from "axios";
 
 export class ControlBox extends Component
@@ -15,7 +15,6 @@ export class ControlBox extends Component
 			searchLanguage: "English",
 			includeAffixes: false
 		};
-
 
 		this.onFieldChange = this.onFieldChange.bind(this);
 		this.onButtonClick = this.onButtonClick.bind(this);
@@ -50,7 +49,7 @@ export class ControlBox extends Component
 						edConnections = response.data[2];
 						edAffixes = (this.state.includeAffixes) ? null : response.data[1].affixes; // Only pass if user doesn't want affixes (to check against it)
 
-						this.props.addJourney(edWords, edConnections, edAffixes);
+						this.props.addJourneyFromDatabase(edWords, edConnections, edAffixes);
 					})
 					.catch((error) => {
 						if(error.response.data['Error message'].indexOf("Could not get an ids") !== -1)

@@ -1,10 +1,10 @@
 import {Component} from "react";
 import {Collection} from "./Collection";
-import {Button} from "./generic/Button";
+import {Button} from "./controls/Button";
 import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 
-export class Collections extends Component
+export class CollectionArea extends Component
 {
 	constructor(props)
 	{
@@ -41,7 +41,7 @@ export class Collections extends Component
 		if(data.type === "cognate")
 		{
 			node.strokeColour = "#000000";
-			node.fillColour = "#FFFFFF";
+			node.fillColour = "#FF0000";
 			node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
 		}
 
@@ -75,50 +75,34 @@ export class Collections extends Component
 			}
 		});
 
-		if(journeyCollections.length <= 0 && cognateCollections.length <= 0) // Default just say "Collections"; re-using journeys variable
-		{
-			journeys =
-				<>
-					<div className={"header-container"}>
-						<h2>Collections</h2>
-						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
-						        onClick={(e) => {
-							        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection}/>);
-						        }}
-						/>
-					</div>
-				</>;
-		}
-		else // Otherwise, display both "Journeys" AND "Cognates" headers so long as there is at least one of either
-		{
-			journeys =
-				<>
-					<div className={"header-container"}>
-						<h2>Journeys</h2>
-						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
-						        onClick={(e) => {
-							        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection}/>);
-						        }}
-						/>
-					</div>
-					{journeyCollections}
-				</>;
-			cognates =
-				<>
-					<div className={"header-container"}>
-						<h2>Cognates</h2>
-						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
-						        onClick={(e) => {
-							        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection} type={"cognate"}/>);
-						        }}
-						/>
-					</div>
-					{cognateCollections}
-				</>;
-		}
+		journeys =
+			<>
+				<div className={"header-container"}>
+					<h3>Journeys</h3>
+					<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
+					        onClick={(e) => {
+						        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection}/>);
+					        }}
+					/>
+				</div>
+				{journeyCollections}
+			</>;
+		cognates =
+			<>
+				<div className={"header-container"}>
+					<h3>Cognates</h3>
+					<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
+					        onClick={(e) => {
+						        this.props.openModal(e, <AddEditCollectionModal onCollectionSubmit={this.props.addCollection} type={"cognate"}/>);
+					        }}
+					/>
+				</div>
+				{cognateCollections}
+			</>;
 
 		return (
 			<div className={"collections-container"}>
+				<h2>Collection Area</h2>
 				{journeys}
 				{cognates}
 			</div>

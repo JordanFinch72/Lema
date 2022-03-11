@@ -4,7 +4,7 @@ import {useD3} from "../hooks/useD3";
 import languageCountries from "../supportedLanguages.json";
 import countries_data from "../data/countries/countries.json";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
-import {ContextMenu} from "./ContextMenu";
+import {ContextMenu} from "./controls/ContextMenu";
 
 export function Map(props)
 {

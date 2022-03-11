@@ -27,7 +27,7 @@ class Lema extends Component
 		this.closeContextMenu = this.closeContextMenu.bind(this);
 		this.addCollection = this.addCollection.bind(this);
 		this.editCollection = this.editCollection.bind(this);
-		this.addJourney = this.addJourney.bind(this);
+		this.addJourneyFromDatabase = this.addJourneyFromDatabase.bind(this);
 		this.addNode = this.addNode.bind(this);
 		this.editNode = this.editNode.bind(this);
 		this.removeNode = this.removeNode.bind(this);
@@ -79,7 +79,7 @@ class Lema extends Component
 		return wordArray;
 	}
 
-	addJourney(edWords, edStructure, edAffixes = null)
+	addJourneyFromDatabase(edWords, edStructure, edAffixes = null)
 	{
 		let newCollections = this.state.collections, newJourneyCount = this.state.journeyCount;
 
@@ -135,8 +135,8 @@ class Lema extends Component
 				let childNode = this.state.collections[collectionIndex].words[i];
 				if(childNode.language === newNode.language)
 				{
-					errorCollector += "A language may only have one word per cognate collection.\n" +
-									  "Additional cognate collections may re-use languages in other cognate collections.";
+					errorCollector += "A language can only appear in a cognate collection once.\n" +
+									  "Additional cognate collections may contain a language used in another cognate collection.";
 					break;
 				}
 			}
@@ -186,7 +186,7 @@ class Lema extends Component
 		let newCollections = this.state.collections;
 
 		// Find node
-		let node = newCollections[collectionIndex].words[arrayIndex]; // Beginning of chain is always 0
+		let node = newCollections[collectionIndex].words[arrayIndex];
 		let confirmed = false;
 		if(node.parents.length > 0)
 			confirmed = window.confirm("Warning: this node is connected to "+node.parents.length+" parent nodes. The nodes will be unaffected by the deletion. Do you still wish to delete?");
@@ -201,26 +201,11 @@ class Lema extends Component
 
 	addCollection(e, data)
 	{
-		if(data.type === "Cognates") data.type = "cognate";
-		else if(data.type === "Historical journey") data.type = "journey";
+		console.log(data);
 
-		// Data validation
-		// TODO: For cognates, only one cognate per language should be allowed
-		//  - Future feature: for additional cognate collections, change solid colours to patterns of the specified colours instead (e.g. stripes; checks)
-		let errorCollector = "";
-		if(data.header.word === null || data.header.word.length <= 0)
-			errorCollector += "You must enter a word.\n";
-		if(data.header.language === null || data.header.language.length <= 0)
-			errorCollector += "You must enter a language.\n";
-
-		if(errorCollector.length > 0)
-			alert(errorCollector); // TODO: Proper error handling with toast
-		else
-		{
-			let newCollections = this.state.collections;
-			newCollections.push({type: data.type, header: data.header, words: []});
-			this.setState( {collections: newCollections}, this.closeModal);
-		}
+		let newCollections = this.state.collections;
+		newCollections.push({type: data.type, header: data.header, words: []});
+		this.setState( {collections: newCollections}, this.closeModal);
 	}
 	editCollection(e, data)
 	{
@@ -273,8 +258,6 @@ class Lema extends Component
 				<div className={"context-menu-container"} onClick={this.closeContextMenu}>{activeContextMenu}</div>;
 		}
 
-		//console.log(this.state.collections);
-
 		return (
 			<div className="Lema">
 				<Banner/>
@@ -282,14 +265,15 @@ class Lema extends Component
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-					         addJourney={this.addJourney}
+					         addJourneyFromDatabase={this.addJourneyFromDatabase}
 					         addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
 					         addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
 					/>
 					<Map collections={this.state.collections} mapRenderCounter={this.state.mapRenderCounter}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					     openModal={this.openModal} closeModal={this.closeModal}
-						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}  />
+						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
+					/>
 				</div>
 				{modalContainer}
 				{contextMenuContainer}

@@ -1,6 +1,6 @@
 import {Component} from "react";
 import {ContextMenu} from "./ContextMenu";
-import {Button} from "./generic/Button";
+import {Button} from "./Button";
 
 export class Meatballs extends Component
 {
