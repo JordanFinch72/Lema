@@ -1,7 +1,7 @@
 import {Component} from "react";
-import {Textbox} from "./Textbox";
+import {Textbox} from "./generic/Textbox";
 import {RadioGroup} from "./RadioGroup";
-import {Button} from "./Button";
+import {Button} from "./generic/Button";
 import axios from "axios";
 
 export class ControlBox extends Component

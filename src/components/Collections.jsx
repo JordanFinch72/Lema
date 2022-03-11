@@ -1,8 +1,8 @@
 import {Component} from "react";
 import {Collection} from "./Collection";
-import {Button} from "./Button";
-import {AddEditCollectionModal} from "./AddEditCollectionModal";
-import {AddEditNodeModal} from "./AddEditNodeModal";
+import {Button} from "./generic/Button";
+import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
+import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 
 export class Collections extends Component
 {
@@ -30,7 +30,7 @@ export class Collections extends Component
 			node.colour = "#000000";
 			node.label = {type: "language", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
 		}
-		this.props.openModal(e, <AddEditNodeModal words={data.words} node={node} type={data.type} onNodeSubmit={this.props.addNode} collectionIndex={data.collectionIndex}/>);
+		this.props.openModal(e, <AddEditNodeModal isNewWord={true} words={data.words} node={node} type={data.type} onNodeSubmit={this.props.addNode} collectionIndex={data.collectionIndex}/>);
 	}
 	cAddNodeDefault(e, data)
 	{

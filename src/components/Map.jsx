@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import {useD3} from "../hooks/useD3";
 import languageCountries from "../supportedLanguages.json";
 import countries_data from "../data/countries/countries.json";
-import {AddEditNodeModal} from "./AddEditNodeModal";
+import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 import {ContextMenu} from "./ContextMenu";
 
 export function Map(props)
@@ -133,9 +133,9 @@ export function Map(props)
 				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 				let fontSize = node.label.fontSize;                 // Font size of the label
 				let labelText = node.language;                      // Language by default
-				if(node.label.type === "country") labelText = f.properties.name_long;
-				else if(node.label.type === "customText") labelText = node.label.customText;
-				else if(node.label.type === "word") labelText = node.word;
+				if(node.label.type === "Country/region") labelText = f.properties.name_long;
+				else if(node.label.type === "Custom text") labelText = node.label.customText;
+				else if(node.label.type === "Word") labelText = node.word;
 
 				// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
 				if(labelText.length !== 0 && !node.label.fontSize) // Only scale if font size hasn't been set by user
@@ -247,10 +247,10 @@ export function Map(props)
 					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
 					let fontSize = node.vertex.fontSize;
-					let vertexText = node.word;                     // Word by default
-					if(node.vertex.type === "country") vertexText = f.properties.name_long;
-					else if(node.vertex.type === "customText") vertexText = node.vertex.customText;
-					else if(node.vertex.type === "language") vertexText = node.language;
+					let vertexText = node.word;                         // Word by default
+					if(node.vertex.type === "Country region") vertexText = f.properties.name_long;
+					else if(node.vertex.type === "Custom text") vertexText = node.vertex.customText;
+					else if(node.vertex.type === "Language") vertexText = node.language;
 
 					// Initial co-ordinates
 					// TODO: Vertex xOffset, yOffset attributes in country/region data

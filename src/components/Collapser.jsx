@@ -1,5 +1,5 @@
 import {Component} from "react";
-import {Button} from "./Button";
+import {Button} from "./generic/Button";
 
 export class Collapser extends Component
 {

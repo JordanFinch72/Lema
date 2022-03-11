@@ -1,6 +1,6 @@
 import {Component} from "react";
-import {Textbox} from "./Textbox";
-import {Button} from "./Button";
+import {Textbox} from "../generic/Textbox";
+import {Button} from "../generic/Button";
 
 export class AddEditCollectionModal extends Component
 {

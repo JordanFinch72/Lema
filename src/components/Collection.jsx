@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import {Meatballs} from "./Meatballs";
 import {Collapser} from "./Collapser";
-import {AddEditCollectionModal} from "./AddEditCollectionModal";
-import {AddEditNodeModal} from "./AddEditNodeModal";
-import {Button} from "./Button";
+import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
+import {AddEditNodeModal} from "./modals/AddEditNodeModal";
+import {Button} from "./generic/Button";
 
 class CollectionNode extends Component
 {
