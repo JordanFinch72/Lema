@@ -198,7 +198,10 @@ export class AddEditNodeModal extends Component
 									<h4>Label</h4>
 									<div className={"form"}>
 										<LabeledControl label={"Text: "}>
-											<select name={"vertexTextType"} value={this.state.vertexTextType} onChange={this.onFieldChange}>
+											<select name={"vertexTextType"} value={this.state.vertexTextType} onChange={(e) => {
+												this.setState({vertexCustomText: ""}); // Automatically clear "Custom text" field
+												this.onFieldChange(e);
+											}}>
 												<option>Word</option>
 												<option>Language</option>
 												<option>Country/region</option>
@@ -206,7 +209,10 @@ export class AddEditNodeModal extends Component
 											</select>
 										</LabeledControl>
 										<LabeledControl label={"Custom text: "}>
-											<Textbox name={"vertexCustomText"} value={this.state.vertexCustomText} hint={"e.g. \"Coolest word ever!\""} onFieldChange={this.onFieldChange} />
+											<Textbox name={"vertexCustomText"} value={this.state.vertexCustomText} hint={"e.g. \"Coolest word ever!\""} onFieldChange={(e) => {
+												this.setState({vertexTextType: "Custom text"}); // Automatically change type to "Custom text"
+												this.onFieldChange(e);
+											}} />
 										</LabeledControl>
 										<LabeledControl label={"Font colour: "}>
 											<Textbox name={"vertexFontColour"}  value={this.state.vertexFontColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />

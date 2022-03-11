@@ -260,7 +260,7 @@ class Lema extends Component
 
 		return (
 			<div className="Lema">
-				<Banner/>
+				<Banner />
 				<div className={"main-view-container"}>
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
