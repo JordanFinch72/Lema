@@ -5,9 +5,12 @@ import languageCountries from "../supportedLanguages.json";
 import countries_data from "../data/countries/countries.json";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 import {ContextMenu} from "./controls/ContextMenu";
+import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
 
 export function Map(props)
 {
+	console.log("[== MAP RENDER ==]");
+
 	// Prop functions
 	const openContextMenu = props.openContextMenu.bind(this);
 	const addNode = props.addNode.bind(this);
@@ -15,10 +18,9 @@ export function Map(props)
 	const removeNode = props.removeNode.bind(this);
 	const openModal = props.openModal.bind(this);
 
+	// Props
 	const collections = props.collections;
-	console.log("[== MAP RENDER ==]");
 
-	let topojson = require("topojson");
 	let countries_data = require("../data/countries/countries.json");
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
@@ -36,8 +38,6 @@ export function Map(props)
 			.translate([width/2, height/2]);
 		const path = d3.geoPath().projection(projection);
 
-
-
 		// Draw countries, bind data and handlers
 		let countryPaths = svg.append("g")
 			.selectAll("path") // svg->g->path
@@ -54,56 +54,90 @@ export function Map(props)
 			.on("contextmenu", function(e, d){
 				e.preventDefault(); // Prevent browser context menu from opening
 				const nodeObject = findNodes(d, "cognate");
+				let contextMenuItems = [];
 
+				// If clicked-on country has attached cognate
 				if(nodeObject)
 				{
-					const contextMenuItems = [
-						{
-							text: "Add new node (journey)", handler: (e) => {
-								// Add new journey node within the country/region they right-clicked on (there may be multiple nodes in one country/region for journeys)
-								let collectionList = collections.filter(collection => collection.type === "journey"); // Journeys only
-								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} node={nodeObject.node} language={d.properties.languages} />);
-							}
-						},
-						{
-							text: "Add sibling node (cognate)", handler: (e) => {
-								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionIndex={nodeObject.collectionIndex} node={nodeObject.node} language={d.properties.languages} />);
-							}
-						},
+					contextMenuItems = [
 						{
 							text: "Edit node (cognate)", handler: (e) => {
-								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} collectionIndex={nodeObject.collectionIndex} wordIndex={nodeObject.wordIndex}
-								                               node={nodeObject.node} language={nodeObject.node.language} />);
+								let collectionList = collections.filter((collection, i) => {
+									if(collection.type === "cognate")
+									{
+										collection.collectionIndex = i;
+										return true;
+									}
+								})
+
+								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={nodeObject.node} collectionList={collectionList}
+								                               collectionIndex={nodeObject.collectionIndex}
+								                               type={"cognate"} language={nodeObject.node.language} />);
 							}
 						},
 						{
 							text: "Remove node (cognate)", handler: (e) => {
-								removeNode(e, nodeObject.collectionIndex, nodeObject.wordIndex);
+								removeNode(e, nodeObject.collectionIndex, nodeObject.arrayIndex);
 							}
 						}
 					];
-					openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
 				}
 				else
 				{
 					// TODO: Context menu for adding to new collection, adding to existing collection
-					const contextMenuItems = [
+					contextMenuItems = [
 						{
-							text: "Add new node (journey)", handler: (e) => {
-								let collectionList = collections.filter(collection => collection.type === "journey"); // Journeys only
-								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} language={d.properties.languages} />);
-							}
-						},
-						{
-							text: "Add to collection (cognate)", handler: (e) => {
-								let collectionList = collections.filter(collection => collection.type === "cognate"); // Cognates only
-								openModal(e, <AddEditNodeModal onNodeSubmit={addNode} collectionList={collectionList} language={d.properties.languages} />);
+							text: "Add country to collection (cognate)", handler: (e) => {
+								let collectionList = collections.filter((collection, i) => {
+									if(collection.type === "cognate")
+									{
+										collection.collectionIndex = i;
+										return true;
+									}
+								})
+
+								if(collectionList.length <= 0)
+								{
+									alert("You must first create a cognate collection for the node to be added to.");
+								}
+								else
+								{
+									let node = {word: "", language: "", parents: []};
+									node.fillColour = "#FF0000"; node.strokeColour = "#000000";
+									node.label = {type: "word", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
+									openModal(e, <AddEditNodeModal isNewWord={true} onNodeSubmit={addNode} node={node} type={"cognate"} collectionList={collectionList} collectionIndex={collectionList[0].collectionIndex} language={d.properties.languages} />);
+								}
 							}
 						}
 					]
-					openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
 				}
 
+				// Common to both
+				contextMenuItems.unshift(
+					{
+						text: "Add new node (journey)", handler: (e) => {
+							let collectionList = collections.filter((collection, i) => {
+								if(collection.type === "journey")
+								{
+									collection.collectionIndex = i;
+									return true;
+								}
+							})
+							if(collectionList.length <= 0)
+							{
+								alert("You must first create a journey collection for the node to be added to.");
+							}
+							else
+							{
+								// Open the AddEditNodeModal with initial node data
+								let node = {word: "", language: d.properties.languages[0], parents: []};
+								node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
+								openModal(e, <AddEditNodeModal isNewWord={true} node={node} type={"journey"} onNodeSubmit={addNode} collectionList={collectionList} collectionIndex={collectionList[0].collectionIndex} language={d.properties.languages} />);
+							}
+						}
+					},
+				);
+				openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
 			})
 			.on("mouseover", function(e, d){
 				let element = d3.select(this);
@@ -132,10 +166,10 @@ export function Map(props)
 				let node = cognateNodeObject.node;
 				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 				let fontSize = node.label.fontSize;                 // Font size of the label
-				let labelText = node.language;                      // Language by default
+				let labelText = node.word;                          // Word by default
 				if(node.label.type === "Country/region") labelText = f.properties.name_long;
 				else if(node.label.type === "Custom text") labelText = node.label.customText;
-				else if(node.label.type === "Word") labelText = node.word;
+				else if(node.label.type === "Language") labelText = node.language;
 
 				// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
 				if(labelText.length !== 0 && !node.label.fontSize) // Only scale if font size hasn't been set by user
@@ -242,8 +276,6 @@ export function Map(props)
 				{
 					let journeyNodeObject = journeyNodeObjects[i];
 					let node = journeyNodeObject.node;
-					let nextNodeObject = findNextNode(journeyNodeObject.collectionIndex, journeyNodeObject.wordIndex);
-					let nextNode = (nextNodeObject) ? nextNodeObject.node : null;
 					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
 					let fontSize = node.vertex.fontSize;
@@ -378,8 +410,35 @@ export function Map(props)
 						.text(vertexText);
 					prevDiameter = radius*2;
 
-					// Dragging/resizing handlers
+					// Dragging/resizing/clicking handlers
 					let startXOffset, startYOffset, resizing = false, startX, startY, startRadius, newVertexRadius, newLabelSize;
+
+					text.on("contextmenu", (e) => {
+						e.preventDefault();
+						let contextMenuItems = [
+							{
+								text: "Edit node (cognate)", handler: (e) => {
+									let collectionList = collections.filter((collection, i) => {
+										if(collection.type === "journey")
+										{
+											collection.collectionIndex = i;
+											return true;
+										}
+									})
+
+									openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={node} collectionList={collectionList}
+									                               collectionIndex={journeyNodeObject.collectionIndex}
+									                               type={"cognate"} language={node.language} />);
+								}
+							},
+							{
+								text: "Remove node (cognate)", handler: (e) => {
+									removeNode(e, journeyNodeObject.collectionIndex, node.arrayIndex);
+								}
+							}
+						];
+						openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
+					});
 					vertex.on("mousemove", (e) => {
 						let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
 						let mouseX = e.layerX, mouseY = e.layerY;
@@ -405,6 +464,32 @@ export function Map(props)
 						}
 						else
 							vertex.style("cursor", "grab");
+					})
+					.on("contextmenu", (e) => {
+						e.preventDefault();
+						let contextMenuItems = [
+							{
+								text: "Edit node (cognate)", handler: (e) => {
+									let collectionList = collections.filter((collection, i) => {
+										if(collection.type === "journey")
+										{
+											collection.collectionIndex = i;
+											return true;
+										}
+									})
+
+									openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={node} collectionList={collectionList}
+									                               collectionIndex={journeyNodeObject.collectionIndex}
+									                               type={"cognate"} language={node.language} />);
+								}
+							},
+							{
+								text: "Remove node (cognate)", handler: (e) => {
+									removeNode(e, journeyNodeObject.collectionIndex, node.arrayIndex);
+								}
+							}
+						];
+						openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
 					})
 					.call(d3.drag()
 						.on("start", (e) => {
@@ -542,7 +627,7 @@ export function Map(props)
 
 						if(d.properties.languages.includes(childNode.language))
 						{
-							return {node: childNode, collectionIndex: c, wordIndex: n}; // TODO: Currently only returns first cognate
+							return {node: childNode, collectionIndex: c, arrayIndex: n}; // TODO: Currently only returns first cognate
 						}
 					}
 				}
@@ -568,19 +653,11 @@ export function Map(props)
 			return countryNodes;
 		}
 	}
-	function findNextNode(collectionIndex, childIndex)
-	{
-		let nextNode;
-		if(collections[collectionIndex].words[childIndex+1])
-			return {node: collections[collectionIndex].words[childIndex+1], collectionIndex: collectionIndex, wordIndex: childIndex+1}
-		else
-			return null;
-	}
 
 	/**
-	 * Determines country SVG fill colour according to countries' language(s) and the specified colour of that language's cognate node(s)
-	 * @param d Data attached to DOM element via D3 (i.e. the country)
-	 * @returns {string} The fill colour, as specified by user in Collection.jsx
+	 * Determines country SVG fill colour according to countries' language(s) and the specified colour of that language's cognate node(s).
+	 * @param d Data attached to DOM element via D3 (i.e. the country).
+	 * @returns {string} The fill colour, as specified by user in Collection.jsx.
 	 */
 	function determineFillColour(d)
 	{
@@ -589,9 +666,9 @@ export function Map(props)
 		else return "white";                             // Otherwise, return white by default for all countries with no associated data
 	}
 	/**
-	 * Determines country SVG stroke colour according to countries' language(s) and the specified colour of that language's cognate node(s)
-	 * @param d Data attached to DOM element via D3 (i.e. the country)
-	 * @returns {string} The fill colour, as specified by user in Collection.jsx
+	 * Determines country SVG stroke colour according to countries' language(s) and the specified colour of that language's cognate node(s).
+	 * @param d Data attached to DOM element via D3 (i.e. the country).
+	 * @returns {string} The fill colour, as specified by user in Collection.jsx.
 	 */
 	function determineStrokeColour(d)
 	{

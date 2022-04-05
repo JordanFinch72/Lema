@@ -2,7 +2,7 @@ import {Component} from "react";
 import {Textbox} from "../controls/Textbox";
 import {Button} from "../controls/Button";
 import {LabeledControl} from "../controls/LabeledControl";
-import {ColourSelector} from "../controls/ColourSelector";
+import {ColourPicker} from "../controls/ColourPicker";
 
 export class AddEditNodeModal extends Component
 {
@@ -13,9 +13,10 @@ export class AddEditNodeModal extends Component
 			/* Node properties */
 			word: this.props.node.word || null,
 			parents: this.props.node.parents || null,
+			collectionIndex: (this.props.collectionIndex !== undefined) ? this.props.collectionIndex : null,
 
 			// Cognate properties
-			strokeColour: this.props.node.fillColour || null,
+			strokeColour: this.props.node.strokeColour || null,
 			fillColour: this.props.node.fillColour || null,
 			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,
 			labelCustomText: (this.props.node.label !== undefined) ? this.props.node.label.customText || null : null, // Note: Text can be ""
@@ -36,8 +37,7 @@ export class AddEditNodeModal extends Component
 			// Optional or can be overridden
 			isNewWord: this.props.isNewWord,
 			language: (typeof this.props.language === "object") ? this.props.language[0] : this.props.language,
-			collection: (this.props.collectionList !== undefined)
-				? (`${this.props.collectionList[0].type[0].toUpperCase() + this.props.collectionList[0].type.substring(1)}: ${this.props.collectionList[0].header.word}`) : null,
+			collectionList: (this.props.collectionList !== undefined) ? this.props.collectionList || null : null
 		};
 
 		this.onNodeSubmit = this.props.onNodeSubmit.bind(this);
@@ -96,6 +96,39 @@ export class AddEditNodeModal extends Component
 			languageInput = <Textbox hint={"e.g. \"English\""} name={"language"} value={this.state.language} onFieldChange={this.onFieldChange} />
 		}
 
+		let collectionInput;
+		console.log("collectionList");
+		console.log(this.state.collectionList);
+		if(this.state.collectionList)
+		{
+			// Create options
+			let options = [];
+			for(let i = 0; i < this.state.collectionList.length; ++i)
+			{
+				const collection = this.state.collectionList[i];
+				const option = `${collection.header.word} (${collection.header.language})`;
+				options.push(<option key={i}>{option}</option>)
+			}
+
+			// Find default collection for the <select>
+			let currentCollection = this.state.collectionList.find((c) => {
+				console.log("HELLO");
+				console.log(c.collectionIndex);
+				console.log(this.state.collectionIndex);
+				return c.collectionIndex === this.state.collectionIndex;
+			});
+			if(currentCollection != null) currentCollection = `${currentCollection.header.word} (${currentCollection.header.language})`
+
+			// Create select
+			collectionInput =
+				<select name={"collection"} defaultValue={currentCollection} onChange={(e) => {
+					let newCollectionIndex = this.state.collectionList[e.target.selectedIndex].collectionIndex; // Find collectionIndex of selected option
+					this.setState({collectionIndex: newCollectionIndex}, () => {alert(this.state.collectionIndex)});
+				}}>
+					{options}
+				</select>
+		}
+
 		/* Construct list of nodes that are the word's parent or can be added as the word's parent */
 		let parentNodeList = [];
 		if(this.props.type === "journey" && this.props.words)
@@ -138,6 +171,9 @@ export class AddEditNodeModal extends Component
 									<LabeledControl label={"Language: "}>
 										{languageInput}
 									</LabeledControl>
+									<LabeledControl label={"Collection: "}>
+										{collectionInput}
+									</LabeledControl>
 								</div>
 							</div>
 							{/* parentNodes */}
@@ -158,11 +194,11 @@ export class AddEditNodeModal extends Component
 									<div className={"form"}>
 										<LabeledControl label={"Stroke colour: "}>
 											<Textbox name={"vertexStrokeColour"}  value={this.state.vertexStrokeColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"vertexStrokeColour"} value={this.state.vertexStrokeColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"vertexStrokeColour"} value={this.state.vertexStrokeColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Fill colour: "}>
 											<Textbox name={"vertexFillColour"}  value={this.state.vertexFillColour} hint={"Hexadecimal value (e.g. #FFFFFF)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"vertexFillColour"} value={this.state.vertexFillColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"vertexFillColour"} value={this.state.vertexFillColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 									</div>
 								</div>
@@ -171,7 +207,7 @@ export class AddEditNodeModal extends Component
 									<div className={"form"}>
 										<LabeledControl label={"Stroke colour: "}>
 											<Textbox name={"vertexEdgeStrokeColour"}  value={this.state.vertexEdgeStrokeColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"vertexEdgeStrokeColour"} value={this.state.vertexEdgeStrokeColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"vertexEdgeStrokeColour"} value={this.state.vertexEdgeStrokeColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Stroke width: "}>
 											<Textbox name={"vertexEdgeStrokeWidth"}  value={this.state.vertexEdgeStrokeWidth} hint={"Pixel value (e.g. 2px)"} />
@@ -186,11 +222,11 @@ export class AddEditNodeModal extends Component
 										</LabeledControl>
 										<LabeledControl label={"Stroke colour: "}>
 											<Textbox name={"vertexArrowheadStrokeColour"} value={this.state.vertexArrowheadStrokeColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"vertexArrowheadStrokeColour"} value={this.state.vertexArrowheadStrokeColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"vertexArrowheadStrokeColour"} value={this.state.vertexArrowheadStrokeColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Fill colour: "}>
 											<Textbox name={"vertexArrowheadFillColour"}  value={this.state.vertexArrowheadFillColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"vertexArrowheadFillColour"} value={this.state.vertexArrowheadFillColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"vertexArrowheadFillColour"} value={this.state.vertexArrowheadFillColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 									</div>
 								</div>
@@ -216,7 +252,7 @@ export class AddEditNodeModal extends Component
 										</LabeledControl>
 										<LabeledControl label={"Font colour: "}>
 											<Textbox name={"vertexFontColour"}  value={this.state.vertexFontColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"vertexFontColour"} value={this.state.vertexFontColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"vertexFontColour"} value={this.state.vertexFontColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 									</div>
 								</div>
@@ -229,11 +265,11 @@ export class AddEditNodeModal extends Component
 									<div className={"form"}>
 										<LabeledControl label={"Stroke colour: "}>
 											<Textbox name={"strokeColour"}  value={this.state.strokeColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"strokeColour"} value={this.state.strokeColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"strokeColour"} value={this.state.strokeColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Fill colour: "}>
 											<Textbox name={"fillColour"}  value={this.state.fillColour} hint={"Hexadecimal value (e.g. #FFFFFF)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"fillColour"} value={this.state.fillColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"fillColour"} value={this.state.fillColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 									</div>
 								</div>
@@ -253,7 +289,7 @@ export class AddEditNodeModal extends Component
 										</LabeledControl>
 										<LabeledControl label={"Font colour: "}>
 											<Textbox name={"labelFontColour"}  value={this.state.labelFontColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourSelector name={"labelFontColour"} value={this.state.labelFontColour} onChange={this.onFieldChange} />
+											<ColourPicker name={"labelFontColour"} value={this.state.labelFontColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 									</div>
 								</div>
@@ -292,7 +328,8 @@ export class AddEditNodeModal extends Component
 								{
 									updatedNode = {
 										...this.props.node,
-										word: this.state.word, language: this.state.language, colour: this.state.colour,
+										word: this.state.word, language: this.state.language,
+										fillColour: this.state.fillColour, strokeColour: this.state.strokeColour,
 										label: {
 											...this.props.node.label,
 											type: this.state.labelType,
@@ -302,7 +339,10 @@ export class AddEditNodeModal extends Component
 										}
 									};
 								}
-								this.props.onNodeSubmit(e, this.props.collectionIndex, updatedNode);
+
+								const newCollectionIndex = (this.state.collectionIndex !== this.props.collectionIndex) ? this.state.collectionIndex : null;
+								alert(newCollectionIndex);
+								this.props.onNodeSubmit(e, this.props.collectionIndex, updatedNode, newCollectionIndex);
 							}
 						}} />
 					</div>

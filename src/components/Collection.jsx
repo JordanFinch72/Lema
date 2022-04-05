@@ -16,6 +16,13 @@ class CollectionNode extends Component
 	{
 		let nodeColour = this.props.node.fillColour || this.props.node.vertex.fillColour; // TODO: Advanced logic for determining next unused colour (per journey)
 		let changeColourTimeout;
+		let collectionList = this.props.collections.filter((collection, i) => {
+			if(collection.type === this.props.type)
+			{
+				collection.collectionIndex = i;
+				return true;
+			}
+		})
 
 		return (
 			<div className={"collection-node"}>
@@ -23,6 +30,7 @@ class CollectionNode extends Component
 				<div onClick={(e) =>
 				{
 					this.props.openModal(e, <AddEditNodeModal
+						collectionList={collectionList}
 						words={this.props.words}
 						type={this.props.type}
 						node={this.props.node}
@@ -34,6 +42,7 @@ class CollectionNode extends Component
 				<div onClick={(e) =>
 				{
 					this.props.openModal(e, <AddEditNodeModal
+						collectionList={collectionList}
 						words={this.props.words}
 						type={this.props.type}
 						node={this.props.node}
@@ -95,8 +104,8 @@ export class Collection extends Component
 			{
 				wordComponents.push(<CollectionNode
 					key={i}
+					collections={this.props.collections}
 					type={this.props.type}
-					flatCollection={this.flatCollection}
 					words={this.props.words}
 					node={this.props.words[i]}
 					editNode={this.props.editNode}

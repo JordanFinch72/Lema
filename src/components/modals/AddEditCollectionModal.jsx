@@ -2,7 +2,7 @@ import {Component} from "react";
 import {Textbox} from "../controls/Textbox";
 import {Button} from "../controls/Button";
 import {LabeledControl} from "../controls/LabeledControl";
-import {ColourSelector} from "../controls/ColourSelector";
+import {ColourPicker} from "../controls/ColourPicker";
 
 export class AddEditCollectionModal extends Component
 {

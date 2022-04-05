@@ -1,6 +1,6 @@
 import {Component} from "react";
 
-export class ColourSelector extends Component
+export class ColourPicker extends Component
 {
 	constructor(props)
 	{

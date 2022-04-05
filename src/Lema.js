@@ -34,20 +34,30 @@ class Lema extends Component
 		this.removeCollection = this.removeCollection.bind(this);
 	}
 
-	flattenTree(wordArray, edWords, structure, wordID, affixesArray = null)
+	/**
+	 * A recursive function that flattens the nested data structure returned from the etymological database into an
+	 * array of word nodes.
+	 * @param wordArray Flat array of words (initially empty)
+	 * @param edWords Object of words returned by the etymological database
+	 * @param edStructure Original data structure returned by the etymological database
+	 * @param edAffixes Array of affixed returned by the etymological database (used to filter out affixes)
+	 * @param wordID The ID of the word currently being operated on in the recursive function
+	 * @returns {array} The wordArray object, which has nodes pushed to it throughout the function
+	 */
+	flattenTree(wordArray, edWords, edStructure, wordID, edAffixes = null)
 	{
-		let parents = [], wordObject = {};
+		let parents = [], wordNode = {};
 		// Parents
-		if(Object.keys(structure).length > 0)
+		if(Object.keys(edStructure).length > 0)
 		{
 			// Loop through parents
-			for(let wordID in structure)
+			for(let wordID in edStructure)
 			{
-				if((affixesArray !== null && !affixesArray.includes(Number(wordID)))
-					|| affixesArray == null)
+				if((edAffixes !== null && !edAffixes.includes(Number(wordID)))
+					|| edAffixes == null)
 				{
 					parents.push(wordID);
-					wordArray = this.flattenTree(wordArray, edWords, structure[wordID], wordID, affixesArray);
+					wordArray = this.flattenTree(wordArray, edWords, edStructure[wordID], wordID, edAffixes);
 				}
 			}
 		}
@@ -55,12 +65,12 @@ class Lema extends Component
 		// Retrieve word from ED and convert to Lema-compatible object
 		if(wordID !== null)
 		{
-			wordObject = edWords[wordID];
-			wordObject = {
+			wordNode = edWords[wordID];
+			wordNode = {
 				id: Number(wordID),
 				arrayIndex: wordArray.length,
-				word: wordObject.word,
-				language: wordObject.language_name,
+				word: wordNode.word,
+				language: wordNode.language_name,
 				parents: [],
 				vertex: {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: this.defaultJourneyColours[this.state.journeyCount], radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"}
 			}
@@ -68,22 +78,28 @@ class Lema extends Component
 			{
 				let parentID = Number(parents[i]);
 				let parent = wordArray.find(({id}) => id === parentID);
-				if((affixesArray !== null && !affixesArray.includes(parentID))
-					|| affixesArray === null)
+				if((edAffixes !== null && !edAffixes.includes(parentID))
+					|| edAffixes === null)
 				{
-					wordObject.parents.push(parent);
+					wordNode.parents.push(parent);
 				}
 			}
-			wordArray.push(wordObject);
+			wordArray.push(wordNode);
 		}
 		return wordArray;
 	}
 
+	/**
+	 * Creates a journey collection from words returned by the etymological database and automatically adds them to the existing journey collections array
+	 * @param edWords Object of words returned by the etymological database
+	 * @param edStructure Original data structure returned by the etymological database
+	 * @param edAffixes Array of affixed returned by the etymological database (used to filter out affixes)
+	 */
 	addJourneyFromDatabase(edWords, edStructure, edAffixes = null)
 	{
 		let newCollections = this.state.collections, newJourneyCount = this.state.journeyCount;
 
-		// Flatten the structure
+		// Flatten the data structure
 		let journeyWords = [];
 		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, null, edAffixes);
 		console.log(journeyWords);
@@ -95,44 +111,65 @@ class Lema extends Component
 		this.setState({collections: newCollections, journeyCount: newJourneyCount+1});
 	}
 
+	/**
+	 * Opens a modal if one is not already open.
+	 * @param e SyntheticEvent
+	 * @param modalComponent React component of the modal that is to be opened.
+	 */
 	openModal(e, modalComponent)
 	{
-		this.setState({
-			activeModal: modalComponent
-		});
+		if(!this.state.activeModal)
+			this.setState({activeModal: modalComponent});
 	}
+
+	/**
+	 * Closes any currently-open modal.
+	 */
 	closeModal()
 	{
 		if(this.state.activeModal)
-		{
-			this.setState({
-				activeModal: null
-			});
-		}
-	}
-	openContextMenu(e, menuComponent)
-	{
-		this.setState({
-			activeContextMenu: menuComponent
-		});
-	}
-	closeContextMenu()
-	{
-		this.setState({
-			activeContextMenu: null
-		});
+			this.setState({activeModal: null});
 	}
 
-	addNode(e, collectionIndex, newNode)
+	/**
+	 * Opens a context menu if one is not already open.
+	 * Note: currently, only one context menu can be active at a time. This means context menus' items must not attempt to open a context menu on themselves.
+	 * @param e
+	 * @param menuComponent A React component of the context menu that is to be opened.
+	 */
+	openContextMenu(e, menuComponent)
 	{
-		// Data validation
+		if(!this.state.activeContextMenu)
+			this.setState({activeContextMenu: menuComponent});
+	}
+
+	/**
+	 * Closes any currently-open context menu.
+	 */
+	closeContextMenu()
+	{
+		if(this.state.activeContextMenu)
+			this.setState({activeContextMenu: null});
+	}
+
+	/**
+	 * Adds a node to the specified collection in the state's collection array.
+	 * @param e SyntheticEvent
+	 * @param collectionIndex The index of the collection to which the new node will belong.
+	 * @param newNode The new node.
+	 */
+	addNode(e, collectionIndex, newNode, newCollectionIndex = null)
+	{
+		let collectionIndexActual = (newCollectionIndex !== null) ? newCollectionIndex : collectionIndex;
+
+		// Validation (note: node data validation exists in the AddEditNodeModal)
 		let errorCollector = "";
-		if(this.state.collections[collectionIndex].type === "cognate")
+		if(this.state.collections[collectionIndexActual].type === "cognate")
 		{
 			// Check for existing language
-			for(let i = 0; i < this.state.collections[collectionIndex].words.length; ++i)
+			for(let i = 0; i < this.state.collections[collectionIndexActual].words.length; ++i)
 			{
-				let childNode = this.state.collections[collectionIndex].words[i];
+				let childNode = this.state.collections[collectionIndexActual].words[i];
 				if(childNode.language === newNode.language)
 				{
 					errorCollector += "A language can only appear in a cognate collection once.\n" +
@@ -148,20 +185,20 @@ class Lema extends Component
 		{
 			// Insert new node
 			let newCollections = this.state.collections;
-			newNode.arrayIndex = newCollections[collectionIndex].words.length;
-			newCollections[collectionIndex].words.push(newNode);
+			newNode.arrayIndex = newCollections[collectionIndexActual].words.length;
+			newCollections[collectionIndexActual].words.push(newNode);
 
-			this.setState({collections: newCollections});
+			this.setState({collections: newCollections}, this.closeModal);
 		}
 	}
 
 	/**
-	 * Updates the state's collections array with updated node
+	 * Updates a node in the specified collection in the state's collections array with updated data.
 	 * @param e React SyntheticEvent
-	 * @param collectionIndex Index of collection to which the node belongs
-	 * @param updatedNode The updated node to be set in the collections array
+	 * @param collectionIndex Index of collection to which the node belongs.
+	 * @param updatedNode The updated node to be set in the collections array.
 	 */
-	editNode(e, collectionIndex, updatedNode)
+	editNode(e, collectionIndex, updatedNode, newCollectionIndex = null)
 	{
 		let newCollections = this.state.collections;
 		console.log(e);
@@ -175,12 +212,29 @@ class Lema extends Component
 		for(let index in updatedNode)
 			if(node[index]) node[index] = updatedNode[index];
 
+		// Additional operations if node was moved from one collection to another
+		if(newCollectionIndex !== null)
+		{
+			node.arrayIndex = newCollections[newCollectionIndex].words.length; // Update arrayIndex to reflect new collection
+			node.parents.splice(0, node.parents.length);                  // Clear parents
+			newCollections[newCollectionIndex].words.push(node);               // Add node to new collection
+			this.removeNode(e, collectionIndex, updatedNode.arrayIndex);       // Delete node from original collection
+		}
+
 		this.setState({collections: newCollections}, () => {
 			console.log("Post-edit collections: ");
 			console.log(this.state.collections);
 			this.closeModal();
 		});
 	}
+
+	/**
+	 * Removes a specified node from a specified collection in the state's collections array.
+	 * The user will be warned before deletion occurs (and will be notified of any existing parents, lest they have to add them all again).
+	 * @param e SyntheticEvent
+	 * @param collectionIndex Index of the collection to which the node belongs.
+	 * @param arrayIndex Index of the node inside the specified collection.
+	 */
 	removeNode(e, collectionIndex, arrayIndex)
 	{
 		let newCollections = this.state.collections;
@@ -189,67 +243,92 @@ class Lema extends Component
 		let node = newCollections[collectionIndex].words[arrayIndex];
 		let confirmed = false;
 		if(node.parents.length > 0)
-			confirmed = window.confirm("Warning: this node is connected to "+node.parents.length+" parent nodes. The nodes will be unaffected by the deletion. Do you still wish to delete?");
+			confirmed = window.confirm("Warning: this node is connected to "+node.parents.length+" parent nodes. The nodes will be unaffected by the deletion/move. Do you still wish to delete/move?");
 		else
-			confirmed = window.confirm("Are you sure you wish to delete this node?");
+			confirmed = window.confirm("Are you sure you wish to delete/move this node?");
 
 		if(confirmed)
+		{
 			newCollections[collectionIndex].words.splice(arrayIndex, 1); // Delete node
+
+			for(let i = 0; i < newCollections[collectionIndex].words.length; ++i)
+			{
+				let word = newCollections[collectionIndex].words[i];
+				if(word.arrayIndex > arrayIndex) word.arrayIndex = word.arrayIndex-1; // Shift down after splice
+
+				// Delete node in parents array of others (as splice() does not delete by reference)
+				for(let j = 0; j < word.parents.length; ++j)
+				{
+					if(word.parents[j].id === node.id)
+					{
+						alert("Found a parent! Get ready to splice!")
+						word.parents.splice(j, 1);
+					}
+				}
+			}
+		}
+
 
 		this.setState({collections: newCollections}, this.closeModal);
 	}
 
+	/**
+	 * Adds a new collection to the state's collection array.
+	 * @param e SyntheticEvent
+	 * @param data An object containing the data required to build the new collection (collection object).
+	 */
 	addCollection(e, data)
 	{
-		console.log(data);
-
 		let newCollections = this.state.collections;
-		newCollections.push({type: data.type, header: data.header, words: []});
-		this.setState( {collections: newCollections}, this.closeModal);
-	}
-	editCollection(e, data)
-	{
-		if(data.type === "Cognates") data.type = "cognate";
-		else if(data.type === "Historical journey") data.type = "journey";
 
-		// Data validation
-		let errorCollector = "";
-		if(data.header.word === null || data.header.word.length <= 0)
-			errorCollector += "You must enter a word.\n";
-		if(data.header.language === null || data.header.language.length <= 0)
-			errorCollector += "You must enter a language.\n";
-
-		if(errorCollector.length > 0)
-			alert(errorCollector); // TODO: Proper error handling with toast
+		// Only one cognate allowed, for now // TODO
+		if(data.type === "cognate" && newCollections.find(e => e.type === "cognate") !== undefined)
+			alert("Support for multiple cognate collections coming soon!");
 		else
 		{
-			let newCollections = this.state.collections;
-			newCollections[data.index].type = data.type;
-			newCollections[data.index].header = data.header;
-			this.setState({collections: newCollections, mapRenderCounter: this.state.mapRenderCounter+1}, this.closeModal);
+			newCollections.push({type: data.type, header: data.header, words: []});
+			this.setState( {collections: newCollections}, this.closeModal);
 		}
 	}
+
+	/**
+	 * Updates an existing collection in the state's collection array with updated data.
+	 * @param e SyntheticEvent
+	 * @param data An object containing the data required to update the existing collection (collection object, collection index).
+	 */
+	editCollection(e, data)
+	{
+		let newCollections = this.state.collections;
+		newCollections[data.index].type = data.type;
+		newCollections[data.index].header = data.header;
+		this.setState({collections: newCollections}, this.closeModal);
+	}
+
+	/**
+	 * Removes the specified collection from the state's collection array.
+	 * @param e SyntheticEvent
+	 * @param collectionIndex Index of the collection to be removed.
+	 */
 	removeCollection(e, collectionIndex)
 	{
 		let newCollections = this.state.collections;
 		newCollections.splice(collectionIndex, 1);
-		this.setState({collections: newCollections}, function()
-		{
-			console.log(this.state);
-		});
+		this.setState({collections: newCollections});
 	}
-
 
 	render()
 	{
+		// Render any active modals and context menus
 		let modalContainer = null, contextMenuContainer = null;
 		if(this.state.activeModal !== null)
 		{
 			let activeModal = this.state.activeModal;
-			modalContainer = <div className={"modal-container"} onClick={(e) =>
-			{
-				if(e.nativeEvent.target.className === "modal-container") this.closeModal(); // Closes modal if they click off the modal
-			}}>{activeModal}</div>;
+			modalContainer =
+				<div className={"modal-container"} onClick={(e) =>{
+					if(e.nativeEvent.target.className === "modal-container") this.closeModal(); // Closes modal if they click off the modal
+				}}>
+					{activeModal}
+				</div>;
 		}
 		if(this.state.activeContextMenu !== null)
 		{
@@ -265,14 +344,14 @@ class Lema extends Component
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
-					         addJourneyFromDatabase={this.addJourneyFromDatabase}
-					         addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
+					         addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
 					         addCollection={this.addCollection} editCollection={this.editCollection} removeCollection={this.removeCollection}
+					         addJourneyFromDatabase={this.addJourneyFromDatabase}
 					/>
-					<Map collections={this.state.collections} mapRenderCounter={this.state.mapRenderCounter}
+					<Map collections={this.state.collections}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					     openModal={this.openModal} closeModal={this.closeModal}
-						 addNode={this.addNode} editNode={this.editNode} editNodeColour={this.editNodeColour} removeNode={this.removeNode}
+						 addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
 					/>
 				</div>
 				{modalContainer}
