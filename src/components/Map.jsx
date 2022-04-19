@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from "react";
 import * as d3 from "d3";
-import {useD3} from "../hooks/useD3";
-import languageCountries from "../supportedLanguages.json";
-import countries_data from "../data/countries/countries.json";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 import {ContextMenu} from "./controls/ContextMenu";
-import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
+import countriesData from "../data/countries/countries.json";
+import languageProperties from "../data/languageProperties.json";
 
 export function Map(props)
 {
@@ -21,12 +19,13 @@ export function Map(props)
 	// Props
 	const collections = props.collections;
 
-	let countries_data = require("../data/countries/countries.json");
+	// DEBUG MODE
+	const DEBUG_MODE = true;
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
 		let svg = d3.selectAll(".map-container").selectAll("svg");
-		let countries = countries_data.features;
+		let countries = countriesData.features;
 
 		// Create path (passed as svg attribute later to draw the countries)
 		// TODO: Have it auto-scale as window is dragged
@@ -37,6 +36,15 @@ export function Map(props)
 			.scale(1650)
 			.translate([width/2, height/2]);
 		const path = d3.geoPath().projection(projection);
+
+		let coordGroup;
+		if(DEBUG_MODE)
+		{
+			coordGroup = svg.append("g")
+				.classed("coords", true)
+				.attr('transform', 'translate(50,150)')
+		}
+
 
 		// Draw countries, bind data and handlers
 		let countryPaths = svg.append("g")
@@ -50,6 +58,17 @@ export function Map(props)
 			.attr("d", path)
 			.on("click", function(e, d){
 				// TODO: Possibly same functions as context menu (see about calling this.onContextMenu() to keep things nice and DRY)
+			})
+			.on("mousemove", function(e, d)
+			{
+				if(DEBUG_MODE)
+				{
+					const x = e.offsetX - 612, y = e.offsetY - 528;
+					coordGroup.selectAll("text").remove();
+					coordGroup.append("text")
+						.text(`(${x},${y})`)
+						.attr("fill", "white");
+				}
 			})
 			.on("contextmenu", function(e, d){
 				e.preventDefault(); // Prevent browser context menu from opening
@@ -159,7 +178,6 @@ export function Map(props)
 		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
 			let cognateNodeObject = findNodes(f, "cognate");  // The first node in any cognate collection that belongs to this country/region
-			let journeyNodeObjects = findNodes(f, "journey"); // All nodes across all journey collections belonging to this country/region
 			if(cognateNodeObject)
 			{
 				/* Cognate visualisations */
@@ -265,183 +283,171 @@ export function Map(props)
 						})
 				);
 			}
-			if(journeyNodeObjects)
+		});
+
+		// Journeys
+		let journeyNodeObjects = findNodes(null, "journey");
+		if(journeyNodeObjects)
+		{
+			/* Journey visualisations */
+
+			// Loop through all journey nodes inside this country/region
+			let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0; // Centre by default
+			for(let i = 0; i < journeyNodeObjects.length; ++i)
 			{
-				/* Journey visualisations */
+				let journeyNodeObject = journeyNodeObjects[i];
+				let node = journeyNodeObject.node;
+				let languageProp = getLanguageProp(node);
+				let radius = node.vertex.radius || languageProp.radius || 50; // Inherit radius (determined later if null)
+				let fontSize = node.vertex.fontSize;
+				let vertexText = node.word;  // Word by default
+				if(node.vertex.type === "Custom text") vertexText = node.vertex.customText;
+				else if(node.vertex.type === "Language") vertexText = node.language;
 
-				// Loop through all journey nodes inside this country/region
-				let xOffset = 0, yOffset = 0, prevDiameter = 0;
-				let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0; // Centre by default
-				for(let i = 0; i < journeyNodeObjects.length; ++i)
+				/* Build node elements - VERTEX */
+
+				// Initial co-ordinates
+				let vertexX = (node.vertex.x === null) ? (languageProp.x + 612) : node.vertex.x;
+				let vertexY = (node.vertex.y === null) ? (languageProp.y + 528) : node.vertex.y;
+
+				// Set initial vertex position
+				if(!node.vertex.x || !node.vertex.y)
+					node.vertex.x = vertexX; node.vertex.y = vertexY;
+
+				// Prepare text element. This is required to calculate circle radius based on text element's width
+				let vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
+				let preparedText = vertexG.append("text")
+					.attr("x", vertexX).attr("y", vertexY)
+					.attr("fill", node.vertex.fontColour)
+					.attr("text-anchor", "middle")        // Centre of circle
+					.attr("alignment-baseline", "middle") // Centre of circle
+					.style("font-size", "16px")
+					.text(vertexText);
+
+				// Determine initial radius of circle
+				let innerTextWidth = preparedText.node().getBBox().width;
+				if(vertexText.length !== 0 && !node.vertex.radius) // Only scale if font size hasn't been set by user
 				{
-					let journeyNodeObject = journeyNodeObjects[i];
-					let node = journeyNodeObject.node;
-					let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
-					let radius = node.vertex.radius || 50;              // Inherit radius (determined later if null)
-					let fontSize = node.vertex.fontSize;
-					let vertexText = node.word;                         // Word by default
-					if(node.vertex.type === "Country region") vertexText = f.properties.name_long;
-					else if(node.vertex.type === "Custom text") vertexText = node.vertex.customText;
-					else if(node.vertex.type === "Language") vertexText = node.language;
+					if(radius < innerTextWidth) radius = innerTextWidth/2 + 5; // Convert text "diameter" to radius, add padding
+				}
+				preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
 
-					// Initial co-ordinates
-					// TODO: Vertex xOffset, yOffset attributes in country/region data
-					let vertexX = (node.vertex.x === null) ? (boundingBox.x + boundingBox.width/2) : node.vertex.x;
-					let vertexY = (node.vertex.y === null) ? (boundingBox.y + boundingBox.height/2) : node.vertex.y;
+				/* Build node elements - EDGE */
 
-					// If vertex's default position would exit country/regions' bounds, push it down
-					if(!node.vertex.x && !node.vertex.y)
+				// Place edge between this node and its parents
+				let markerSelectString = ""; // String to select markers so that they can move whilst being resized
+				if(node.parents)
+				{
+					// Create edge for each parent, originating from this node
+					for(let i = 0; i < node.parents.length; ++i)
 					{
-						if((vertexX + xOffset*2) > (boundingBox.x + boundingBox.width))
+						let parentNode = node.parents[i];
+
+						// Fingerprint references for marker IDs and data-start/data-end attributes
+						const parentRef = journeyNodeObject.collectionIndex + "|" + parentNode.arrayIndex;
+						const nodeRef = journeyNodeObject.collectionIndex + "|" + node.arrayIndex;
+
+						// Compute arrowheads
+						if(node.vertex.edgeArrowheadEnabled)
 						{
-							yOffset += prevDiameter;
-							xOffset = 0;
+							vertexEdgesG.append("defs")
+								.append("marker")
+								.attr("id", "arrow" + parentRef + nodeRef)
+								.attr("markerWidth", 5).attr("markerHeight", 4)
+								.attr("refX", radius/2 + 5).attr("refY", 2)
+								.attr("orient", "auto")
+								.append("polygon")
+								.attr("points", "0 0, 5 2, 0 4")
+								.attr("fill", node.vertex.edgeArrowheadFillColour)
+								.attr("stroke", node.vertex.edgeArrowheadStrokeColour)
+								.attr("id", nodeRef);
+							markerSelectString += "marker[id=\"arrow"+parentRef+nodeRef+"\"], ";
 						}
-						else // Otherwise, increase the offset by the previous vertex's diameter
+
+						// Determine edge start position
+						if(node.vertex.edgeStart === "top") startEdgeYOffset = -(radius);
+						else if(node.vertex.edgeStart === "right") startEdgeXOffset = radius;
+						else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = radius;
+						else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(radius);
+						else if(node.vertex.edgeStart === "centre") {
+							startEdgeXOffset = 0; startEdgeYOffset = 0;
+						}
+
+						// Determine edge end position
+						if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(radius);
+						else if(node.vertex.edgeEnd === "right") endEdgeXOffset = radius;
+						else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = radius;
+						else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(radius);
+						else if(node.vertex.edgeStart === "centre") {
+							endEdgeXOffset = 0; endEdgeYOffset = 0;
+						}
+
+						// Place edge
+						const edge = vertexEdgesG.append("line")
+							.attr("x1", parentNode.vertex.x + startEdgeXOffset)
+							.attr("y1", parentNode.vertex.y + startEdgeYOffset)
+							.attr("x2", node.vertex.x + endEdgeXOffset)
+							.attr("y2", node.vertex.y + endEdgeYOffset)
+							.attr("stroke", node.vertex.edgeStrokeColour)
+							.attr("stroke-width", node.vertex.edgeStrokeWidth)
+							.attr("data-start", parentRef) // For finding attached edges later
+							.attr("data-end", nodeRef);
+
+						if(node.vertex.edgeArrowheadEnabled)
+							edge.attr("marker-end", "url(#arrow"+parentRef+nodeRef+")");
+					}
+				}
+
+				// Place node elements
+				let vertex = vertexG.append("circle")
+					.attr("cx", vertexX).attr("cy", vertexY)
+					.attr("r", radius + "px")
+					.attr("stroke", node.vertex.strokeColour)
+					.attr("fill", node.vertex.fillColour);
+				let text = vertexG.append("text")
+					.attr("x", vertexX).attr("y", vertexY)
+					.attr("fill", node.vertex.fontColour)
+					.attr("text-anchor", "middle")        // Centre of circle
+					.attr("alignment-baseline", "middle") // Centre of circle
+					.style("font-size", fontSize)
+					.text(vertexText);
+
+				// Dragging/resizing/clicking handlers
+				let startXOffset, startYOffset, resizing = false, startX, startY, startRadius, newVertexRadius, newLabelSize;
+				const nodeContextMenuHandler = (e) => {
+					e.preventDefault();
+					let contextMenuItems = [
 						{
-							xOffset += prevDiameter;
-						}
-						vertexY += yOffset;
-						vertexX += xOffset;
-					}
+							text: "Edit node", handler: (e) => {
+								let collectionList = collections.filter((collection, i) => {
+									if(collection.type === "journey")
+									{
+										collection.collectionIndex = i;
+										return true;
+									}
+								})
 
-					// Set initial vertex position // TODO: Do it for label, too
-					if(!node.vertex.x || !node.vertex.y)
-					{
-						node.vertex.x = vertexX; node.vertex.y = vertexY;
-						return editNode(null, journeyNodeObject.collectionIndex, node);
-					}
-
-					// Prepare text element. This is required to calculate circle radius based on text element's width
-					let vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
-					let preparedText = vertexG.append("text")
-						.attr("x", vertexX).attr("y", vertexY)
-						.attr("fill", node.vertex.fontColour)
-						.attr("text-anchor", "middle")        // Centre of circle
-						.attr("alignment-baseline", "middle") // Centre of circle
-						.style("font-size", "16px")
-						.text(vertexText);
-
-					// Determine initial radius of circle
-					// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
-					let innerTextWidth = preparedText.node().getBBox().width;
-					if(vertexText.length !== 0 && !node.vertex.radius) // Only scale if font size hasn't been set by user
-					{
-						radius = boundingBox.width/8;
-						if(radius < innerTextWidth) radius = innerTextWidth/2 + 5; // Convert text "diameter" to radius, add padding
-					}
-					preparedText.remove(); // Remove prepared text element. It will not show if appended before the circle
-
-					// Place edge between this node and its parents
-					let markerSelectString = ""; // String to select markers so they can move whilst being resized
-					if(node.parents)
-					{
-						// Create edge for each parent, originating from this node
-						for(let i = 0; i < node.parents.length; ++i)
+								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={node} collectionList={collectionList}
+								                               collectionIndex={journeyNodeObject.collectionIndex}
+								                               type={"cognate"} language={node.language} />);
+							}
+						},
 						{
-							let parentNode = node.parents[i];
-
-							// Fingerprint references for marker IDs and data-start/data-end attributes
-							const parentRef = journeyNodeObject.collectionIndex + "|" + parentNode.arrayIndex;
-							const nodeRef = journeyNodeObject.collectionIndex + "|" + node.arrayIndex;
-
-							// Compute arrowheads
-							if(node.vertex.edgeArrowheadEnabled)
-							{
-								vertexEdgesG.append("defs")
-									.append("marker")
-									.attr("id", "arrow" + parentRef + nodeRef)
-									.attr("markerWidth", 5).attr("markerHeight", 4)
-									.attr("refX", radius/2 + 5).attr("refY", 2)
-									.attr("orient", "auto")
-									.append("polygon")
-									.attr("points", "0 0, 5 2, 0 4")
-									.attr("fill", node.vertex.edgeArrowheadFillColour)
-									.attr("stroke", node.vertex.edgeArrowheadStrokeColour)
-									.attr("id", nodeRef);
-								markerSelectString += "marker[id=\"arrow"+parentRef+nodeRef+"\"], ";
+							text: "Remove node", handler: (e) => {
+								removeNode(e, journeyNodeObject.collectionIndex, node.arrayIndex);
 							}
-
-							// Determine edge start position
-							if(node.vertex.edgeStart === "top") startEdgeYOffset = -(radius);
-							else if(node.vertex.edgeStart === "right") startEdgeXOffset = radius;
-							else if(node.vertex.edgeStart === "bottom") startEdgeYOffset = radius;
-							else if(node.vertex.edgeStart === "left") startEdgeXOffset = -(radius);
-							else if(node.vertex.edgeStart === "centre") {
-								startEdgeXOffset = 0; startEdgeYOffset = 0;
-							}
-
-							// Determine edge end position
-							if(node.vertex.edgeEnd === "top") endEdgeYOffset = -(radius);
-							else if(node.vertex.edgeEnd === "right") endEdgeXOffset = radius;
-							else if(node.vertex.edgeEnd === "bottom") endEdgeYOffset = radius;
-							else if(node.vertex.edgeEnd === "left") endEdgeXOffset = -(radius);
-							else if(node.vertex.edgeStart === "centre") {
-								endEdgeXOffset = 0; endEdgeYOffset = 0;
-							}
-
-							// Place edge
-							const edge = vertexEdgesG.append("line")
-								.attr("x1", parentNode.vertex.x + startEdgeXOffset)
-								.attr("y1", parentNode.vertex.y + startEdgeYOffset)
-								.attr("x2", node.vertex.x + endEdgeXOffset)
-								.attr("y2", node.vertex.y + endEdgeYOffset)
-								.attr("stroke", node.vertex.edgeStrokeColour)
-								.attr("stroke-width", node.vertex.edgeStrokeWidth)
-								.attr("data-start", parentRef) // For finding attached edges later
-								.attr("data-end", nodeRef);
-
-							if(node.vertex.edgeArrowheadEnabled)
-								edge.attr("marker-end", "url(#arrow"+parentRef+nodeRef+")");
 						}
-					}
-
-					let vertex = vertexG.append("circle")
-						.attr("cx", vertexX).attr("cy", vertexY)
-						.attr("r", radius + "px")
-						.attr("stroke", node.vertex.strokeColour)
-						.attr("fill", node.vertex.fillColour);
-					let text = vertexG.append("text")
-						.attr("x", vertexX).attr("y", vertexY)
-						.attr("fill", node.vertex.fontColour)
-						.attr("text-anchor", "middle")        // Centre of circle
-						.attr("alignment-baseline", "middle") // Centre of circle
-						.style("font-size", fontSize)
-						.text(vertexText);
-					prevDiameter = radius*2;
-
-					// Dragging/resizing/clicking handlers
-					let startXOffset, startYOffset, resizing = false, startX, startY, startRadius, newVertexRadius, newLabelSize;
-
-					text.on("contextmenu", (e) => {
-						e.preventDefault();
-						let contextMenuItems = [
-							{
-								text: "Edit node (cognate)", handler: (e) => {
-									let collectionList = collections.filter((collection, i) => {
-										if(collection.type === "journey")
-										{
-											collection.collectionIndex = i;
-											return true;
-										}
-									})
-
-									openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={node} collectionList={collectionList}
-									                               collectionIndex={journeyNodeObject.collectionIndex}
-									                               type={"cognate"} language={node.language} />);
-								}
-							},
-							{
-								text: "Remove node (cognate)", handler: (e) => {
-									removeNode(e, journeyNodeObject.collectionIndex, node.arrayIndex);
-								}
-							}
-						];
-						openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
-					});
-					vertex.on("mousemove", (e) => {
+					];
+					openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
+				};
+				const nodeDragHandler = d3.drag()
+					.on("start", (e) => {
 						let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
-						let mouseX = e.layerX, mouseY = e.layerY;
+						let mouseX = e.x, mouseY = e.y;
+						startX = vertexX;
+						startY = vertexY;
+						startXOffset = mouseX - vertexX;
+						startYOffset = mouseY - vertexY;
 
 						// Dimensions of bottom-right corner
 						let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
@@ -454,134 +460,106 @@ export function Map(props)
 							xEnd: vertexX + cornerWidth,
 							yStart: vertexY,
 							yEnd: vertexY + cornerWidth
-						};
+						}
 
 						// Check corner
 						if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
 							&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
 						{
-							vertex.style("cursor", "se-resize");
+							resizing = true;
+							startX = mouseX;
+							startY = mouseY;
+							startRadius = parseFloat(vertex.attr("r"));
+						}
+					})
+					.on("drag", (e) => {
+						let mouseX = e.x, mouseY = e.y;
+						if(resizing)
+						{
+							if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
+							{
+								// Resize the vertex
+								let deltaX = mouseX - startX;
+								newVertexRadius = startRadius + (deltaX / 10);
+								if(newVertexRadius < 10) newVertexRadius = 10; // Floor of 10px to prevent it shrinking into nothingness
+								vertex.attr("r", newVertexRadius + "px"); // Only visually, not updating state itself
+
+								// Resize the vertex's text
+								const paddingOffset = 10;
+								newLabelSize = ((((newVertexRadius*2) - paddingOffset) / innerTextWidth) * 100) + "%";
+								text.style("font-size", newLabelSize);
+
+								// Move arrowheads as it is resized
+								if(markerSelectString)
+								{
+									let selectString = markerSelectString.slice(0, markerSelectString.length-2); // Trim ", " at the end of string
+									d3.selectAll(selectString).attr("refX", newVertexRadius/2+5);
+								}
+							}
 						}
 						else
-							vertex.style("cursor", "grab");
+						{
+							// Move the vertex
+							vertexX = mouseX - startXOffset;
+							vertexY = mouseY - startYOffset;
+							vertex.attr("cx", vertexX).attr("cy", vertexY); // Only visually
+							text.attr("x", vertexX).attr("y", vertexY); // Only visually
+
+							// Move the edges
+							let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.arrayIndex;
+							let attachedEdges = d3.selectAll("line[data-start=\""+dataEnd+"\"]"); // Find all edges that start on this node
+							let attachedEdges2 = d3.selectAll("line[data-end=\""+dataEnd+"\"]");  // Find all edges that end on this node
+							if(attachedEdges)
+							{
+								attachedEdges.attr("x1", vertexX + startEdgeXOffset)
+									.attr("y1", vertexY + startEdgeYOffset);
+							}
+							if(attachedEdges2)
+							{
+								attachedEdges2.attr("x2", vertexX + startEdgeXOffset)
+									.attr("y2", vertexY + startEdgeYOffset);
+							}
+						}
 					})
-					.on("contextmenu", (e) => {
-						e.preventDefault();
-						let contextMenuItems = [
-							{
-								text: "Edit node (cognate)", handler: (e) => {
-									let collectionList = collections.filter((collection, i) => {
-										if(collection.type === "journey")
-										{
-											collection.collectionIndex = i;
-											return true;
-										}
-									})
+					.on("end", () => {
+						resizing = false;
+						node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexRadius || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
+						editNode(null, journeyNodeObject.collectionIndex, node);
+					});
 
-									openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={node} collectionList={collectionList}
-									                               collectionIndex={journeyNodeObject.collectionIndex}
-									                               type={"cognate"} language={node.language} />);
-								}
-							},
-							{
-								text: "Remove node (cognate)", handler: (e) => {
-									removeNode(e, journeyNodeObject.collectionIndex, node.arrayIndex);
-								}
-							}
-						];
-						openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
-					})
-					.call(d3.drag()
-						.on("start", (e) => {
-							let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
-							let mouseX = e.x, mouseY = e.y;
-							startX = vertexX;
-							startY = vertexY;
-							startXOffset = mouseX - vertexX;
-							startYOffset = mouseY - vertexY;
+				// Assign handlers
+				text.on("contextmenu", nodeContextMenuHandler);
+				text.call(nodeDragHandler);
+				vertex.on("mousemove", (e) => {
+					let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
+					let mouseX = e.layerX, mouseY = e.layerY;
 
-							// Dimensions of bottom-right corner
-							let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
-							let circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
-							let cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
+					// Dimensions of bottom-right corner
+					let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
+					let circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
+					let cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
 
-							// Determine corner of circle's box
-							const southEastCorner = {
-								xStart: vertexX,
-								xEnd: vertexX + cornerWidth,
-								yStart: vertexY,
-								yEnd: vertexY + cornerWidth
-							}
+					// Determine corner of circle's box
+					const southEastCorner = {
+						xStart: vertexX,
+						xEnd: vertexX + cornerWidth,
+						yStart: vertexY,
+						yEnd: vertexY + cornerWidth
+					};
 
-							// Check corner
-							if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
-								&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
-							{
-								resizing = true;
-								startX = mouseX;
-								startY = mouseY;
-								startRadius = parseFloat(vertex.attr("r"));
-							}
-						})
-						.on("drag", (e) => {
-							let mouseX = e.x, mouseY = e.y;
-							if(resizing)
-							{
-								if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
-								{
-									// Resize the vertex
-									let deltaX = mouseX - startX;
-									newVertexRadius = startRadius + (deltaX / 10);
-									if(newVertexRadius < 10) newVertexRadius = 10; // Floor of 10px to prevent it shrinking into nothingness
-									vertex.attr("r", newVertexRadius + "px"); // Only visually, not updating state itself
-
-									// Resize the vertex's text
-									const paddingOffset = 10;
-									newLabelSize = ((((newVertexRadius*2) - paddingOffset) / innerTextWidth) * 100) + "%";
-									text.style("font-size", newLabelSize);
-
-									// Move arrowheads as it is resized
-									if(markerSelectString)
-									{
-										let selectString = markerSelectString.slice(0, markerSelectString.length-2); // Trim ", " at the end of string
-										d3.selectAll(selectString).attr("refX", newVertexRadius/2+5);
-									}
-								}
-							}
-							else
-							{
-								// Move the vertex
-								vertexX = mouseX - startXOffset;
-								vertexY = mouseY - startYOffset;
-								vertex.attr("cx", vertexX).attr("cy", vertexY); // Only visually
-								text.attr("x", vertexX).attr("y", vertexY); // Only visually
-
-								// Move the edges
-								let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.arrayIndex;
-								let attachedEdges = d3.selectAll("line[data-start=\""+dataEnd+"\"]"); // Find all edges that start on this node
-								let attachedEdges2 = d3.selectAll("line[data-end=\""+dataEnd+"\"]");  // Find all edges that end on this node
-								if(attachedEdges)
-								{
-									attachedEdges.attr("x1", vertexX + startEdgeXOffset)
-												 .attr("y1", vertexY + startEdgeYOffset);
-								}
-								if(attachedEdges2)
-								{
-									attachedEdges2.attr("x2", vertexX + startEdgeXOffset)
-												  .attr("y2", vertexY + startEdgeYOffset);
-								}
-							}
-						})
-						.on("end", () => {
-							resizing = false;
-							node.vertex.x = vertexX; node.vertex.y = vertexY; node.vertex.radius = newVertexRadius || node.vertex.radius; node.vertex.fontSize = newLabelSize || node.vertex.fontSize;
-							editNode(null, journeyNodeObject.collectionIndex, node);
-						})
-					);
-				}
-
+					// Check corner
+					if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
+						&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
+					{
+						vertex.style("cursor", "se-resize");
+					}
+					else
+						vertex.style("cursor", "grab");
+				})
+				.on("contextmenu", nodeContextMenuHandler)
+				.call(nodeDragHandler);
 			}
-		});
+		}
 
 		// Graticules (lines on the map)
 		const g = svg.append("g");
@@ -605,6 +583,16 @@ export function Map(props)
 		}
 
 	});
+
+	function getLanguageProp(node)
+	{
+		for(let l in languageProperties)
+		{
+			const languageProp = languageProperties[l];
+			if(languageProp.language === node.language)
+				return languageProp;
+		}
+	}
 
 	/**
 	 * Finds all nodes in all collections of specified type where the node's language is within the feature's language array
@@ -635,8 +623,8 @@ export function Map(props)
 		}
 		else if(type === "journey")
 		{
-			let countryNodes = [];
-			for(let c = 0; c < collections.length; ++c) // Search for all nodes in all collections for this country/region
+			let journeyNodeObjects = [];
+			for(let c = 0; c < collections.length; ++c) // Search for all nodes in all journey collections
 			{
 				let collection = collections[c];
 				if(collection.type === "journey")
@@ -644,13 +632,11 @@ export function Map(props)
 					for(let n = 0; n < collection.words.length; ++n)
 					{
 						let childNode = collection.words[n];
-
-						if(d.properties.languages.includes(childNode.language))
-							countryNodes.push({node: childNode, collectionIndex: c});
+						journeyNodeObjects.push({node: childNode, collectionIndex: c});
 					}
 				}
 			}
-			return countryNodes;
+			return journeyNodeObjects;
 		}
 	}
 

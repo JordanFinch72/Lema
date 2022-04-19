@@ -240,7 +240,6 @@ export class AddEditNodeModal extends Component
 											}}>
 												<option>Word</option>
 												<option>Language</option>
-												<option>Country/region</option>
 												<option>Custom text</option>
 											</select>
 										</LabeledControl>
