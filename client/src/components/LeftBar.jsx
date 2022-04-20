@@ -10,7 +10,6 @@ export class LeftBar extends Component
 		this.state = {
 
 		};
-
 	}
 
 	render()

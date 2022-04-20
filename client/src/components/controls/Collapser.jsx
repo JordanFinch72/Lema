@@ -11,7 +11,7 @@ export class Collapser extends Component
 
 	render()
 	{
-		let symbol = (this.props.collapsed) ? ">" : "V"
+		const symbol = (this.props.collapsed) ? ">" : "V"
 
 		return(
 			<Button className={"collapser"} value={symbol} id={"collapser"} onClick={(e) => this.toggleCollapse(e)} />

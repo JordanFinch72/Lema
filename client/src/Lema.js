@@ -3,6 +3,7 @@ import {Component} from "react";
 import {Banner} from "./components/Banner";
 import {LeftBar} from "./components/LeftBar";
 import {Map} from "./components/Map";
+import axios from "axios";
 
 class Lema extends Component
 {
@@ -15,7 +16,8 @@ class Lema extends Component
 			activeContextMenu: null, // Either null or a React component
 			mapRef: null,
 			collections: [],
-			journeyCount: 0
+			journeyCount: 0,
+			activeUser: null
 		};
 
 		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"] // TODO: Better colours
@@ -32,6 +34,52 @@ class Lema extends Component
 		this.editNode = this.editNode.bind(this);
 		this.removeNode = this.removeNode.bind(this);
 		this.removeCollection = this.removeCollection.bind(this);
+		this.authenticateUser = this.authenticateUser.bind(this);
+		this.registerUser = this.registerUser.bind(this);
+	}
+
+	componentDidMount()
+	{
+		// TODO: Check if user is already logged in (cookies)
+	}
+
+	/**
+	 * Sends log in data to server to authenticate user.
+	 * @param e SyntheticEvent
+	 * @param data Login data
+	 */
+	authenticateUser(e, data)
+	{
+		// Check the user
+		const username = data.loginUsername;
+		const password = data.loginPassword;
+		const rememberMe = data.rememberMe; // TODO: This
+		console.log(data);
+
+		axios.get("http://localhost:5000/users/"+username+"/"+password).then((response) => {
+			if(response.data.type === "error")
+			{
+				console.error(response.data.message);
+				alert(response.data.message);
+			}
+			else if(response.data.type === "success")
+			{
+				console.log(response.data);
+				if(response.data.message === "User found.")
+				{
+					this.setState({activeUser: response.data.user});
+				}
+			}
+		});
+	}
+	/**
+	 * Sends register data to server to create a new user profile.
+	 * @param e SyntheticEvent
+	 * @param data Registration data
+	 */
+	registerUser(e, data)
+	{
+		// Register the user
 	}
 
 	/**
@@ -51,7 +99,7 @@ class Lema extends Component
 		if(Object.keys(edStructure).length > 0)
 		{
 			// Loop through parents
-			for(let wordID in edStructure)
+			for(const wordID in edStructure)
 			{
 				if((edAffixes !== null && !edAffixes.includes(Number(wordID)))
 					|| edAffixes == null)
@@ -76,8 +124,8 @@ class Lema extends Component
 			}
 			for(let i = 0; i < parents.length; ++i)
 			{
-				let parentID = Number(parents[i]);
-				let parent = wordArray.find(({id}) => id === parentID);
+				const parentID = Number(parents[i]);
+				const parent = wordArray.find(({id}) => id === parentID);
 				if((edAffixes !== null && !edAffixes.includes(parentID))
 					|| edAffixes === null)
 				{
@@ -97,7 +145,7 @@ class Lema extends Component
 	 */
 	addJourneyFromDatabase(edWords, edStructure, edAffixes = null)
 	{
-		let newCollections = this.state.collections, newJourneyCount = this.state.journeyCount;
+		const newCollections = this.state.collections, newJourneyCount = this.state.journeyCount;
 
 		// Flatten the data structure
 		let journeyWords = [];
@@ -105,7 +153,7 @@ class Lema extends Component
 		console.log(journeyWords);
 
 		// Create the new journey and add it to collections
-		let newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};
+		const newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};
 		newCollections.push(newJourney);
 
 		this.setState({collections: newCollections, journeyCount: newJourneyCount+1});
@@ -160,7 +208,7 @@ class Lema extends Component
 	 */
 	addNode(e, collectionIndex, newNode, newCollectionIndex = null)
 	{
-		let collectionIndexActual = (newCollectionIndex !== null) ? newCollectionIndex : collectionIndex;
+		const collectionIndexActual = (newCollectionIndex !== null) ? newCollectionIndex : collectionIndex;
 
 		// Validation (note: node data validation exists in the AddEditNodeModal)
 		let errorCollector = "";
@@ -169,7 +217,7 @@ class Lema extends Component
 			// Check for existing language
 			for(let i = 0; i < this.state.collections[collectionIndexActual].words.length; ++i)
 			{
-				let childNode = this.state.collections[collectionIndexActual].words[i];
+				const childNode = this.state.collections[collectionIndexActual].words[i];
 				if(childNode.language === newNode.language)
 				{
 					errorCollector += "A language can only appear in a cognate collection once.\n" +
@@ -184,7 +232,7 @@ class Lema extends Component
 		else
 		{
 			// Insert new node
-			let newCollections = this.state.collections;
+			const newCollections = this.state.collections;
 			newNode.arrayIndex = newCollections[collectionIndexActual].words.length;
 			newCollections[collectionIndexActual].words.push(newNode);
 
@@ -200,16 +248,16 @@ class Lema extends Component
 	 */
 	editNode(e, collectionIndex, updatedNode, newCollectionIndex = null)
 	{
-		let newCollections = this.state.collections;
+		const newCollections = this.state.collections;
 		console.log(e);
 		console.log(collectionIndex);
 		console.log(updatedNode);
 
 		// Find node
-		let node = newCollections[collectionIndex].words[updatedNode.arrayIndex];
+		const node = newCollections[collectionIndex].words[updatedNode.arrayIndex];
 
 		// Update node by reference
-		for(let index in updatedNode)
+		for(const index in updatedNode)
 			if(node[index]) node[index] = updatedNode[index];
 
 		// Additional operations if node was moved from one collection to another
@@ -237,10 +285,10 @@ class Lema extends Component
 	 */
 	removeNode(e, collectionIndex, arrayIndex)
 	{
-		let newCollections = this.state.collections;
+		const newCollections = this.state.collections;
 
 		// Find node
-		let node = newCollections[collectionIndex].words[arrayIndex];
+		const node = newCollections[collectionIndex].words[arrayIndex];
 		let confirmed = false;
 		if(node.parents.length > 0)
 			confirmed = window.confirm("Warning: this node is connected to "+node.parents.length+" parent nodes. The nodes will be unaffected by the deletion/move. Do you still wish to delete/move?");
@@ -253,7 +301,7 @@ class Lema extends Component
 
 			for(let i = 0; i < newCollections[collectionIndex].words.length; ++i)
 			{
-				let word = newCollections[collectionIndex].words[i];
+				const word = newCollections[collectionIndex].words[i];
 				if(word.arrayIndex > arrayIndex) word.arrayIndex = word.arrayIndex-1; // Shift down after splice
 
 				// Delete node in parents array of others (as splice() does not delete by reference)
@@ -279,7 +327,7 @@ class Lema extends Component
 	 */
 	addCollection(e, data)
 	{
-		let newCollections = this.state.collections;
+		const newCollections = this.state.collections;
 
 		// Only one cognate allowed, for now // TODO
 		if(data.type === "cognate" && newCollections.find(e => e.type === "cognate") !== undefined)
@@ -298,7 +346,7 @@ class Lema extends Component
 	 */
 	editCollection(e, data)
 	{
-		let newCollections = this.state.collections;
+		const newCollections = this.state.collections;
 		newCollections[data.index].type = data.type;
 		newCollections[data.index].header = data.header;
 		this.setState({collections: newCollections}, this.closeModal);
@@ -311,7 +359,7 @@ class Lema extends Component
 	 */
 	removeCollection(e, collectionIndex)
 	{
-		let newCollections = this.state.collections;
+		const newCollections = this.state.collections;
 		newCollections.splice(collectionIndex, 1);
 		this.setState({collections: newCollections});
 	}
@@ -322,7 +370,7 @@ class Lema extends Component
 		let modalContainer = null, contextMenuContainer = null;
 		if(this.state.activeModal !== null)
 		{
-			let activeModal = this.state.activeModal;
+			const activeModal = this.state.activeModal;
 			modalContainer =
 				<div className={"modal-container"} onClick={(e) =>{
 					if(e.nativeEvent.target.className === "modal-container") this.closeModal(); // Closes modal if they click off the modal
@@ -332,14 +380,14 @@ class Lema extends Component
 		}
 		if(this.state.activeContextMenu !== null)
 		{
-			let activeContextMenu = this.state.activeContextMenu;
+			const activeContextMenu = this.state.activeContextMenu;
 			contextMenuContainer =
 				<div className={"context-menu-container"} onClick={this.closeContextMenu}>{activeContextMenu}</div>;
 		}
 
 		return (
 			<div className="Lema">
-				<Banner />
+				<Banner activeUser={this.state.activeUser} openModal={this.openModal} authenticateUser={this.authenticateUser} registerUser={this.registerUser} />
 				<div className={"main-view-container"}>
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}

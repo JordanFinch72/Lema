@@ -1,5 +1,4 @@
 import {Component} from "react";
-import {Textbox} from "./Textbox";
 
 export class LabeledControl extends Component
 {
@@ -12,9 +11,10 @@ export class LabeledControl extends Component
 
 	render()
 	{
+		const label = (this.props.tooltip) ? <span title={this.props.tooltip}>{this.props.label}</span> : this.props.label;
 		return(
 			<div className={"labeled-control"}>
-				<div className={"label"}>{this.props.label} </div>
+				<div className={"label"}>{label}</div>
 				<div className={"control"}>
 					{this.props.children}
 				</div>

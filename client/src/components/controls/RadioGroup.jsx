@@ -37,7 +37,7 @@ export class RadioGroup extends Component
 	updateGroup(id)
 	{
 		// Update the state of the buttons
-		let oldButtons = this.state.buttons;
+		const oldButtons = this.state.buttons;
 		for(let i = 0; i < oldButtons.length; ++i)
 		{
 			oldButtons[i].active = (i === id);
@@ -47,7 +47,7 @@ export class RadioGroup extends Component
 
 	render()
 	{
-		let buttonElements = this.state.buttons.map((button, index) =>
+		const buttonElements = this.state.buttons.map((button, index) =>
 		{
 			return <RadioButton active={button.active} label={button.label} name={this.props.name} id={index}
 			                    onRadioButtonClick={(e, id) => {

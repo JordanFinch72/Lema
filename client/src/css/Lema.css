@@ -21,13 +21,30 @@ div.banner-container {
     border-bottom: 1px solid black;
 }
 div.banner-container h2 {
-    flex-basis: 85%;
+    flex-basis: 60%;
 }
-div.login-register-container {
+div.banner-container p {
     display: flex;
-    flex-basis: 15%;
+    align-items: center;
+    flex-basis: 20%;
+}
+div.banner-container div.buttons-container {
+    display: flex;
+    flex-basis: 20%;
     justify-content: space-evenly;
     align-items: center;
+}
+div.banner-container div.buttons-container div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+div.banner-container div.buttons-container div:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    cursor: pointer;
 }
 
 /* Main View */
@@ -206,8 +223,14 @@ div.modal div.top div.left {
 div.modal div.top div.right {
     width: 20em;
 }
-div.modal div.top div.node-data, div.modal div.top div.node-appearance {
+div.modal div.top div.node-data, div.modal div.top div.login-register-data, div.modal div.top div.node-appearance {
     margin: 1em 0;
+}
+div.modal div.top div.login {
+    width: 22em;
+}
+div.modal div.top div.register {
+    width: 28em;
 }
 
 div.modal div.top div.left div.section, div.modal div.top div.right div.section {
@@ -228,6 +251,7 @@ div.modal div.section div.form div.control {
 div.modal div.section div.form div.labeled-control {
     display: flex;
     flex-flow: row;
+    align-items: center;
 }
 div.modal div.section div.form div.labeled-control div.control {
     display: flex;

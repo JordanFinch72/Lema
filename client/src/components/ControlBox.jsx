@@ -25,7 +25,7 @@ export class ControlBox extends Component
 	{
 		const target = event.target;
 		const name = target.name;
-		let value = (target.type === "checkbox") ? target.checked : target.value;
+		const value = (target.type === "checkbox") ? target.checked : target.value;
 
 		this.setState({
 			[name]: value
@@ -33,13 +33,13 @@ export class ControlBox extends Component
 	}
 	onButtonClick()
 	{
-		let word = this.state.searchBoxValue;
-		let language =  this.state.searchLanguage;
+		const word = this.state.searchBoxValue;
+		const language =  this.state.searchLanguage;
 		if(word !== "" && language !== "")
 		{
 			if(this.state.mapMode === "journey")
 			{
-				let getString = `https://api.etymologyexplorer.com/dev/get_trees?common_descendant_count=0&language=${language}&word=${word}`;
+				const getString = `https://api.etymologyexplorer.com/dev/get_trees?common_descendant_count=0&language=${language}&word=${word}`;
 				let edWords, edConnections, edAffixes;
 
 				axios.get(getString)
@@ -67,7 +67,7 @@ export class ControlBox extends Component
 	onRadioButtonClick(e, data)
 	{
 		// Update parent LeftBar component's state
-		let mode = (data.id === 0) ? "journey" : "cognate";
+		const mode = (data.id === 0) ? "journey" : "cognate";
 		this.setState({mapMode: mode});
 	}
 

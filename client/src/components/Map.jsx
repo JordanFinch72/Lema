@@ -24,8 +24,8 @@ export function Map(props)
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
-		let svg = d3.selectAll(".map-container").selectAll("svg");
-		let countries = countriesData.features;
+		const svg = d3.selectAll(".map-container").selectAll("svg");
+		const countries = countriesData.features;
 
 		// Create path (passed as svg attribute later to draw the countries)
 		// TODO: Have it auto-scale as window is dragged
@@ -47,7 +47,7 @@ export function Map(props)
 
 
 		// Draw countries, bind data and handlers
-		let countryPaths = svg.append("g")
+		const countryPaths = svg.append("g")
 			.selectAll("path") // svg->g->path
 			.data(countries)         // svg->g->path
 			.enter()                 // svg->g->path (create new nodes per data)
@@ -81,7 +81,7 @@ export function Map(props)
 					contextMenuItems = [
 						{
 							text: "Edit node (cognate)", handler: (e) => {
-								let collectionList = collections.filter((collection, i) => {
+								const collectionList = collections.filter((collection, i) => {
 									if(collection.type === "cognate")
 									{
 										collection.collectionIndex = i;
@@ -107,7 +107,7 @@ export function Map(props)
 					contextMenuItems = [
 						{
 							text: "Add country to collection (cognate)", handler: (e) => {
-								let collectionList = collections.filter((collection, i) => {
+								const collectionList = collections.filter((collection, i) => {
 									if(collection.type === "cognate")
 									{
 										collection.collectionIndex = i;
@@ -121,7 +121,7 @@ export function Map(props)
 								}
 								else
 								{
-									let node = {word: "", language: "", parents: []};
+									const node = {word: "", language: "", parents: []};
 									node.fillColour = "#FF0000"; node.strokeColour = "#000000";
 									node.label = {type: "word", customText: "", fontColour: "#000000", fontSize: null, x: null, y: null};
 									openModal(e, <AddEditNodeModal isNewWord={true} onNodeSubmit={addNode} node={node} type={"cognate"} collectionList={collectionList} collectionIndex={collectionList[0].collectionIndex} language={d.properties.languages} />);
@@ -135,7 +135,7 @@ export function Map(props)
 				contextMenuItems.unshift(
 					{
 						text: "Add new node (journey)", handler: (e) => {
-							let collectionList = collections.filter((collection, i) => {
+							const collectionList = collections.filter((collection, i) => {
 								if(collection.type === "journey")
 								{
 									collection.collectionIndex = i;
@@ -149,7 +149,7 @@ export function Map(props)
 							else
 							{
 								// Open the AddEditNodeModal with initial node data
-								let node = {word: "", language: d.properties.languages[0], parents: []};
+								const node = {word: "", language: d.properties.languages[0], parents: []};
 								node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
 								openModal(e, <AddEditNodeModal isNewWord={true} node={node} type={"journey"} onNodeSubmit={addNode} collectionList={collectionList} collectionIndex={collectionList[0].collectionIndex} language={d.properties.languages} />);
 							}
@@ -159,14 +159,14 @@ export function Map(props)
 				openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
 			})
 			.on("mouseover", function(e, d){
-				let element = d3.select(this);
+				const element = d3.select(this);
 				if(element.attr("fill") === "white") // White can't become transparent
 					element.attr("fill", "rgb(230,230,230)")
 				else
 					element.attr("fill-opacity", "0.65");
 			})
 			.on("mouseout", function(e, d){
-				let element = d3.select(this);
+				const element = d3.select(this);
 				if(element.attr("fill") === "rgb(230,230,230)") // Reset white
 					element.attr("fill", "white")
 				else
@@ -177,12 +177,12 @@ export function Map(props)
 		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
 		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
-			let cognateNodeObject = findNodes(f, "cognate");  // The first node in any cognate collection that belongs to this country/region
+			const cognateNodeObject = findNodes(f, "cognate");  // The first node in any cognate collection that belongs to this country/region
 			if(cognateNodeObject)
 			{
 				/* Cognate visualisations */
-				let node = cognateNodeObject.node;
-				let boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
+				const node = cognateNodeObject.node;
+				const boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 				let fontSize = node.label.fontSize;                 // Font size of the label
 				let labelText = node.word;                          // Word by default
 				if(node.label.type === "Country/region") labelText = f.properties.name_long;
@@ -199,7 +199,7 @@ export function Map(props)
 				// Append labels to paths, with co-ordinates according to feature's position on map
 				let x = (node.label.x === null) ? (boundingBox.x + boundingBox.width/4) : node.label.x;
 				let y = (node.label.y === null) ? (boundingBox.y + boundingBox.height/2) : node.label.y;
-				let label = verticesLabelsG.append("text")
+				const label = verticesLabelsG.append("text")
 					.attr("x", x).attr("y", y)
 					.attr("fill", node.label.fontColour)
 					.style("font-size", fontSize)
@@ -209,8 +209,8 @@ export function Map(props)
 				let startXOffset, startYOffset, resizing = false, startX, startY, startSize, newSize;
 				label
 					.on("mousemove", (e) => {
-						let labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
-						let mouseX = e.layerX, mouseY = e.layerY;
+						const labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
+						const mouseX = e.layerX, mouseY = e.layerY;
 
 						// Determine corner of text's box
 						const southEastCorner = {
@@ -231,8 +231,8 @@ export function Map(props)
 					})
 					.call(d3.drag()
 						.on("start", (e) => {
-							let labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
-							let mouseX = e.x, mouseY = e.y;
+							const labelX = parseFloat(label.attr("x")), labelY = parseFloat(label.attr("y"));
+							const mouseX = e.x, mouseY = e.y;
 							startXOffset = mouseX - labelX;
 							startYOffset = mouseY - labelY;
 
@@ -255,13 +255,13 @@ export function Map(props)
 							}
 						})
 						.on("drag", (e) => {
-							let mouseX = e.x, mouseY = e.y;
+							const mouseX = e.x, mouseY = e.y;
 							if(resizing)
 							{
 								// Resize the label
 								if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
 								{
-									let deltaX = mouseX - startX;
+									const deltaX = mouseX - startX;
 									newSize = startSize + (deltaX / 10);
 									if(newSize < 5) newSize = 5; // Floor of 5px to prevent it shrinking into nothingness
 									label.style("font-size", newSize + "px"); // Only visually, not updating state itself
@@ -286,7 +286,7 @@ export function Map(props)
 		});
 
 		// Journeys
-		let journeyNodeObjects = findNodes(null, "journey");
+		const journeyNodeObjects = findNodes(null, "journey");
 		if(journeyNodeObjects)
 		{
 			/* Journey visualisations */
@@ -295,11 +295,11 @@ export function Map(props)
 			let startEdgeXOffset = 0, startEdgeYOffset = 0, endEdgeXOffset = 0, endEdgeYOffset = 0; // Centre by default
 			for(let i = 0; i < journeyNodeObjects.length; ++i)
 			{
-				let journeyNodeObject = journeyNodeObjects[i];
-				let node = journeyNodeObject.node;
-				let languageProp = getLanguageProp(node);
+				const journeyNodeObject = journeyNodeObjects[i];
+				const node = journeyNodeObject.node;
+				const languageProp = getLanguageProp(node);
 				let radius = node.vertex.radius || languageProp.radius || 50; // Inherit radius (determined later if null)
-				let fontSize = node.vertex.fontSize;
+				const fontSize = node.vertex.fontSize;
 				let vertexText = node.word;  // Word by default
 				if(node.vertex.type === "Custom text") vertexText = node.vertex.customText;
 				else if(node.vertex.type === "Language") vertexText = node.language;
@@ -315,8 +315,8 @@ export function Map(props)
 					node.vertex.x = vertexX; node.vertex.y = vertexY;
 
 				// Prepare text element. This is required to calculate circle radius based on text element's width
-				let vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
-				let preparedText = vertexG.append("text")
+				const vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
+				const preparedText = vertexG.append("text")
 					.attr("x", vertexX).attr("y", vertexY)
 					.attr("fill", node.vertex.fontColour)
 					.attr("text-anchor", "middle")        // Centre of circle
@@ -325,7 +325,7 @@ export function Map(props)
 					.text(vertexText);
 
 				// Determine initial radius of circle
-				let innerTextWidth = preparedText.node().getBBox().width;
+				const innerTextWidth = preparedText.node().getBBox().width;
 				if(vertexText.length !== 0 && !node.vertex.radius) // Only scale if font size hasn't been set by user
 				{
 					if(radius < innerTextWidth) radius = innerTextWidth/2 + 5; // Convert text "diameter" to radius, add padding
@@ -341,7 +341,7 @@ export function Map(props)
 					// Create edge for each parent, originating from this node
 					for(let i = 0; i < node.parents.length; ++i)
 					{
-						let parentNode = node.parents[i];
+						const parentNode = node.parents[i];
 
 						// Fingerprint references for marker IDs and data-start/data-end attributes
 						const parentRef = journeyNodeObject.collectionIndex + "|" + parentNode.arrayIndex;
@@ -399,12 +399,12 @@ export function Map(props)
 				}
 
 				// Place node elements
-				let vertex = vertexG.append("circle")
+				const vertex = vertexG.append("circle")
 					.attr("cx", vertexX).attr("cy", vertexY)
 					.attr("r", radius + "px")
 					.attr("stroke", node.vertex.strokeColour)
 					.attr("fill", node.vertex.fillColour);
-				let text = vertexG.append("text")
+				const text = vertexG.append("text")
 					.attr("x", vertexX).attr("y", vertexY)
 					.attr("fill", node.vertex.fontColour)
 					.attr("text-anchor", "middle")        // Centre of circle
@@ -416,10 +416,10 @@ export function Map(props)
 				let startXOffset, startYOffset, resizing = false, startX, startY, startRadius, newVertexRadius, newLabelSize;
 				const nodeContextMenuHandler = (e) => {
 					e.preventDefault();
-					let contextMenuItems = [
+					const contextMenuItems = [
 						{
 							text: "Edit node", handler: (e) => {
-								let collectionList = collections.filter((collection, i) => {
+								const collectionList = collections.filter((collection, i) => {
 									if(collection.type === "journey")
 									{
 										collection.collectionIndex = i;
@@ -442,17 +442,17 @@ export function Map(props)
 				};
 				const nodeDragHandler = d3.drag()
 					.on("start", (e) => {
-						let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
-						let mouseX = e.x, mouseY = e.y;
+						const vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
+						const mouseX = e.x, mouseY = e.y;
 						startX = vertexX;
 						startY = vertexY;
 						startXOffset = mouseX - vertexX;
 						startYOffset = mouseY - vertexY;
 
 						// Dimensions of bottom-right corner
-						let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
-						let circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
-						let cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
+						const squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
+						const circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
+						const cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
 
 						// Determine corner of circle's box
 						const southEastCorner = {
@@ -473,13 +473,13 @@ export function Map(props)
 						}
 					})
 					.on("drag", (e) => {
-						let mouseX = e.x, mouseY = e.y;
+						const mouseX = e.x, mouseY = e.y;
 						if(resizing)
 						{
 							if(mouseX >= startX && mouseY >= startY || mouseX <= startX && mouseY <= startY)
 							{
 								// Resize the vertex
-								let deltaX = mouseX - startX;
+								const deltaX = mouseX - startX;
 								newVertexRadius = startRadius + (deltaX / 10);
 								if(newVertexRadius < 10) newVertexRadius = 10; // Floor of 10px to prevent it shrinking into nothingness
 								vertex.attr("r", newVertexRadius + "px"); // Only visually, not updating state itself
@@ -492,7 +492,7 @@ export function Map(props)
 								// Move arrowheads as it is resized
 								if(markerSelectString)
 								{
-									let selectString = markerSelectString.slice(0, markerSelectString.length-2); // Trim ", " at the end of string
+									const selectString = markerSelectString.slice(0, markerSelectString.length-2); // Trim ", " at the end of string
 									d3.selectAll(selectString).attr("refX", newVertexRadius/2+5);
 								}
 							}
@@ -506,9 +506,9 @@ export function Map(props)
 							text.attr("x", vertexX).attr("y", vertexY); // Only visually
 
 							// Move the edges
-							let dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.arrayIndex;
-							let attachedEdges = d3.selectAll("line[data-start=\""+dataEnd+"\"]"); // Find all edges that start on this node
-							let attachedEdges2 = d3.selectAll("line[data-end=\""+dataEnd+"\"]");  // Find all edges that end on this node
+							const dataEnd = journeyNodeObject.collectionIndex + "|" + journeyNodeObject.node.arrayIndex;
+							const attachedEdges = d3.selectAll("line[data-start=\""+dataEnd+"\"]"); // Find all edges that start on this node
+							const attachedEdges2 = d3.selectAll("line[data-end=\""+dataEnd+"\"]");  // Find all edges that end on this node
 							if(attachedEdges)
 							{
 								attachedEdges.attr("x1", vertexX + startEdgeXOffset)
@@ -531,13 +531,13 @@ export function Map(props)
 				text.on("contextmenu", nodeContextMenuHandler);
 				text.call(nodeDragHandler);
 				vertex.on("mousemove", (e) => {
-					let vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
-					let mouseX = e.layerX, mouseY = e.layerY;
+					const vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
+					const mouseX = e.layerX, mouseY = e.layerY;
 
 					// Dimensions of bottom-right corner
-					let squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
-					let circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
-					let cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
+					const squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
+					const circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
+					const cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
 
 					// Determine corner of circle's box
 					const southEastCorner = {
@@ -586,7 +586,7 @@ export function Map(props)
 
 	function getLanguageProp(node)
 	{
-		for(let l in languageProperties)
+		for(const l in languageProperties)
 		{
 			const languageProp = languageProperties[l];
 			if(languageProp.language === node.language)
@@ -606,12 +606,12 @@ export function Map(props)
 		{
 			for(let c = 0; c < collections.length; ++c)
 			{
-				let collection = collections[c];
+				const collection = collections[c];
 				if(collection.type === "cognate")
 				{
 					for(let n = 0; n < collection.words.length; ++n)
 					{
-						let childNode = collection.words[n];
+						const childNode = collection.words[n];
 
 						if(d.properties.languages.includes(childNode.language))
 						{
@@ -623,15 +623,15 @@ export function Map(props)
 		}
 		else if(type === "journey")
 		{
-			let journeyNodeObjects = [];
+			const journeyNodeObjects = [];
 			for(let c = 0; c < collections.length; ++c) // Search for all nodes in all journey collections
 			{
-				let collection = collections[c];
+				const collection = collections[c];
 				if(collection.type === "journey")
 				{
 					for(let n = 0; n < collection.words.length; ++n)
 					{
-						let childNode = collection.words[n];
+						const childNode = collection.words[n];
 						journeyNodeObjects.push({node: childNode, collectionIndex: c});
 					}
 				}

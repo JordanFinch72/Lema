@@ -24,7 +24,7 @@ export class AddEditCollectionModal extends Component
 	{
 		const target = event.target;
 		const name = target.name;
-		let value = target.value;
+		const value = target.value;
 
 		this.setState({
 			[name]: value
@@ -84,7 +84,7 @@ export class AddEditCollectionModal extends Component
 							if(this.validation())
 							{
 								const type = (this.state.type === "Historical journey") ? "journey" : "cognate";
-								let data = {type: type, header: {word: this.state.word, language: this.state.language}, index: this.props.index};
+								const data = {type: type, header: {word: this.state.word, language: this.state.language}, index: this.props.index};
 								this.props.onCollectionSubmit(e, data);
 							}
 						}}/>

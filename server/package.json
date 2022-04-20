@@ -1,0 +1,29 @@
+{
+  "name": "lema",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JordanFinch72/Lea.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JordanFinch72/Lea/issues"
+  },
+  "homepage": "https://github.com/JordanFinch72/Lea#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.17.3",
+    "http-errors": "^2.0.0",
+    "jade": "^1.11.0",
+    "morgan": "^1.10.0",
+    "pouchdb": "^7.3.0"
+  }
+}

@@ -49,7 +49,7 @@ export class AddEditNodeModal extends Component
 	{
 		const target = event.target;
 		const name = target.name;
-		let value = (target.type === "checkbox") ? target.checked : target.value;
+		const value = (target.type === "checkbox") ? target.checked : target.value;
 
 		this.setState({
 			[name]: value
@@ -59,7 +59,7 @@ export class AddEditNodeModal extends Component
 	{
 		// Find associated node via data-index
 		const node = this.props.words[e.target.parentElement.parentElement.parentElement.dataset.index];
-		let parents = this.props.node.parents;
+		const parents = this.props.node.parents;
 
 		if(mode === "add")
 			parents.push(node);
@@ -81,7 +81,7 @@ export class AddEditNodeModal extends Component
 		let languageInput;
 		if(typeof this.props.language === "object")
 		{
-			let options = [];
+			const options = [];
 			for(let i = 0; i < this.props.language.length; ++i)
 			{
 				options.push(<option key={i}>{this.props.language[i]}</option>);
@@ -102,7 +102,7 @@ export class AddEditNodeModal extends Component
 		if(this.state.collectionList)
 		{
 			// Create options
-			let options = [];
+			const options = [];
 			for(let i = 0; i < this.state.collectionList.length; ++i)
 			{
 				const collection = this.state.collectionList[i];
@@ -122,7 +122,7 @@ export class AddEditNodeModal extends Component
 			// Create select
 			collectionInput =
 				<select name={"collection"} defaultValue={currentCollection} onChange={(e) => {
-					let newCollectionIndex = this.state.collectionList[e.target.selectedIndex].collectionIndex; // Find collectionIndex of selected option
+					const newCollectionIndex = this.state.collectionList[e.target.selectedIndex].collectionIndex; // Find collectionIndex of selected option
 					this.setState({collectionIndex: newCollectionIndex}, () => {alert(this.state.collectionIndex)});
 				}}>
 					{options}
@@ -130,17 +130,17 @@ export class AddEditNodeModal extends Component
 		}
 
 		/* Construct list of nodes that are the word's parent or can be added as the word's parent */
-		let parentNodeList = [];
+		const parentNodeList = [];
 		if(this.props.type === "journey" && this.props.words)
 		{
 			for(let i = 0; i < this.props.words.length; ++i)
 			{
 				// List all nodes
-				let wordNode = this.props.words[i];
+				const wordNode = this.props.words[i];
 				if(this.props.node !== wordNode)
 				{
 					// If true, disables adding and enables deletion. If false, the inverse
-					let isAlreadyParent = this.props.node.parents.includes(wordNode);
+					const isAlreadyParent = this.props.node.parents.includes(wordNode);
 
 					parentNodeList.push(
 					<div key={i} data-index={i} className={"parent-node"}>

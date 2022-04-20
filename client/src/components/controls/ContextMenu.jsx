@@ -18,7 +18,7 @@ export class ContextMenu extends Component
 
 	render()
 	{
-		let items = this.state.items.map((item, index) => {
+		const items = this.state.items.map((item, index) => {
 			return <div className={"context-menu-item"} onClick={item.handler} key={index}>{item.text}</div>;
 		});
 

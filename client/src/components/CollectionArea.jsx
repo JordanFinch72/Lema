@@ -22,7 +22,7 @@ export class CollectionArea extends Component
 	cAddNode(e, data)
 	{
 		// Open the AddEditNodeModal with initial node data
-		let node = {word: "", language: "", parents: []};
+		const node = {word: "", language: "", parents: []};
 		if(data.type === "journey")
 			node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
 		if(data.type === "cognate")
@@ -35,7 +35,7 @@ export class CollectionArea extends Component
 	cAddNodeDefault(e, data)
 	{
 		// Add node with initial node data
-		let node = {word: "New Word", language: "Proto-Indo-European", parents: []};
+		const node = {word: "New Word", language: "Proto-Indo-European", parents: []};
 		if(data.type === "journey")
 			node.vertex = {type: "word", customText: "", fontColour: "#000000", strokeColour: "#000000", fillColour: "#FFFFFF", radius: null, fontSize: null, x: null, y: null, edgeStart: "centre", edgeEnd: "centre", edgeStrokeColour: "#000000", edgeStrokeWidth: "2px", edgeArrowheadEnabled: true, edgeArrowheadStrokeColour: "#000000", edgeArrowheadFillColour: "#000000"};
 		if(data.type === "cognate")
@@ -56,12 +56,12 @@ export class CollectionArea extends Component
 	render()
 	{
 		let journeys, cognates;
-		let journeyCollections = [], cognateCollections = [];
+		const journeyCollections = [], cognateCollections = [];
 		this.props.collections.map((collection, index) =>
 		{
 			if(typeof collection !== "undefined")
 			{
-				let component = <Collection
+				const component = <Collection
 					collections={this.props.collections}
 					key={index} index={index} type={collection.type} header={collection.header} openModal={this.props.openModal}
 					words={collection.words} editCollection={this.props.editCollection}

@@ -14,9 +14,9 @@ class CollectionNode extends Component
 
 	render()
 	{
-		let nodeColour = this.props.node.fillColour || this.props.node.vertex.fillColour; // TODO: Advanced logic for determining next unused colour (per journey)
+		const nodeColour = this.props.node.fillColour || this.props.node.vertex.fillColour; // TODO: Advanced logic for determining next unused colour (per journey)
 		let changeColourTimeout;
-		let collectionList = this.props.collections.filter((collection, i) => {
+		const collectionList = this.props.collections.filter((collection, i) => {
 			if(collection.type === this.props.type)
 			{
 				collection.collectionIndex = i;
@@ -54,11 +54,11 @@ class CollectionNode extends Component
 				<div className={"buttons-container"}>
 					<input type={"color"} defaultValue={nodeColour} onChange={(e) => {
 						// Throttle the onChange; there's no way to have it only change when the user clicks off of it, annoyingly
-						let node = this;
+						const node = this;
 						window.clearTimeout(changeColourTimeout);
 						changeColourTimeout = window.setTimeout(function()
 						{
-							let updatedNode = {
+							const updatedNode = {
 								...node.props.node
 							};
 							if(node.props.type === "journey")
@@ -95,7 +95,7 @@ export class Collection extends Component
 
 	render()
 	{
-		let wordComponents = [];
+		const wordComponents = [];
 		console.log(this.props);
 
 		if(!this.state.collapsed)
@@ -116,7 +116,7 @@ export class Collection extends Component
 			}
 		}
 
-		let meatballItems = [
+		const meatballItems = [
 			{
 				text: "Add node", handler: (e) =>
 				{
