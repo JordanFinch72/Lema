@@ -56,7 +56,10 @@ class Lema extends Component
 		const rememberMe = data.rememberMe; // TODO: This
 		console.log(data);
 
-		axios.get("http://localhost:5000/users/"+username+"/"+password).then((response) => {
+		alert("Let's go!");
+
+		axios.get("/users/"+username+"/"+password).then((response) => {
+			alert(response);
 			if(response.data.type === "error")
 			{
 				console.error(response.data.message);
