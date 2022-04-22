@@ -12,12 +12,12 @@ class Lema extends Component
 		super(props);
 
 		this.state = {
-			activeModal: null, // Either null or a React component
+			activeModal: null,       // Either null or a React component
 			activeContextMenu: null, // Either null or a React component
-			mapRef: null,
+			activeUser: null,        // Set upon user login
+			activeMapID: null,      // Either null, set by load function, or set by save function once saved to profile
 			collections: [],
-			journeyCount: 0,
-			activeUser: null
+			journeyCount: 0
 		};
 
 		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"] // TODO: Better colours
@@ -36,6 +36,7 @@ class Lema extends Component
 		this.removeCollection = this.removeCollection.bind(this);
 		this.authenticateUser = this.authenticateUser.bind(this);
 		this.registerUser = this.registerUser.bind(this);
+		this.saveMap = this.saveMap.bind(this);
 	}
 
 	componentDidMount()
@@ -54,12 +55,14 @@ class Lema extends Component
 		const username = data.loginUsername;
 		const password = data.loginPassword;
 		const rememberMe = data.rememberMe; // TODO: This
-		console.log(data);
 
-		alert("Let's go!");
+		axios.get(`users/${username}/${password}`).then((response) => {
+			if(this.handleResponse(response, "User found.", "Login successful!"))
+				this.setState({activeUser: response.data.user});
+		});
 
-		axios.get("/users/"+username+"/"+password).then((response) => {
-			alert(response);
+		/*axios.get(`users/${username}/${password}`).then((response) => {
+			console.log(response);
 			if(response.data.type === "error")
 			{
 				console.error(response.data.message);
@@ -70,10 +73,11 @@ class Lema extends Component
 				console.log(response.data);
 				if(response.data.message === "User found.")
 				{
-					this.setState({activeUser: response.data.user});
+					alert("Login successful!");
+					this.setState({activeUser: response.data.user}, this.closeModal);
 				}
 			}
-		});
+		});*/
 	}
 	/**
 	 * Sends register data to server to create a new user profile.
@@ -83,6 +87,29 @@ class Lema extends Component
 	registerUser(e, data)
 	{
 		// Register the user
+		const {displayName, username, password, email} = data;
+
+		axios.put(`users/${displayName}/${username}/${password}/${email}`).then((response) => {
+			this.handleResponse(response, "User created.", "Profile created! You may now log in.");
+		});
+
+		/*axios.put(`users/${displayName}/${username}/${password}/${email}`).then((response) => {
+			console.log(response);
+			if(response.data.type === "error")
+			{
+				console.error(response.data.message);
+				alert(response.data.message);
+			}
+			else if(response.data.type === "success")
+			{
+				console.log(response.data);
+				if(response.data.message === "User created.")
+				{
+					alert("Profile created! You may now log in.");
+					this.closeModal();
+				}
+			}
+		});*/
 	}
 
 	/**
@@ -367,6 +394,71 @@ class Lema extends Component
 		this.setState({collections: newCollections});
 	}
 
+	/**
+	 * Serialises the map to JSON then saves it in the manner specified.
+	 * @param data User-specified data about the map (such as the title).
+	 */
+	saveMap(e, data)
+	{
+		const username = this.state.activeUser.username;
+		const activeMapID = this.state.activeMapID;
+
+		// Attach map data
+		data.mapData = {collections: this.state.collections, journeyCount: this.state.journeyCount};
+
+		if(data.saveMode === "Save to profile")
+		{
+			// Send to server
+			if(activeMapID === null)
+			{
+				// Insert new map
+				axios.put(`maps/${username}/${data}`).then((response) =>
+				{
+					if(this.handleResponse(response, "Map inserted.", "Map saved!"))
+						this.setState({activeMapID: response.data.newMapID});
+				});
+			}
+			else
+			{
+				// Update map
+				axios.put(`maps/${username}/${activeMapID}/${data}`).then((response) =>
+					this.handleResponse(response, "Map data updated.", "Map saved!"));
+			}
+
+		}
+		else if(data.saveMode === "Export to JSON file")
+		{
+			// TODO: Exporting to JSON file
+		}
+	}
+
+	/**
+	 * Handles responses from axios calls
+	 * @param response Response returned by axios call
+	 * @param successMessage Success message expected from server
+	 * @param successAlert Success message to display to user
+	 * @returns {boolean} If the response was a success
+	 */
+	handleResponse(response, successMessage, successAlert)
+	{
+		console.log(response);
+		if(response.data.type === "error")
+		{
+			console.error(response.data.message);
+			alert(response.data.message);
+		}
+		else if(response.data.type === "success")
+		{
+			console.log(response.data);
+			if(response.data.message === successMessage)
+			{
+				alert(successAlert);
+				this.closeModal();
+				return true;
+			}
+		}
+	}
+
 	render()
 	{
 		// Render any active modals and context menus
@@ -390,7 +482,8 @@ class Lema extends Component
 
 		return (
 			<div className="Lema">
-				<Banner activeUser={this.state.activeUser} openModal={this.openModal} authenticateUser={this.authenticateUser} registerUser={this.registerUser} />
+				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMapID={this.state.activeMapID}
+				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} saveMap={this.saveMap} />
 				<div className={"main-view-container"}>
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}

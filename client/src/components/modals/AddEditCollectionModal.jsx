@@ -67,7 +67,7 @@ export class AddEditCollectionModal extends Component
 										<Textbox hint={"e.g. \"English\""} name={"language"} value={this.state.language} onFieldChange={this.onFieldChange} />
 									</LabeledControl>
 									<LabeledControl label={"Type: "}>
-										<select value={this.state.type} onChange={this.onFieldChange} name={"type"}>
+										<select name={"type"} value={this.state.type} onChange={this.onFieldChange}>
 											<option>Historical journey</option>
 											<option>Cognates</option>
 										</select>

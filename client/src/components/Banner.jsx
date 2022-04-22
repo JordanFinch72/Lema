@@ -1,5 +1,6 @@
 import {Component} from "react";
 import {LoginRegisterModal} from "./modals/LoginRegisterModal";
+import {SaveModal} from "./modals/SaveModal";
 
 export class Banner extends Component
 {
@@ -27,8 +28,16 @@ export class Banner extends Component
 		{
 			text = "";
 			buttons = [
+				<div className={"save-button"} onClick={(e) => {
+					this.props.openModal(e, <SaveModal handler={this.props.saveMap} activeMapID={this.props.activeMapID} />);
+				}}>
+					Save Map
+				</div>,
 				<div className={"showcase-button"}>
 					Community Showcase
+				</div>,
+				<div className={"settings-button"}>
+					Profile Settings
 				</div>
 			];
 		}

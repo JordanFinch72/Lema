@@ -2,7 +2,6 @@ import {Component} from "react";
 import {Textbox} from "../controls/Textbox";
 import {Button} from "../controls/Button";
 import {LabeledControl} from "../controls/LabeledControl";
-import {ColourPicker} from "../controls/ColourPicker";
 
 export class LoginRegisterModal extends Component
 {
@@ -64,33 +63,46 @@ export class LoginRegisterModal extends Component
 		}
 		else if(mode === "register")
 		{
-			// New user data
-			const username = this.state.username;
-			const displayName = this.state.displayName;
-			const password = this.state.password;
-			const passwordConfirm = this.state.passwordConfirm;
-			const email = this.state.email;
-			const emailConfirm = this.state.emailConfirm;
+			const dataConsent = this.state.dataConsent;
+			if(!dataConsent)
+			{
+				errorCollector += "You must agree to the privacy policy to create a profile.";
+			}
+			else
+			{
+				// New user data
+				const username = this.state.username;
+				const displayName = this.state.displayName;
+				const password = this.state.password;
+				const passwordConfirm = this.state.passwordConfirm;
+				const email = this.state.email;
+				const emailConfirm = this.state.emailConfirm;
 
-			// Client-side validation
-			if(displayName.length < 3)
-				errorCollector += "Display name too short (min. 3 characters).\n";
-			if(displayName.length > 32)
-				errorCollector += "Display name too long (max. 32 characters).\n";
-			if(username.length < 3)
-				errorCollector += "Username too short (min. 3 characters).\n";
-			if(username.length > 32)
-				errorCollector += "Username too long (max. 32 characters).\n";
-			if(password.length < 6)
-				errorCollector += "Password too short (min. 6 characters).\n";
-			if(password !== passwordConfirm)
-				errorCollector += "Passwords do not match.\n";
-			if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
-				errorCollector += "E-mail address invalid.\n";
-			if(email !== emailConfirm)
-				errorCollector += "E-mail addresses do not match.\n";
+				// Client-side validation
+				if(displayName.length < 3)
+					errorCollector += "Display name too short (min. 3 characters).\n";
+				if(displayName.length > 32)
+					errorCollector += "Display name too long (max. 32 characters).\n";
+				if(username.length < 3)
+					errorCollector += "Username too short (min. 3 characters).\n";
+				if(username.length > 32)
+					errorCollector += "Username too long (max. 32 characters).\n";
+				if(password.length < 6)
+					errorCollector += "Password too short (min. 6 characters).\n";
+				if(password !== passwordConfirm)
+					errorCollector += "Passwords do not match.\n";
+				if(!email.match(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/))
+					errorCollector += "E-mail address invalid.\n";
+				if(email !== emailConfirm)
+					errorCollector += "E-mail addresses do not match.\n";
+			}
 		}
-		return (errorCollector === "");
+		if(errorCollector !== "")
+		{
+			alert(errorCollector); // TODO: Proper response toasts
+			return false;
+		}
+		else return true;
 	}
 
 	render()

@@ -40,6 +40,7 @@ div.banner-container div.buttons-container div {
     align-items: center;
     width: 100%;
     height: 100%;
+    text-align: center;
 }
 div.banner-container div.buttons-container div:hover {
     background-color: rgba(0, 0, 0, 0.5);
@@ -253,9 +254,18 @@ div.modal div.section div.form div.labeled-control {
     flex-flow: row;
     align-items: center;
 }
+div.modal div.section div.form div.labeled-control.separate-line
+{
+    flex-flow: column;
+    align-items: start;
+}
 div.modal div.section div.form div.labeled-control div.control {
     display: flex;
     flex-flow: row;
+}
+div.labeled-control.separate-line div.label, div.labeled-control.separate-line div.control,
+div.labeled-control.separate-line div.control div.textbox, div.labeled-control.separate-line div.control div.textbox input {
+    width: 100%;
 }
 
 div.modal div.section div.parent-node-list {
@@ -285,9 +295,11 @@ div.modal div.bottom {
 
     flex-basis: 10%;
 }
-/*div.modal div.textbox, div.modal select {
-    width: 100%;
-}*/
+
+/* Save modal */
+div.modal div.map-data div.labeled-control div.label {
+    flex-basis: 15%;
+}
 
 /* Context menu */
 div.context-menu-container {

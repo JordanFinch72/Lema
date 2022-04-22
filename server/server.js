@@ -9,7 +9,14 @@ const logger = require("morgan");
 const usersRouter = require("./routes/users");
 const mapsRouter = require("./routes/maps");
 
-server.listen(5000, () => console.log(`Server listening on port 5000.`));
+
+
+// create a GET route
+server.get('/express_backend', (req, res) => { //Line 9
+res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Line 10
+});
+
+//server.listen(5000, () => console.log(`Server listening on port 5000.`));
 
 // View engine setup
 server.set("views", path.join(__dirname, "views"));
@@ -43,3 +50,7 @@ server.use(function(err, req, res, next)
 });
 
 module.exports = server;
+
+
+// This displays message that the server running and listening to specified port
+server.listen(5000, () => console.log(`Listening on port ${5000}`)); //Line 6
