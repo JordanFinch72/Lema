@@ -308,6 +308,9 @@ div.modal div.bottom {
 
     flex-basis: 10%;
 }
+div.modal div.bottom div.buttons-container {
+    display: flex;
+}
 
 /* Save modal */
 div.modal div.map-data div.labeled-control div.label {

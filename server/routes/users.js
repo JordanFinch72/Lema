@@ -117,28 +117,61 @@ router.put("/:displayName/:username/:password/:email", function(req, res, next)
 });
 
 /* Update user profile */
-router.put("/:displayName/:username/:password", function(req, res, next)
+router.put("/:username/", function(req, res, next)
 {
 	const username = req.params.username;
-	const displayName = req.params.displayName;
-	const password = req.params.password;
+	const data = req.body.data;
 
 	db.get("user_" + username).then(function(doc)
 	{
-		// TODO: If password is new, re-hash and insert
+		doc = {
+			...doc,
+			displayName: data.displayName
+		};
 
 		// Put the document back
-		return db.put(({
-			...doc,
-			displayName: displayName,
-			password: password
-		}));
+		return db.put(doc);
 	}).then(function(response)
 	{
 		if(response.ok)
 			res.send({type: "success", message: "User profile updated."});
 		else
 			res.send({type: "error", message: "Server error.", response: response});
+	}).catch(function(error)
+	{
+		res.send({type: "error", message: "Error: " + error.error});
+	});
+});
+
+/* Delete user profile */
+router.delete("/:username/", function(req, res, next)
+{
+	const username = req.params.username;
+
+	db.get(`user_${username}`).then(function(doc)
+	{
+		// Remove the document
+		return db.remove(doc);
+	}).then(function(response)
+	{
+		if(!response.ok)
+			res.send({type: "error", message: "Server error.", response: response});
+	}).catch(function(error)
+	{
+		res.send({type: "error", message: "Error:" + error.error});
+	});
+
+	// Retrieve all maps belonging to this user
+	db.allDocs({
+		include_docs: true,
+		startkey: `map_${username}_`,
+		endkey: `map_${username}_\ufff0`
+	}).then(function(result)
+	{
+		return db.remove(result);
+	}).then(function(response){
+		if(response.ok)
+			res.send({type: "success", message: "User profile and maps deleted."});
 	}).catch(function(error)
 	{
 		res.send({type: "error", message: "Error: " + error.error});

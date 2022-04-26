@@ -45,7 +45,8 @@ export class ViewMapsModal extends Component
 
 		this.state = {
 			loadedMaps: [],
-			loadedFileName: null
+			loadedFileName: null,
+			loading: true
 		};
 
 		this.onFieldChange = this.onFieldChange.bind(this);
@@ -68,7 +69,7 @@ export class ViewMapsModal extends Component
 				console.log(response.data);
 				if(response.data.message === "User's maps retrieved.")
 				{
-					this.setState({loadedMaps: response.data.maps})
+					this.setState({loadedMaps: response.data.maps, loading: false})
 				}
 			}
 		});
@@ -105,7 +106,9 @@ export class ViewMapsModal extends Component
 	{
 		let mapItems = [];
 		this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem map={m} loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
-		if(mapItems.length === 0)
+		if(this.state.loading)
+			mapItems = "Loading...";
+		else if(mapItems.length === 0)
 			mapItems = "No maps here! Try saving one to your profile! Alternatively, feel free to load one in from a file.";
 
 		return (

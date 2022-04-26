@@ -2,6 +2,7 @@ import {Component} from "react";
 import {LoginRegisterModal} from "./modals/LoginRegisterModal";
 import {SaveModal} from "./modals/SaveModal";
 import {ViewMapsModal} from "./modals/ViewMapsModal";
+import {ProfileSettingsModal} from "./modals/ProfileSettingsModal";
 
 export class Banner extends Component
 {
@@ -42,7 +43,9 @@ export class Banner extends Component
 				<div className={"showcase-button"}>
 					Community Showcase
 				</div>,
-				<div className={"settings-button"}>
+				<div className={"settings-button"} onClick={(e) => {
+					this.props.openModal(e, <ProfileSettingsModal editProfile={this.props.editProfile} deleteProfile={this.props.deleteProfile} activeUser={this.props.activeUser} />);
+				}}>
 					Profile Settings
 				</div>,
 				<div className={"logout-button"} onClick={this.props.logoutUser}>

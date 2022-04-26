@@ -38,6 +38,8 @@ class Lema extends Component
 		this.authenticateUser = this.authenticateUser.bind(this);
 		this.registerUser = this.registerUser.bind(this);
 		this.logoutUser = this.logoutUser.bind(this);
+		this.editProfile = this.editProfile.bind(this);
+		this.deleteProfile = this.deleteProfile.bind(this);
 		this.saveMap = this.saveMap.bind(this);
 		this.loadMap = this.loadMap.bind(this);
 		this.deleteMap = this.deleteMap.bind(this);
@@ -118,11 +120,14 @@ class Lema extends Component
 	/**
 	 * Logs the user out of the app.
 	 * @param e SyntheticEvent
+	 * @param forceLogout Whether the logout should be forced (when called by internal functions)
 	 */
-	logoutUser(e)
+	logoutUser(e, forceLogout = false)
 	{
-		const userConfirmed = window.confirm("Are you sure you wish to log out? This will clear your map data.");
-		if(userConfirmed)
+		let userConfirmed = false;
+		if(!forceLogout) userConfirmed = window.confirm("Are you sure you wish to log out? This will clear your map data.");
+
+		if(userConfirmed || forceLogout)
 		{
 			localStorage.removeItem("LEMA_activeUser");
 			localStorage.removeItem("LEMA_activeMap");
@@ -533,6 +538,33 @@ class Lema extends Component
 		});
 	}
 
+	editProfile(e, data)
+	{
+		let activeUser = this.state.activeUser;
+		const username = activeUser.username;
+		axios.put(`users/${username}`, {data: data}).then((response) => {
+			if(this.handleResponse(response, "User profile updated.", "Profile updated!"))
+			{
+				activeUser = {
+					...activeUser,
+					displayName: data.displayName
+				};
+				this.setState({activeUser: activeUser});
+			}
+		});
+	}
+
+	deleteProfile(e)
+	{
+		const username = this.state.activeUser.username;
+		axios.delete(`users/${username}`).then((response) => {
+			if(this.handleResponse(response, "User profile and maps deleted.", "User profile and maps deleted!"))
+			{
+				this.logoutUser(e, true);
+			}
+		});
+	}
+
 	/**
 	 * Handles responses from axios calls
 	 * @param response Response returned by axios call.
@@ -586,6 +618,7 @@ class Lema extends Component
 			<div className="Lema">
 				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMap={this.state.activeMap}
 				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} logoutUser={this.logoutUser}
+				        editProfile={this.editProfile} deleteProfile={this.deleteProfile}
 				        saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />
 				<div className={"main-view-container"}>
 					<LeftBar collections={this.state.collections}
