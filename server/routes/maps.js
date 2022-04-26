@@ -3,14 +3,14 @@ const router = express.Router();
 const PouchDB = require("pouchdb");
 
 // Database
-const auth = Buffer.from("admin: .PAQWQ6o1Jo").toString("base64"); // TODO: Hide this; this is terrible
+const authHeader = Buffer.from("admin" + ":" + ".PAQWQ6o1Jo").toString("base64"); // TODO: Hide this; this is terrible
 const db = new PouchDB("http://localhost:5984/lema", {
 	headers: {
-		Authorization: "Basic " + auth
+		Authorization: "Basic " + authHeader
 	}
 });
 
-/* Retrieve all maps and optionally filter maps that have been shared */
+/* Retrieve all maps and optionally filter for maps that have been shared */
 router.get("/:sharedOnly", function(req, res, next)
 {
 	const sharedOnly = req.params.sharedOnly;
@@ -23,9 +23,66 @@ router.get("/:sharedOnly", function(req, res, next)
 	}).then(function(result)
 	{
 		let rows = result.rows;
-		if(sharedOnly) rows = rows.filter((r) => r.shared === true); // Filter only shared maps if required
+		const maps = [];
+		if(sharedOnly === "1")
+			rows = rows.filter((r) => r.doc.isShared === true); // Filter only shared maps if required
 
-		res.send({type: "success", message: "Maps retrieved.", maps: rows});
+		// Strip extraneous data
+		for(let i = 0; i < rows.length; ++i)
+		{
+			const map = rows[i];
+			maps.push({
+				activeMap: {
+					mapID: map.doc._id.split("_")[2], // Just the number
+					title: map.doc.title,
+					description: map.doc.description,
+					isShared: map.doc.isShared,
+				},
+				mapData: map.doc.mapData
+			});
+		}
+
+		res.send({type: "success", message: "Maps retrieved.", maps: maps});
+	}).catch(function(error)
+	{
+		res.send({type: "error", message: "Error: " + error.error});
+	});
+});
+
+/* Retrieve all maps belonging to a particular user and optionally filter for maps that have been shared */
+router.get("/:username/:sharedOnly", function(req, res, next)
+{
+	const username = req.params.username;
+	const sharedOnly = req.params.sharedOnly;
+
+	// Retrieve all maps
+	db.allDocs({
+		include_docs: true,
+		startkey: `map_${username}_`,
+		endkey: `map_${username}_\ufff0`
+	}).then(function(result)
+	{
+		let rows = result.rows;
+		const maps = [];
+		if(sharedOnly === "1")
+			rows = rows.filter((r) => r.doc.isShared === true); // Filter only shared maps if required
+
+		// Strip extraneous data
+		for(let i = 0; i < rows.length; ++i)
+		{
+			const map = rows[i];
+			maps.push({
+				activeMap: {
+					mapID: map.doc._id.split("_")[2], // Just the number
+					title: map.doc.title,
+					description: map.doc.description,
+					isShared: map.doc.isShared,
+				},
+				mapData: map.doc.mapData
+			});
+		}
+
+		res.send({type: "success", message: "User's maps retrieved.", maps: maps});
 	}).catch(function(error)
 	{
 		res.send({type: "error", message: "Error: " + error.error});
@@ -33,15 +90,15 @@ router.get("/:sharedOnly", function(req, res, next)
 });
 
 /* Put new map */
-router.put("/:username/:data", function(req, res, next)
+router.put("/:username/", function(req, res, next)
 {
 	const username = req.params.username;
-	const data = req.params.data;
-	let mapID = 1;
+	const data = req.body.data;
+	let mapID = 0;
 
 	// Determine mapID
 	db.allDocs({
-		include_docs: false,
+		include_docs: true,
 		startkey: `map_${username}_`,
 		endkey: `map_${username}_\ufff0`
 	}).then(function(result)
@@ -56,16 +113,23 @@ router.put("/:username/:data", function(req, res, next)
 			"mapData": data.mapData
 		};
 
-		// TODO: Share to Community Showcase
-		if(data.isShared)
-		{
-
-		}
-
 		db.put(doc).then(function(response)
 		{
 			if(response.ok)
-				res.send({type: "success", message: "Map inserted.", newMapID: mapID});
+			{
+				// TODO: Share to Community Showcase
+				/*if(data.isShared)
+				 {
+
+				 }*/
+				const map = {
+					mapID: mapID,
+					title: data.title,
+					description: data.description,
+					isShared: data.isShared
+				};
+				res.send({type: "success", message: "Map inserted.", activeMap: map});
+			}
 			else
 				res.send({type: "error", message: "Server error.", response: response});
 		}).catch(function(error)
@@ -82,23 +146,57 @@ router.put("/:username/:data", function(req, res, next)
 });
 
 /* Update map's data */
-router.put("/:username/:mapID/:data", function(req, res, next)
+router.put("/:username/:mapID/", function(req, res, next)
 {
 	const username = req.params.username;
 	const mapID = req.params.mapID;
-	const data = req.params.data;
+	const data = req.body.data;
 
 	db.get(`map_${username}_${mapID}`).then(function(doc)
 	{
 		// Put the document back
 		return db.put(({
 			...doc,
-			data: data
+			"title": data.title,
+			"description": data.description,
+			"isShared": data.isShared,
+			"mapData": data.mapData
 		}));
 	}).then(function(response)
 	{
 		if(response.ok)
-			res.send({type: "success", message: "Map data updated."});
+		{
+			const map = {
+				mapID: mapID,
+				title: data.title,
+				description: data.description,
+				isShared: data.isShared
+			};
+			res.send({type: "success", message: "Map data updated.", activeMap: map});
+		}
+		else
+			res.send({type: "error", message: "Server error.", response: response});
+	}).catch(function(error)
+	{
+		res.send({type: "error", message: "Error:" + error.error});
+	});
+});
+
+
+/* Delete map */
+router.delete("/:username/:mapID/", function(req, res, next)
+{
+	const username = req.params.username;
+	const mapID = req.params.mapID;
+
+	db.get(`map_${username}_${mapID}`).then(function(doc)
+	{
+		// Remove the document
+		return db.remove(doc);
+	}).then(function(response)
+	{
+		if(response.ok)
+			res.send({type: "success", message: "Map deleted."});
 		else
 			res.send({type: "error", message: "Server error.", response: response});
 	}).catch(function(error)

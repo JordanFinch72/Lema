@@ -117,7 +117,7 @@ export class LoginRegisterModal extends Component
 								<div className={"section"}>
 									<div className={"form"}>
 										<LabeledControl label={"Username: "}>
-											<Textbox name={"loginUsername"} value={this.state.loginUsername} hint={""} onFieldChange={this.onFieldChange} />
+											<Textbox name={"loginUsername"} value={this.state.loginUsername} hint={""} autoFocus={true} onFieldChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Password: "}>
 											<Textbox name={"loginPassword"} isPassword={true} value={this.state.loginPassword} hint={""} onFieldChange={this.onFieldChange} />
@@ -138,7 +138,7 @@ export class LoginRegisterModal extends Component
 									<h4>User Data</h4>
 									<div className={"form"}>
 										<LabeledControl label={"Display name: "}>
-											<Textbox name={"displayName"} value={this.state.displayName} hint={"e.g. \"Jordan F.\""} onFieldChange={this.onFieldChange} />
+											<Textbox name={"displayName"} value={this.state.displayName} hint={"e.g. \"Jordan F.\""} autoFocus={true} onFieldChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Username: "} tooltip={"Min. 3 characters.\nMax. 32 characters."}>
 											<Textbox name={"username"} value={this.state.username} hint={"e.g. \"JordanFinch72\""} onFieldChange={this.onFieldChange} />
@@ -170,7 +170,7 @@ export class LoginRegisterModal extends Component
 				</div>
 				<div className={"bottom"}>
 					<div className={"buttons-container"}>
-						<Button value={"Submit"} id={"add-collection-modal-submit"} onClick={(e) =>
+						<Button value={"Submit"} onClick={(e) =>
 						{
 							if(this.validate(this.state.mode))
 							{

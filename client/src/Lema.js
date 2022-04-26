@@ -4,6 +4,7 @@ import {Banner} from "./components/Banner";
 import {LeftBar} from "./components/LeftBar";
 import {Map} from "./components/Map";
 import axios from "axios";
+import {ViewMapsModal} from "./components/modals/ViewMapsModal";
 
 class Lema extends Component
 {
@@ -15,7 +16,7 @@ class Lema extends Component
 			activeModal: null,       // Either null or a React component
 			activeContextMenu: null, // Either null or a React component
 			activeUser: null,        // Set upon user login
-			activeMapID: null,      // Either null, set by load function, or set by save function once saved to profile
+			activeMap: null,         // Either null, set by load function, or set by save function once saved to profile
 			collections: [],
 			journeyCount: 0
 		};
@@ -36,12 +37,28 @@ class Lema extends Component
 		this.removeCollection = this.removeCollection.bind(this);
 		this.authenticateUser = this.authenticateUser.bind(this);
 		this.registerUser = this.registerUser.bind(this);
+		this.logoutUser = this.logoutUser.bind(this);
 		this.saveMap = this.saveMap.bind(this);
+		this.loadMap = this.loadMap.bind(this);
+		this.deleteMap = this.deleteMap.bind(this);
 	}
 
 	componentDidMount()
 	{
-		// TODO: Check if user is already logged in (cookies)
+		// Check if user is already logged in
+		const activeUser = JSON.parse(localStorage.getItem("LEMA_activeUser"));
+		if(activeUser)
+			this.setState({activeUser: activeUser});
+
+		// Check for activeMap data (mapID, title, description, isShared)
+		const activeMap = JSON.parse(localStorage.getItem("LEMA_activeMap"));
+		if(activeMap)
+			this.setState({activeMap: activeMap});
+
+		// Check if there are active collections (DISTINCT FROM activeMap!)
+		const activeCollections = JSON.parse(localStorage.getItem("LEMA_activeCollections"));
+		if(activeCollections)
+			this.setState({collections: activeCollections.collections, journeyCount: activeCollections.journeyCount});
 	}
 
 	/**
@@ -58,26 +75,12 @@ class Lema extends Component
 
 		axios.get(`users/${username}/${password}`).then((response) => {
 			if(this.handleResponse(response, "User found.", "Login successful!"))
+			{
+				if(rememberMe) localStorage.setItem("LEMA_activeUser", JSON.stringify(response.data.user));
 				this.setState({activeUser: response.data.user});
+			}
 		});
 
-		/*axios.get(`users/${username}/${password}`).then((response) => {
-			console.log(response);
-			if(response.data.type === "error")
-			{
-				console.error(response.data.message);
-				alert(response.data.message);
-			}
-			else if(response.data.type === "success")
-			{
-				console.log(response.data);
-				if(response.data.message === "User found.")
-				{
-					alert("Login successful!");
-					this.setState({activeUser: response.data.user}, this.closeModal);
-				}
-			}
-		});*/
 	}
 	/**
 	 * Sends register data to server to create a new user profile.
@@ -110,6 +113,22 @@ class Lema extends Component
 				}
 			}
 		});*/
+	}
+
+	/**
+	 * Logs the user out of the app.
+	 * @param e SyntheticEvent
+	 */
+	logoutUser(e)
+	{
+		const userConfirmed = window.confirm("Are you sure you wish to log out? This will clear your map data.");
+		if(userConfirmed)
+		{
+			localStorage.removeItem("LEMA_activeUser");
+			localStorage.removeItem("LEMA_activeMap");
+			localStorage.removeItem("LEMA_activeCollections");
+			this.setState({activeUser: null, activeMap: null, collections: [], journeyCount: 0});
+		}
 	}
 
 	/**
@@ -186,7 +205,9 @@ class Lema extends Component
 		const newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};
 		newCollections.push(newJourney);
 
-		this.setState({collections: newCollections, journeyCount: newJourneyCount+1});
+		this.setState({collections: newCollections, journeyCount: newJourneyCount+1}, function(){
+			localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
+		});
 	}
 
 	/**
@@ -266,7 +287,10 @@ class Lema extends Component
 			newNode.arrayIndex = newCollections[collectionIndexActual].words.length;
 			newCollections[collectionIndexActual].words.push(newNode);
 
-			this.setState({collections: newCollections}, this.closeModal);
+			this.setState({collections: newCollections}, function(){
+				localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
+				this.closeModal();
+			});
 		}
 	}
 
@@ -300,8 +324,7 @@ class Lema extends Component
 		}
 
 		this.setState({collections: newCollections}, () => {
-			console.log("Post-edit collections: ");
-			console.log(this.state.collections);
+			localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
 			this.closeModal();
 		});
 	}
@@ -346,8 +369,10 @@ class Lema extends Component
 			}
 		}
 
-
-		this.setState({collections: newCollections}, this.closeModal);
+		this.setState({collections: newCollections}, function(){
+			localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
+			this.closeModal();
+		});
 	}
 
 	/**
@@ -358,14 +383,20 @@ class Lema extends Component
 	addCollection(e, data)
 	{
 		const newCollections = this.state.collections;
+		let newJourneyCount = this.state.journeyCount;
 
 		// Only one cognate allowed, for now // TODO
 		if(data.type === "cognate" && newCollections.find(e => e.type === "cognate") !== undefined)
 			alert("Support for multiple cognate collections coming soon!");
 		else
 		{
+			if(data.type === "journey")
+				newJourneyCount += 1;
 			newCollections.push({type: data.type, header: data.header, words: []});
-			this.setState( {collections: newCollections}, this.closeModal);
+			this.setState( {collections: newCollections, journeyCount: newJourneyCount}, function(){
+				localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
+				this.closeModal();
+			});
 		}
 	}
 
@@ -379,7 +410,11 @@ class Lema extends Component
 		const newCollections = this.state.collections;
 		newCollections[data.index].type = data.type;
 		newCollections[data.index].header = data.header;
-		this.setState({collections: newCollections}, this.closeModal);
+
+		this.setState({collections: newCollections}, function(){
+			localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
+			this.closeModal();
+		});
 	}
 
 	/**
@@ -390,8 +425,15 @@ class Lema extends Component
 	removeCollection(e, collectionIndex)
 	{
 		const newCollections = this.state.collections;
-		newCollections.splice(collectionIndex, 1);
-		this.setState({collections: newCollections});
+		let newJourneyCount = this.state.journeyCount;
+		if(newCollections[collectionIndex].type === "journey")
+			newJourneyCount = this.state.journeyCount-1;
+
+		newCollections.splice(collectionIndex, 1); // Remove the collection
+
+		this.setState({collections: newCollections, journeyCount: newJourneyCount}, function(){
+			localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: newCollections, journeyCount: this.state.journeyCount}));
+		});
 	}
 
 	/**
@@ -401,7 +443,10 @@ class Lema extends Component
 	saveMap(e, data)
 	{
 		const username = this.state.activeUser.username;
-		const activeMapID = this.state.activeMapID;
+		const activeMapID = (this.state.activeMap) ? this.state.activeMap.mapID : null;
+		const isNewMap = data.isNewMap;
+		console.log(data);
+		console.log(this.state.activeMap);
 
 		// Attach map data
 		data.mapData = {collections: this.state.collections, journeyCount: this.state.journeyCount};
@@ -409,20 +454,32 @@ class Lema extends Component
 		if(data.saveMode === "Save to profile")
 		{
 			// Send to server
-			if(activeMapID === null)
+			if(activeMapID === null || isNewMap)
 			{
 				// Insert new map
-				axios.put(`maps/${username}/${data}`).then((response) =>
+				axios.put(`maps/${username}`, {data: data}).then((response) =>
 				{
 					if(this.handleResponse(response, "Map inserted.", "Map saved!"))
-						this.setState({activeMapID: response.data.newMapID});
+					{
+						this.setState({activeMap: response.data.activeMap}, function(){
+							localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
+						}); // Set new map data returned by server
+					}
+
 				});
 			}
 			else
 			{
 				// Update map
-				axios.put(`maps/${username}/${activeMapID}/${data}`).then((response) =>
-					this.handleResponse(response, "Map data updated.", "Map saved!"));
+				axios.put(`maps/${username}/${activeMapID}`, {data: data}).then((response) => {
+					if(this.handleResponse(response, "Map data updated.", "Map saved!"))
+					{
+						this.setState({activeMap: response.data.activeMap}, function(){
+							localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
+						}); // Set new map data returned by server
+					}
+
+				});
 			}
 
 		}
@@ -433,13 +490,58 @@ class Lema extends Component
 	}
 
 	/**
-	 * Handles responses from axios calls
-	 * @param response Response returned by axios call
-	 * @param successMessage Success message expected from server
-	 * @param successAlert Success message to display to user
-	 * @returns {boolean} If the response was a success
+	 * Loads the map using data returned by the server.
+	 * @param e SyntheticEvent
+	 * @param map The map object to be loaded.
 	 */
-	handleResponse(response, successMessage, successAlert)
+	loadMap(e, map)
+	{
+		this.setState({collections: []}, function(){ // Note: This is somewhat horrific, but the collections don't re-render otherwise
+			this.setState({
+				activeMap: map.activeMap,
+				collections: map.mapData.collections,
+				journeyCount: map.mapData.journeyCount
+			}, function(){
+				localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
+				localStorage.setItem("LEMA_activeCollections", JSON.stringify({collections: this.state.collections, journeyCount: this.state.journeyCount}));
+				this.closeModal();
+			});
+		});
+	}
+
+	deleteMap(e, mapID)
+	{
+		const username = this.state.activeUser.username;
+		const activeMap = this.state.activeMap;
+
+		console.log(mapID);
+		console.log(this.state.activeMap.mapID);
+
+		// If they're deleting the currently active map
+		if(mapID === this.state.activeMap.mapID)
+		{
+			activeMap.mapID = null; // Unset the activeMap ID if it is the same
+			this.setState({activeMap: activeMap}, function(){
+				localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
+			});
+		}
+
+		axios.delete(`maps/${username}/${mapID}`).then((response) => {
+			this.handleResponse(response, "Map deleted.", null, false);
+			this.closeModal();
+			this.openModal(e, <ViewMapsModal loadMap={this.loadMap} deleteMap={this.deleteMap} activeUser={this.state.activeUser} />);
+		});
+	}
+
+	/**
+	 * Handles responses from axios calls
+	 * @param response Response returned by axios call.
+	 * @param successMessage Success message expected from server.
+	 * @param successAlert Success message to display to user.
+	 * @param closeModal Whether to close the active modal after the operation is complete.
+	 * @returns {boolean} If the response was a success.
+	 */
+	handleResponse(response, successMessage, successAlert, closeModal = true)
 	{
 		console.log(response);
 		if(response.data.type === "error")
@@ -452,8 +554,8 @@ class Lema extends Component
 			console.log(response.data);
 			if(response.data.message === successMessage)
 			{
-				alert(successAlert);
-				this.closeModal();
+				if(successAlert) alert(successAlert);
+				if(closeModal) this.closeModal();
 				return true;
 			}
 		}
@@ -482,8 +584,9 @@ class Lema extends Component
 
 		return (
 			<div className="Lema">
-				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMapID={this.state.activeMapID}
-				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} saveMap={this.saveMap} />
+				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMap={this.state.activeMap}
+				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} logoutUser={this.logoutUser}
+				        saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />
 				<div className={"main-view-container"}>
 					<LeftBar collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}

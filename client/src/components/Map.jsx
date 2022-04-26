@@ -20,7 +20,7 @@ export function Map(props)
 	const collections = props.collections;
 
 	// DEBUG MODE
-	const DEBUG_MODE = true;
+	const DEBUG_MODE = false;
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
@@ -312,7 +312,11 @@ export function Map(props)
 
 				// Set initial vertex position
 				if(!node.vertex.x || !node.vertex.y)
+				{
 					node.vertex.x = vertexX; node.vertex.y = vertexY;
+					return editNode(null, journeyNodeObject.collectionIndex, node);
+				}
+
 
 				// Prepare text element. This is required to calculate circle radius based on text element's width
 				const vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together

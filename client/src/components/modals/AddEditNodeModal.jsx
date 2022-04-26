@@ -166,7 +166,7 @@ export class AddEditNodeModal extends Component
 								<h4>Word / Language</h4>
 								<div className={"form"}>
 									<LabeledControl label={"Word: "}>
-										<Textbox name={"word"} value={this.state.word} hint={"e.g. \"vivification\""} onFieldChange={this.onFieldChange} />
+										<Textbox name={"word"} value={this.state.word} hint={"e.g. \"vivification\""} autoFocus={true} onFieldChange={this.onFieldChange} />
 									</LabeledControl>
 									<LabeledControl label={"Language: "}>
 										{languageInput}

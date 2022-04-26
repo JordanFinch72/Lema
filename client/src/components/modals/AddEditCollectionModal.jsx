@@ -61,7 +61,7 @@ export class AddEditCollectionModal extends Component
 							<div className={"section"}>
 								<div className={"form"}>
 									<LabeledControl label={"Word: "}>
-										<Textbox name={"word"} value={this.state.word} hint={"e.g. \"horse from PIE to Modern English\""} onFieldChange={this.onFieldChange} />
+										<Textbox name={"word"} value={this.state.word} hint={"e.g. \"horse from PIE to Modern English\""} autoFocus={true} onFieldChange={this.onFieldChange} />
 									</LabeledControl>
 									<LabeledControl label={"Language: "}>
 										<Textbox hint={"e.g. \"English\""} name={"language"} value={this.state.language} onFieldChange={this.onFieldChange} />

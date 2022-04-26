@@ -34,6 +34,9 @@ div.banner-container div.buttons-container {
     justify-content: space-evenly;
     align-items: center;
 }
+div.banner-container.logged-in div.buttons-container {
+    flex-basis: 30%;
+}
 div.banner-container div.buttons-container div {
     display: flex;
     justify-content: center;
@@ -286,6 +289,16 @@ div.modal div.section div.parent-node-list div.parent-node div.buttons {
     flex-flow: row;
     flex: 1;
 }
+
+div.modal div.section div.map-item {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+div.modal div.section div.map-item div.buttons-container {
+    display: flex;
+}
+
 div.modal div.bottom {
     display: flex;
     flex-flow: row;

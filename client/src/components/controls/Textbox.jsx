@@ -8,7 +8,7 @@ export class Textbox extends Component
 		this.state = {
 			hint: this.props.hint,
 			name: this.props.name || this.props.value || "",
-			type: (this.props.isPassword) ? "password" : "text"
+			type: (this.props.isPassword) ? "password" : "text",
 		};
 
 		if(this.props.onFieldChange)
@@ -32,7 +32,7 @@ export class Textbox extends Component
 	{
 		return(
 			<div className={"textbox"}>
-				<input type={this.state.type} placeholder={this.state.hint} value={this.props.value} name={this.props.name} autoComplete={"off"} onChange={this.onFieldChange} />
+				<input type={this.state.type} placeholder={this.state.hint} value={this.props.value} name={this.props.name} autoComplete={"off"} autoFocus={this.props.autoFocus} onChange={this.onFieldChange} />
 			</div>
 		)
 	}

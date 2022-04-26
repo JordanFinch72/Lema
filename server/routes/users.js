@@ -7,7 +7,6 @@ const authHeader = Buffer.from("admin" + ":" + ".PAQWQ6o1Jo").toString("base64")
 const db = new PouchDB("http://localhost:5984/lema", {
 	headers: {
 		Authorization: "Basic " + authHeader
-
 	}
 });
 
@@ -29,26 +28,11 @@ router.get("/:username/:password", function(req, res, next)
 			// Passwords match
 			if(result)
 			{
-				// Retrieve this user's maps
-				db.allDocs({
-					include_docs: true,
-					startkey: "map_"+username+"_",
-					endkey: "map_"+username+"_"+"\ufff0"
-				}).then(function(result)
-				{
-					const maps = [];
-					result.rows.forEach((r) => maps.push(r.doc));
-
-					const user = {
-						username: username,
-						displayName: doc.displayName,
-						maps: maps
-					};
-					res.send({type: "success", message: "User found.", user: user});
-				}).catch(function(error)
-				{
-					res.send({type: "error", message: "Error: " + error.error});
-				});
+				const user = {
+					username: username,
+					displayName: doc.displayName
+				};
+				res.send({type: "success", message: "User found.", user: user});
 			}
 			else
 				res.send({type: "error", message: "Password incorrect."});
