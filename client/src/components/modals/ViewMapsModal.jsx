@@ -19,10 +19,10 @@ class MapItem extends Component
 				<div className={"title"}>{this.props.map.activeMap.title}</div>
 				<div className={"buttons-container"}>
 					<Button value={"LOAD"} onClick={(e) => {
-						const userConfirmed = window.confirm("This will overwrite your current map.\nYou should save your map before you load another one.\n\nWould you like to continue?");
+						const userConfirmed = window.confirm("This will overwrite your currently active map.\nYou may wish to save your map before you load another one.\n\nWould you like to continue?");
 
 						if(userConfirmed)
-							this.props.loadMap(e, this.props.map);
+							this.props.loadMap(e, this.props.map, "database");
 					}} />
 					<Button value={"X"} onClick={(e) => {
 						const userConfirmed = window.confirm("This will permanently delete this map from the database (and the showcase)!\n\nWould you like to continue?");
@@ -120,20 +120,30 @@ export class ViewMapsModal extends Component
 							<div className={"section"}>
 								{mapItems}
 							</div>
+							<div className={"section"}>
+								<h4>Load From File</h4>
+								<div className={"form"}>
+									<input type={"file"} id={"mapJSON"} name={"mapJSON"} accept={"application/json"} />
+									<Button value={"Import..."} onClick={(e) =>
+									{
+										const files = document.getElementById("mapJSON").files;
+										if(files.length > 0)
+										{
+											const userConfirmed = window.confirm("This will overwrite your current map.\nYou should save your map before you load another one.\n\nWould you like to continue?");
+											if(userConfirmed)
+											{
+												const fileReader = new window.FileReader();
+												fileReader.onload = () => this.props.loadMap(e, JSON.parse(fileReader.result), "file");
+												fileReader.readAsText(files[0]);
+											}
+										}
+									}}/>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 				<div className={"bottom"}>
-					<div className={"left"}>
-						<Button value={"Load from file..."} onClick={(e) =>
-						{
-							/*if(this.validate())
-							{
-								this.props.handler(e, this.state);
-							}*/
-						}}/>
-						<Textbox name={"loadedFileName"} value={this.state.loadedFileName} hint={"Accepted: .json"} onFieldChange={this.onFieldChange} />
-					</div>
 				</div>
 			</div>
 		);

@@ -102,9 +102,17 @@ export class CollectionArea extends Component
 				{cognateCollections}
 			</>;
 
+		console.log(this.props);
+		const header = (this.props.activeMap) ? this.props.activeMap.title : "Collection Area";
+		const mapID = (this.props.activeMap) ?
+			(this.props.activeMap.mapID !== null) ?
+				<div className={"id"}> Attached to profile (ID: {this.props.activeMap.mapID})</div> :
+				<div className={"id"}> Imported from file</div>
+			: "";
+
 		return (
 			<div className={"collections-container"}>
-				<h2>Collection Area</h2>
+				<h2>{header}{mapID}</h2>
 				{journeys}
 				{cognates}
 			</div>

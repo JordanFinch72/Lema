@@ -17,7 +17,7 @@ export class LeftBar extends Component
 		return (
 			<div className={"left-bar-container"}>
 				<ControlBox addJourneyFromDatabase={this.props.addJourneyFromDatabase} />
-				<CollectionArea collections={this.props.collections}
+				<CollectionArea activeMap={this.props.activeMap} collections={this.props.collections}
 				                mapMode={this.state.mapMode} openModal={this.props.openModal} closeModal={this.props.closeModal}
 				                openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}
 				                addNode={this.props.addNode} editNode={this.props.editNode} editNodeColour={this.props.editNodeColour} removeNode={this.props.removeNode}

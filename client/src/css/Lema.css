@@ -126,6 +126,15 @@ div.collections-container {
     align-items: center;
     overflow-y: auto;
 }
+div.collections-container h2 {
+    display: flex; /* This is somewhat cursed but it works */
+    flex-flow: column;
+    align-items: center;
+}
+div.collections-container div.id {
+    font-size: 0.5em;
+    font-weight: normal;
+}
 div.collections-container div.header-container
 {
     display: flex;

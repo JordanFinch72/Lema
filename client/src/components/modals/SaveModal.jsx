@@ -61,7 +61,7 @@ export class SaveModal extends Component
 		this.validSaveModes.forEach((m) => saveModes.push(<option>{m}</option>));
 
 		// Allow them to save as new map if a map is already active (loaded)
-		const saveAsNewMap = (this.props.activeMap.mapID !== null) ?
+		const saveAsNewMap = (this.props.activeMap !== null && this.props.activeMap.mapID !== null) ?
 			<LabeledControl label={"Save as new map:"} tooltip={"Instead of overwriting your current map in the database, it will create a new map entry."}>
 				<input type={"checkbox"} name={"isNewMap"} checked={this.state.isNewMap} disabled={(this.state.saveMode !== "Save to profile")} onChange={this.onFieldChange} />
 			</LabeledControl>

@@ -30,6 +30,13 @@ export class Banner extends Component
 		{
 			text = "";
 			buttons = [
+				<div className={"new-map-button"} onClick={(e) => {
+					const userConfirmed = window.confirm("This will wipe your currently active map so that you can start from scratch.\n" +
+						"You should save/export your map first if you wish to save your progress.\n\nDo you wish to continue?");
+					if(userConfirmed) this.props.newMap(e);
+				}}>
+					New Map
+				</div>,
 				<div className={"save-button"} onClick={(e) => {
 					this.props.openModal(e, <SaveModal handler={this.props.saveMap} activeMap={this.props.activeMap} />);
 				}}>

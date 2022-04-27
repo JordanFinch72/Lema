@@ -596,6 +596,14 @@ export function Map(props)
 			if(languageProp.language === node.language)
 				return languageProp;
 		}
+		return {
+			"language": node.language,
+			"x": 0,
+			"y": 0,
+			"width": 0,
+			"height": 0,
+			"radius": 25
+		}
 	}
 
 	/**

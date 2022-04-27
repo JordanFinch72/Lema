@@ -40,6 +40,7 @@ class Lema extends Component
 		this.logoutUser = this.logoutUser.bind(this);
 		this.editProfile = this.editProfile.bind(this);
 		this.deleteProfile = this.deleteProfile.bind(this);
+		this.newMap = this.newMap.bind(this);
 		this.saveMap = this.saveMap.bind(this);
 		this.loadMap = this.loadMap.bind(this);
 		this.deleteMap = this.deleteMap.bind(this);
@@ -97,24 +98,6 @@ class Lema extends Component
 		axios.put(`users/${displayName}/${username}/${password}/${email}`).then((response) => {
 			this.handleResponse(response, "User created.", "Profile created! You may now log in.");
 		});
-
-		/*axios.put(`users/${displayName}/${username}/${password}/${email}`).then((response) => {
-			console.log(response);
-			if(response.data.type === "error")
-			{
-				console.error(response.data.message);
-				alert(response.data.message);
-			}
-			else if(response.data.type === "success")
-			{
-				console.log(response.data);
-				if(response.data.message === "User created.")
-				{
-					alert("Profile created! You may now log in.");
-					this.closeModal();
-				}
-			}
-		});*/
 	}
 
 	/**
@@ -125,7 +108,7 @@ class Lema extends Component
 	logoutUser(e, forceLogout = false)
 	{
 		let userConfirmed = false;
-		if(!forceLogout) userConfirmed = window.confirm("Are you sure you wish to log out? This will clear your map data.");
+		if(!forceLogout) userConfirmed = window.confirm("Are you sure you wish to log out? This will clear your active map data.");
 
 		if(userConfirmed || forceLogout)
 		{
@@ -442,6 +425,17 @@ class Lema extends Component
 	}
 
 	/**
+	 * Wipes activeMap and collections data, allowing the user to start from scratch.
+	 * @param e SyntheticEvent
+	 */
+	newMap(e)
+	{
+		localStorage.removeItem("LEMA_activeMap");
+		localStorage.removeItem("LEMA_activeCollections");
+		this.setState({activeMap: null, collections: [], journeyCount: 0});
+	}
+
+	/**
 	 * Serialises the map to JSON then saves it in the manner specified.
 	 * @param data User-specified data about the map (such as the title).
 	 */
@@ -490,7 +484,15 @@ class Lema extends Component
 		}
 		else if(data.saveMode === "Export to JSON file")
 		{
-			// TODO: Exporting to JSON file
+			// Strip extraneous data
+			delete data.saveMode; delete data.isNewMap; data.mapID = null;
+
+			// Set up download
+			const a = document.createElement("a");
+			const blob = new Blob([JSON.stringify(data, null, 4)], {type: 'application/json'});
+			a.href = URL.createObjectURL(blob);
+			a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
+			a.click(); // Download
 		}
 	}
 
@@ -498,12 +500,20 @@ class Lema extends Component
 	 * Loads the map using data returned by the server.
 	 * @param e SyntheticEvent
 	 * @param map The map object to be loaded.
+	 * @param loadMode Whether the map has been loaded from the database or via user file upload.
 	 */
-	loadMap(e, map)
+	loadMap(e, map, loadMode)
 	{
+		// Build activeMap object if loaded from local file
+		const activeMap = (loadMode === "database") ? map.activeMap : {
+			mapID: null,
+			title: map.title,
+			description: map.description,
+			isShared: map.isShared
+		};
 		this.setState({collections: []}, function(){ // Note: This is somewhat horrific, but the collections don't re-render otherwise
 			this.setState({
-				activeMap: map.activeMap,
+				activeMap: activeMap,
 				collections: map.mapData.collections,
 				journeyCount: map.mapData.journeyCount
 			}, function(){
@@ -512,25 +522,25 @@ class Lema extends Component
 				this.closeModal();
 			});
 		});
+
 	}
 
 	deleteMap(e, mapID)
 	{
 		const username = this.state.activeUser.username;
-		const activeMap = this.state.activeMap;
-
-		console.log(mapID);
-		console.log(this.state.activeMap.mapID);
+		let activeMap = this.state.activeMap;
 
 		// If they're deleting the currently active map
-		if(mapID === this.state.activeMap.mapID)
+		if(Number(mapID) === Number(this.state.activeMap.mapID))
 		{
-			activeMap.mapID = null; // Unset the activeMap ID if it is the same
+			// Unset the activeMap
+			activeMap = null;
 			this.setState({activeMap: activeMap}, function(){
-				localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
+				localStorage.removeItem("LEMA_activeMap");
 			});
 		}
 
+		// Delete the map
 		axios.delete(`maps/${username}/${mapID}`).then((response) => {
 			this.handleResponse(response, "Map deleted.", null, false);
 			this.closeModal();
@@ -619,9 +629,9 @@ class Lema extends Component
 				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMap={this.state.activeMap}
 				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} logoutUser={this.logoutUser}
 				        editProfile={this.editProfile} deleteProfile={this.deleteProfile}
-				        saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />
+				        newMap={this.newMap} saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />
 				<div className={"main-view-container"}>
-					<LeftBar collections={this.state.collections}
+					<LeftBar activeMap={this.state.activeMap} collections={this.state.collections}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					         addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
