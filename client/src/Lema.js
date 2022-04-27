@@ -53,15 +53,39 @@ class Lema extends Component
 		if(activeUser)
 			this.setState({activeUser: activeUser});
 
-		// Check for activeMap data (mapID, title, description, isShared)
-		const activeMap = JSON.parse(localStorage.getItem("LEMA_activeMap"));
-		if(activeMap)
-			this.setState({activeMap: activeMap});
+		// Check if user has been linked a map
+		const urlParts = window.location.href.split('/');
+		console.log(urlParts);
+		if(urlParts.includes("map"))
+		{
+			const userConfirmed = window.confirm("You are loading another person's map.\nThis will overwrite your currently active map.\n\n" +
+				"Do you wish to continue?");
+			if(userConfirmed)
+			{
+				const username = urlParts[4];
+				const mapID = urlParts[5];
+				axios.get(`/maps/${username}/${mapID}/0`).then((response) => {
+					if(this.handleResponse(response, "User's map retrieved.", null))
+					{
+						this.loadMap(null, response.data.map, "database");
+					}
+				});
+			}
+		}
+		else
+		{
+			// Check for activeMap data (mapID, title, description, isShared)
+			const activeMap = JSON.parse(localStorage.getItem("LEMA_activeMap"));
+			if(activeMap)
+				this.setState({activeMap: activeMap});
 
-		// Check if there are active collections (DISTINCT FROM activeMap!)
-		const activeCollections = JSON.parse(localStorage.getItem("LEMA_activeCollections"));
-		if(activeCollections)
-			this.setState({collections: activeCollections.collections, journeyCount: activeCollections.journeyCount});
+			// Check if there are active collections (DISTINCT FROM activeMap!)
+			const activeCollections = JSON.parse(localStorage.getItem("LEMA_activeCollections"));
+			if(activeCollections)
+				this.setState({collections: activeCollections.collections, journeyCount: activeCollections.journeyCount});
+		}
+
+
 	}
 
 	/**
@@ -76,7 +100,7 @@ class Lema extends Component
 		const password = data.loginPassword;
 		const rememberMe = data.rememberMe; // TODO: This
 
-		axios.get(`users/${username}/${password}`).then((response) => {
+		axios.get(`/users/${username}/${password}`).then((response) => {
 			if(this.handleResponse(response, "User found.", "Login successful!"))
 			{
 				if(rememberMe) localStorage.setItem("LEMA_activeUser", JSON.stringify(response.data.user));
@@ -95,7 +119,7 @@ class Lema extends Component
 		// Register the user
 		const {displayName, username, password, email} = data;
 
-		axios.put(`users/${displayName}/${username}/${password}/${email}`).then((response) => {
+		axios.put(`/users/${displayName}/${username}/${password}/${email}`).then((response) => {
 			this.handleResponse(response, "User created.", "Profile created! You may now log in.");
 		});
 	}
@@ -432,7 +456,7 @@ class Lema extends Component
 	{
 		localStorage.removeItem("LEMA_activeMap");
 		localStorage.removeItem("LEMA_activeCollections");
-		this.setState({activeMap: null, collections: [], journeyCount: 0});
+		window.location.href = "/";
 	}
 
 	/**
@@ -456,7 +480,7 @@ class Lema extends Component
 			if(activeMapID === null || isNewMap)
 			{
 				// Insert new map
-				axios.put(`maps/${username}`, {data: data}).then((response) =>
+				axios.put(`/maps/${username}`, {data: data}).then((response) =>
 				{
 					if(this.handleResponse(response, "Map inserted.", "Map saved!"))
 					{
@@ -470,7 +494,7 @@ class Lema extends Component
 			else
 			{
 				// Update map
-				axios.put(`maps/${username}/${activeMapID}`, {data: data}).then((response) => {
+				axios.put(`/maps/${username}/${activeMapID}`, {data: data}).then((response) => {
 					if(this.handleResponse(response, "Map data updated.", "Map saved!"))
 					{
 						this.setState({activeMap: response.data.activeMap}, function(){
@@ -541,7 +565,7 @@ class Lema extends Component
 		}
 
 		// Delete the map
-		axios.delete(`maps/${username}/${mapID}`).then((response) => {
+		axios.delete(`/maps/${username}/${mapID}`).then((response) => {
 			this.handleResponse(response, "Map deleted.", null, false);
 			this.closeModal();
 			this.openModal(e, <ViewMapsModal loadMap={this.loadMap} deleteMap={this.deleteMap} activeUser={this.state.activeUser} />);
@@ -552,7 +576,7 @@ class Lema extends Component
 	{
 		let activeUser = this.state.activeUser;
 		const username = activeUser.username;
-		axios.put(`users/${username}`, {data: data}).then((response) => {
+		axios.put(`/users/${username}`, {data: data}).then((response) => {
 			if(this.handleResponse(response, "User profile updated.", "Profile updated!"))
 			{
 				activeUser = {
@@ -567,7 +591,7 @@ class Lema extends Component
 	deleteProfile(e)
 	{
 		const username = this.state.activeUser.username;
-		axios.delete(`users/${username}`).then((response) => {
+		axios.delete(`/users/${username}`).then((response) => {
 			if(this.handleResponse(response, "User profile and maps deleted.", "User profile and maps deleted!"))
 			{
 				this.logoutUser(e, true);

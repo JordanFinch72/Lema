@@ -107,7 +107,7 @@ export class CollectionArea extends Component
 		const mapID = (this.props.activeMap) ?
 			(this.props.activeMap.mapID !== null) ?
 				<div className={"id"}> Attached to profile (ID: {this.props.activeMap.mapID})</div> :
-				<div className={"id"}> Imported from file</div>
+				<div className={"id"}> Loaded from file or link</div>
 			: "";
 
 		return (

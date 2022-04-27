@@ -89,6 +89,43 @@ router.get("/:username/:sharedOnly", function(req, res, next)
 	});
 });
 
+/* Retrieve specific map belonging to a particular user and optionally filter for maps that have been shared */
+router.get("/:username/:mapID/:sharedOnly", function(req, res, next)
+{
+	const username = req.params.username;
+	const mapID = req.params.mapID;
+	const sharedOnly = req.params.sharedOnly;
+
+	// Retrieve all maps
+	db.allDocs({
+		include_docs: true,
+		startkey: `map_${username}_${mapID}`,
+		endkey: `map_${username}_${mapID}\ufff0`
+	}).then(function(result)
+	{
+		const rows = result.rows;
+		if(sharedOnly === "1" && !rows[0].doc.isShared)
+			res.send({type: "error", message: "Error: This map's owner has not made the map shareable."});
+		else
+		{
+			// Strip extraneous data
+			const map = {
+				activeMap: {
+					mapID: null, // null so that non-owner user doesn't save it to their own profile
+					title: rows[0].doc.title,
+					description: rows[0].doc.description,
+					isShared: rows[0].doc.isShared
+				},
+				mapData: rows[0].doc.mapData
+			};
+			res.send({type: "success", message: "User's map retrieved.", map: map});
+		}
+	}).catch(function(error)
+	{
+		res.send({type: "error", message: "Error: " + error.error});
+	});
+});
+
 /* Put new map */
 router.put("/:username/", function(req, res, next)
 {

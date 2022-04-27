@@ -233,6 +233,10 @@ div.modal div.top div.left h2, div.modal div.top div.right h2, div.modal div.top
 div.modal div.top div.left {
     width: 20em;
 }
+div.modal div.top div.left.load {
+    width: initial;
+    min-width: 20em;
+}
 div.modal div.top div.right {
     width: 20em;
 }

@@ -18,6 +18,13 @@ class MapItem extends Component
 				{/* Flex-row */}
 				<div className={"title"}>{this.props.map.activeMap.title}</div>
 				<div className={"buttons-container"}>
+					<Button value={"SHARE LINK"} onClick={(e) => {
+						const domain = "http://localhost:3000/"; // Major TODO: Update this when hosted
+						const link = `http://localhost:3000/map/${this.props.activeUser.username}/${this.props.map.activeMap.mapID}`;
+						alert("Here is the link to your map: " + link + "\n\n" +
+							"This will not share your map to the showcase, but anybody with the link can access it.\n" +
+							"Whenever you save your map, your changes will be reflected by this link.");
+					}} />
 					<Button value={"LOAD"} onClick={(e) => {
 						const userConfirmed = window.confirm("This will overwrite your currently active map.\nYou may wish to save your map before you load another one.\n\nWould you like to continue?");
 
@@ -56,7 +63,7 @@ export class ViewMapsModal extends Component
 	{
 		// Fetch maps belonging to this user
 		const username = this.props.activeUser.username;
-		axios.get(`maps/${username}/0`).then((response) =>
+		axios.get(`/maps/${username}/0`).then((response) =>
 		{
 			console.log(response);
 			if(response.data.type === "error")
@@ -105,7 +112,7 @@ export class ViewMapsModal extends Component
 	render()
 	{
 		let mapItems = [];
-		this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem map={m} loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
+		this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem activeUser={this.props.activeUser} map={m} loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
 		if(this.state.loading)
 			mapItems = "Loading...";
 		else if(mapItems.length === 0)
