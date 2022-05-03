@@ -13,8 +13,14 @@ export class Banner extends Component
 
 	render()
 	{
-		let showcase = null;
-		let text = "Save your maps and share them with the community:";
+		const showcaseText = (this.props.isShowcaseMode) ? "Hide Community Showcase" : "Show Community Showcase";
+		const showcase =
+			<div className={"showcase-button"} onClick={(e) => {
+				this.props.toggleShowcaseMode(e);
+			}}>
+				{showcaseText}
+			</div>;
+
 		let buttons = [
 			<div className={"login-button"} onClick={(e) => {
 				this.props.openModal(e, <LoginRegisterModal mode={"login"} handler={this.props.authenticateUser} />);
@@ -22,21 +28,13 @@ export class Banner extends Component
 				Log In
 			</div>,
 			<div className={"register-button"} onClick={(e) => {
-				this.props.openModal(e, <LoginRegisterModal mode={"register"} handler={this.props.registerUser} />);
+				this.props.openModal(e, <LoginRegisterModal mode={"register"} handler={this.props.registerUser} openModal={this.props.openModal} />);
 			}}>
 				Register
 			</div>
 		];
 		if(this.props.activeUser)
 		{
-			text = "";
-			const showcaseText = (this.props.isShowcaseMode) ? "Hide Community Showcase" : "Show Community Showcase";
-			showcase =
-					<div className={"showcase-button"} onClick={(e) => {
-						this.props.toggleShowcaseMode(e);
-					}}>
-						{showcaseText}
-					</div>;
 			buttons = [
 				<div className={"new-map-button"} onClick={(e) => {
 					const userConfirmed = window.confirm("This will wipe your currently active map so that you can start from scratch.\n" +
@@ -66,15 +64,12 @@ export class Banner extends Component
 			];
 		}
 
-		const loggedIn = (this.props.activeUser) ? " logged-in" : "";
-
 		return(
-			<div className={"banner-container" + loggedIn}>
+			<div className={"banner-container"}>
 				<h2>LEMA: Linguistic Etymology Map Assistant</h2>
 				<div className={"buttons-container"}>
 					{showcase}
 				</div>
-				<p>{text}</p>
 				<div className={"buttons-container"}>
 					{buttons}
 				</div>

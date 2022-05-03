@@ -49,7 +49,7 @@ class Lema extends Component
 	}
 
 	/**
-	 * As part of React's call stack, this function is automatically called once the component is rendered ("mounted"),
+	 * As part of React's lifecycle, this function is automatically called once the component is rendered ("mounted"),
 	 * i.e. at page load/refresh (when the component is created).
 	 */
 	componentDidMount()
@@ -254,10 +254,11 @@ class Lema extends Component
 	 * Opens a modal if one is not already open.
 	 * @param e SyntheticEvent
 	 * @param modalComponent React component of the modal that is to be opened.
+	 * @param forceClose Whether to close active modals first.
 	 */
-	openModal(e, modalComponent)
+	openModal(e, modalComponent, forceClose = false)
 	{
-		if(!this.state.activeModal)
+		if(!this.state.activeModal || forceClose)
 			this.setState({activeModal: modalComponent});
 	}
 

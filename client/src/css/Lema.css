@@ -10,8 +10,10 @@ html, body, div#root {
 }
 
 span[title] {
+    display: flex;
     margin: 0px 0.3em;
     text-decoration: underline 1px dashed black;
+    justify-self: flex-start;
 }
 
 /* Banner */
@@ -21,7 +23,7 @@ div.banner-container {
     border-bottom: 1px solid black;
 }
 div.banner-container h2 {
-    flex-basis: 60%;
+    flex: 2;
 }
 div.banner-container p {
     display: flex;
@@ -30,12 +32,9 @@ div.banner-container p {
 }
 div.banner-container div.buttons-container {
     display: flex;
-    flex-basis: 20%;
+    flex: 2;
     justify-content: space-evenly;
     align-items: center;
-}
-div.banner-container.logged-in div.buttons-container {
-    flex-basis: 30%;
 }
 div.banner-container div.buttons-container div {
     display: flex;
@@ -44,6 +43,7 @@ div.banner-container div.buttons-container div {
     width: 100%;
     height: 100%;
     text-align: center;
+    border-left: 1px solid black;
 }
 div.banner-container div.buttons-container div:hover {
     background-color: rgba(0, 0, 0, 0.5);
@@ -101,6 +101,7 @@ div.search-container div.mode-selection {
     display: flex;
     flex-flow: row;
     width: 100%;
+    justify-content: space-between;
 }
 
 div.search-container div.textbox {
@@ -112,8 +113,12 @@ div.search-container div.textbox input {
 div.search-container div.mode-selection div.radio-group {
     display: flex;
     flex-flow: row;
-    justify-content: flex-start;
-    width: 100%;
+    flex-basis: 60%;
+}
+div.search-container div.mode-selection div.button {
+    display: flex;
+    flex-basis: 55%;
+    justify-content: flex-end;
 }
 div.radio-group div.radio-button {
     display: flex;
