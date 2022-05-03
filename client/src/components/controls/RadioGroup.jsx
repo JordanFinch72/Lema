@@ -27,31 +27,17 @@ export class RadioGroup extends Component
 	{
 		super(props);
 		this.state = {
-			buttons: this.props.buttons,
-			name: this.props.name
 		};
 
 		this.onRadioButtonClick = this.props.onRadioButtonClick.bind(this);
 	}
 
-	updateGroup(id)
-	{
-		// Update the state of the buttons
-		const oldButtons = this.state.buttons;
-		for(let i = 0; i < oldButtons.length; ++i)
-		{
-			oldButtons[i].active = (i === id);
-		}
-		this.setState({buttons: oldButtons});
-	}
-
 	render()
 	{
-		const buttonElements = this.state.buttons.map((button, index) =>
+		const buttonElements = this.props.buttons.map((button, index) =>
 		{
 			return <RadioButton active={button.active} label={button.label} name={this.props.name} id={index}
 			                    onRadioButtonClick={(e, id) => {
-									this.updateGroup(id); // Internal RadioGroup state update
 									this.onRadioButtonClick(e, {state: this.state, id: id}); // External handler call
 								}} key={index}/>;
 		});

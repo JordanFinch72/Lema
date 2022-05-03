@@ -13,6 +13,7 @@ export class Banner extends Component
 
 	render()
 	{
+		let showcase = null;
 		let text = "Save your maps and share them with the community:";
 		let buttons = [
 			<div className={"login-button"} onClick={(e) => {
@@ -29,6 +30,13 @@ export class Banner extends Component
 		if(this.props.activeUser)
 		{
 			text = "";
+			const showcaseText = (this.props.isShowcaseMode) ? "Hide Community Showcase" : "Show Community Showcase";
+			showcase =
+					<div className={"showcase-button"} onClick={(e) => {
+						this.props.toggleShowcaseMode(e);
+					}}>
+						{showcaseText}
+					</div>;
 			buttons = [
 				<div className={"new-map-button"} onClick={(e) => {
 					const userConfirmed = window.confirm("This will wipe your currently active map so that you can start from scratch.\n" +
@@ -47,9 +55,6 @@ export class Banner extends Component
 				}}>
 					View Maps / Import
 				</div>,
-				<div className={"showcase-button"}>
-					Community Showcase
-				</div>,
 				<div className={"settings-button"} onClick={(e) => {
 					this.props.openModal(e, <ProfileSettingsModal editProfile={this.props.editProfile} deleteProfile={this.props.deleteProfile} activeUser={this.props.activeUser} />);
 				}}>
@@ -66,6 +71,9 @@ export class Banner extends Component
 		return(
 			<div className={"banner-container" + loggedIn}>
 				<h2>LEMA: Linguistic Etymology Map Assistant</h2>
+				<div className={"buttons-container"}>
+					{showcase}
+				</div>
 				<p>{text}</p>
 				<div className={"buttons-container"}>
 					{buttons}

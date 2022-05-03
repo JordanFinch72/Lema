@@ -31,12 +31,15 @@ router.get("/:sharedOnly", function(req, res, next)
 		for(let i = 0; i < rows.length; ++i)
 		{
 			const map = rows[i];
+			const idParts = map.doc._id.split("_");
+
 			maps.push({
 				activeMap: {
-					mapID: map.doc._id.split("_")[2], // Just the number
+					mapID: idParts[2], // The ID
 					title: map.doc.title,
 					description: map.doc.description,
 					isShared: map.doc.isShared,
+					owner: idParts[1]
 				},
 				mapData: map.doc.mapData
 			});

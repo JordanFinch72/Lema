@@ -56,6 +56,7 @@ div.main-view-container {
     display: flex;
     flex-flow: row;
     height: 100%;
+    overflow: hidden;
 }
 
 div.left-bar-container {
@@ -76,23 +77,30 @@ div.search-container {
     flex-flow: row wrap;
     padding: 0.2em;
 }
+div.search-container h3 {
+    text-align: center;
+    width: 100%;
+    margin: 0.5em 0;
+}
 div.search-container div.search-fields {
     display: flex;
     flex-flow: row;
     flex-basis: 100%;
-    justify-content: space-evenly;
 }
 div.search-container div.search-fields div.textbox, div.search-container div.search-fields select {
-    flex-basis: 48%;
+
 }
 div.search-container div.affixes-selection {
     display: flex;
     flex-flow: row wrap;
     flex-basis: 100%;
+    justify-content: flex-start;
+    align-items: center;
 }
 div.search-container div.mode-selection {
     display: flex;
     flex-flow: row;
+    width: 100%;
 }
 
 div.search-container div.textbox {
@@ -104,6 +112,8 @@ div.search-container div.textbox input {
 div.search-container div.mode-selection div.radio-group {
     display: flex;
     flex-flow: row;
+    justify-content: flex-start;
+    width: 100%;
 }
 div.radio-group div.radio-button {
     display: flex;
@@ -125,11 +135,13 @@ div.collections-container {
     border-top: 1px solid black;
     align-items: center;
     overflow-y: auto;
+    overflow-x: hidden;
 }
-div.collections-container h2 {
+div.collections-container h3 {
     display: flex; /* This is somewhat cursed but it works */
     flex-flow: column;
     align-items: center;
+    margin: 0.5em 0 0;
 }
 div.collections-container div.id {
     font-size: 0.5em;
@@ -140,18 +152,18 @@ div.collections-container div.header-container
     display: flex;
     align-items: center;
 }
-div.collections-container div.header-container h3
+div.collections-container div.header-container h4
 {
     margin-right: 0.5em;
 }
-div.collection-container {
+div.collection-container, div.showcase-container {
     display: flex;
     flex-flow: column;
     align-items: center;
     width: 100%;
     margin-bottom: 1em;
 }
-div.collection-header {
+div.collection-header, div.showcase-header {
     display: flex;
     flex-flow: row;
     justify-content: center;
@@ -160,18 +172,22 @@ div.collection-header {
     border: 1px solid black;
     padding: 0.7em 0;
 }
-div.collection-header div {
+div.showcase-header {
+    margin-top: 1em;
+}
+div.collection-header div, div.showcase-header div {
     display: flex;
     flex-flow: row;
     flex-basis: 33%;
     justify-content: center;
     text-align: center;
+    font-weight: 600;
 }
 div.collection-header div.meatball-collapser-container div {
     flex-basis: 15%;
 }
 
-div.collection-node {
+div.collection-node, div.community-map {
     display: flex;
     flex-flow: row;
     justify-content: center;
@@ -180,7 +196,11 @@ div.collection-node {
     border: 1px solid black;
     padding: 0.7em 0;
 }
-div.collection-node div {
+div.community-map:hover {
+    cursor: pointer;
+    background-color: rgba(196,196,196,0.2);
+}
+div.collection-node div, div.community-map div {
     display: flex;
     flex-flow: row;
     flex-basis: 33%;

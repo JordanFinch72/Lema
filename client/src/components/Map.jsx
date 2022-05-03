@@ -317,7 +317,6 @@ export function Map(props)
 					return editNode(null, journeyNodeObject.collectionIndex, node);
 				}
 
-
 				// Prepare text element. This is required to calculate circle radius based on text element's width
 				const vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
 				const preparedText = vertexG.append("text")

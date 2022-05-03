@@ -14,6 +14,7 @@ const db = new PouchDB("http://localhost:5984/lema", {
 const bcrypt = require("bcrypt");
 const saltRounds = 10; // Number of rounds to salt (recommended by bcrypt author)
 
+
 /* Retrieve user by username and (salt-hashed) password */
 router.get("/:username/:password", function(req, res, next)
 {

@@ -16,11 +16,12 @@ export class LeftBar extends Component
 	{
 		return (
 			<div className={"left-bar-container"}>
-				<ControlBox addJourneyFromDatabase={this.props.addJourneyFromDatabase} />
+				<ControlBox addJourneyFromDatabase={this.props.addJourneyFromDatabase} isShowcaseMode={this.props.isShowcaseMode} />
 				<CollectionArea activeMap={this.props.activeMap} collections={this.props.collections}
+				                isShowcaseMode={this.props.isShowcaseMode}
 				                mapMode={this.state.mapMode} openModal={this.props.openModal} closeModal={this.props.closeModal}
 				                openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}
-				                addNode={this.props.addNode} editNode={this.props.editNode} editNodeColour={this.props.editNodeColour} removeNode={this.props.removeNode}
+				                addNode={this.props.addNode} editNode={this.props.editNode} removeNode={this.props.removeNode}
 				                addCollection={this.props.addCollection} editCollection={this.props.editCollection} removeCollection={this.props.removeCollection}
 				/>
 			</div>

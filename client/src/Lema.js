@@ -18,7 +18,8 @@ class Lema extends Component
 			activeUser: null,        // Set upon user login
 			activeMap: null,         // Either null, set by load function, or set by save function once saved to profile
 			collections: [],
-			journeyCount: 0
+			journeyCount: 0,
+			isShowcaseMode: false
 		};
 
 		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"] // TODO: Better colours
@@ -40,12 +41,17 @@ class Lema extends Component
 		this.logoutUser = this.logoutUser.bind(this);
 		this.editProfile = this.editProfile.bind(this);
 		this.deleteProfile = this.deleteProfile.bind(this);
+		this.toggleShowcaseMode = this.toggleShowcaseMode.bind(this);
 		this.newMap = this.newMap.bind(this);
 		this.saveMap = this.saveMap.bind(this);
 		this.loadMap = this.loadMap.bind(this);
 		this.deleteMap = this.deleteMap.bind(this);
 	}
 
+	/**
+	 * As part of React's call stack, this function is automatically called once the component is rendered ("mounted"),
+	 * i.e. at page load/refresh (when the component is created).
+	 */
 	componentDidMount()
 	{
 		// Check if user is already logged in
@@ -82,7 +88,29 @@ class Lema extends Component
 			// Check if there are active collections (DISTINCT FROM activeMap!)
 			const activeCollections = JSON.parse(localStorage.getItem("LEMA_activeCollections"));
 			if(activeCollections)
-				this.setState({collections: activeCollections.collections, journeyCount: activeCollections.journeyCount});
+				this.setState({collections: activeCollections.collections, journeyCount: activeCollections.journeyCount}, function() {
+					/* Repair parent links: memory references are lost when serialising to and from JSON string */
+					/* Justification for O(n^4): this callback function only runs once when user refreshes/re-enters the page;
+					and the arrays involved will never be large enough for it to be an issue. Future solution: autosave to PouchDB. */
+					for(let i = 0; i < this.state.collections.length; ++i) // Loop through collections
+					{
+						const collection = this.state.collections[i];
+						for(let j = 0; j < collection.words.length; ++j) // Loop through words
+						{
+							const word = collection.words[j];
+							for(let n = 0; n < word.parents.length; ++n) // Loop through parents
+							{
+								const parent = word.parents[n];
+								for(let x = 0; x < collection.words.length; ++x) // Loop through words again
+								{
+									const parentWord = collection.words[x];
+									if(parent.id === parentWord.id)
+										word.parents[n] = parentWord;
+								}
+							}
+						}
+					}
+				});
 		}
 
 
@@ -264,10 +292,21 @@ class Lema extends Component
 	}
 
 	/**
+	 * Toggles showcase mode.
+	 * @param toggle Optional parameter to force showcase to switch to either true or false.
+	 */
+	toggleShowcaseMode(e, toggle = null)
+	{
+		const isShowcaseMode = (toggle !== null) ? toggle : !this.state.isShowcaseMode;
+		this.setState({isShowcaseMode: isShowcaseMode});
+	}
+
+	/**
 	 * Adds a node to the specified collection in the state's collection array.
 	 * @param e SyntheticEvent
 	 * @param collectionIndex The index of the collection to which the new node will belong.
 	 * @param newNode The new node.
+	 * @param newCollectionIndex Optional parameter to set the node to a new/different collection.
 	 */
 	addNode(e, collectionIndex, newNode, newCollectionIndex = null)
 	{
@@ -311,6 +350,7 @@ class Lema extends Component
 	 * @param e React SyntheticEvent
 	 * @param collectionIndex Index of collection to which the node belongs.
 	 * @param updatedNode The updated node to be set in the collections array.
+	 * @param newCollectionIndex Optional parameter to set the node to a new collection.
 	 */
 	editNode(e, collectionIndex, updatedNode, newCollectionIndex = null)
 	{
@@ -651,11 +691,13 @@ class Lema extends Component
 		return (
 			<div className="Lema">
 				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMap={this.state.activeMap}
+				        isShowcaseMode={this.state.isShowcaseMode}
 				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} logoutUser={this.logoutUser}
-				        editProfile={this.editProfile} deleteProfile={this.deleteProfile}
+				        editProfile={this.editProfile} deleteProfile={this.deleteProfile} toggleShowcaseMode={this.toggleShowcaseMode}
 				        newMap={this.newMap} saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />
 				<div className={"main-view-container"}>
 					<LeftBar activeMap={this.state.activeMap} collections={this.state.collections}
+					         isShowcaseMode={this.state.isShowcaseMode}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					         addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
@@ -663,6 +705,7 @@ class Lema extends Component
 					         addJourneyFromDatabase={this.addJourneyFromDatabase}
 					/>
 					<Map collections={this.state.collections}
+					     isShowcaseMode={this.state.isShowcaseMode}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					     openModal={this.openModal} closeModal={this.closeModal}
 						 addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
