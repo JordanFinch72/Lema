@@ -123,7 +123,7 @@ export class AddEditNodeModal extends Component
 			collectionInput =
 				<select name={"collection"} defaultValue={currentCollection} onChange={(e) => {
 					const newCollectionIndex = this.state.collectionList[e.target.selectedIndex].collectionIndex; // Find collectionIndex of selected option
-					this.setState({collectionIndex: newCollectionIndex}, () => {alert(this.state.collectionIndex)});
+					this.setState({collectionIndex: newCollectionIndex});
 				}}>
 					{options}
 				</select>
@@ -340,7 +340,6 @@ export class AddEditNodeModal extends Component
 								}
 
 								const newCollectionIndex = (this.state.collectionIndex !== this.props.collectionIndex) ? this.state.collectionIndex : null;
-								alert(newCollectionIndex);
 								this.props.onNodeSubmit(e, this.props.collectionIndex, updatedNode, newCollectionIndex);
 							}
 						}} />

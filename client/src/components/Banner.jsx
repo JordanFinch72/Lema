@@ -23,12 +23,12 @@ export class Banner extends Component
 
 		let buttons = [
 			<div className={"login-button"} onClick={(e) => {
-				this.props.openModal(e, <LoginRegisterModal mode={"login"} handler={this.props.authenticateUser} />);
+				this.props.openModal(e, <LoginRegisterModal mode={"login"} handler={this.props.authenticateUser} createToast={this.props.createToast} />);
 			}}>
 				Log In
 			</div>,
 			<div className={"register-button"} onClick={(e) => {
-				this.props.openModal(e, <LoginRegisterModal mode={"register"} handler={this.props.registerUser} openModal={this.props.openModal} />);
+				this.props.openModal(e, <LoginRegisterModal mode={"register"} handler={this.props.registerUser} openModal={this.props.openModal} createToast={this.props.createToast} />);
 			}}>
 				Register
 			</div>
@@ -44,17 +44,17 @@ export class Banner extends Component
 					New Map
 				</div>,
 				<div className={"save-button"} onClick={(e) => {
-					this.props.openModal(e, <SaveModal handler={this.props.saveMap} activeMap={this.props.activeMap} />);
+					this.props.openModal(e, <SaveModal handler={this.props.saveMap} activeMap={this.props.activeMap} createToast={this.props.createToast} />);
 				}}>
 					Save Map / Export
 				</div>,
 				<div className={"view-maps-button"} onClick={(e) => {
-					this.props.openModal(e, <ViewMapsModal loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} activeUser={this.props.activeUser} />);
+					this.props.openModal(e, <ViewMapsModal loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} activeUser={this.props.activeUser} openModal={this.props.openModal} />);
 				}}>
 					View Maps / Import
 				</div>,
 				<div className={"settings-button"} onClick={(e) => {
-					this.props.openModal(e, <ProfileSettingsModal editProfile={this.props.editProfile} deleteProfile={this.props.deleteProfile} activeUser={this.props.activeUser} />);
+					this.props.openModal(e, <ProfileSettingsModal editProfile={this.props.editProfile} deleteProfile={this.props.deleteProfile} activeUser={this.props.activeUser} createToast={this.props.createToast} />);
 				}}>
 					Profile Settings
 				</div>,

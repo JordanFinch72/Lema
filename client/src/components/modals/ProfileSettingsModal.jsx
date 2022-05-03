@@ -47,7 +47,7 @@ export class ProfileSettingsModal extends Component
 
 		if(errorCollector !== "")
 		{
-			alert(errorCollector); // TODO: Proper response toasts
+			this.props.createToast(null, errorCollector, 5000, "error");
 			return false;
 		}
 		else return true;

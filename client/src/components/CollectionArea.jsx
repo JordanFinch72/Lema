@@ -31,7 +31,7 @@ export class CollectionArea extends Component
 				if(response.data.type === "error")
 				{
 					console.error(response.data.message);
-					alert(response.data.message);
+					this.props.createToast(null, response.data.message, 5000, "error");
 				}
 				else if(response.data.type === "success")
 				{
@@ -142,7 +142,7 @@ export class CollectionArea extends Component
 				if(typeof collection !== "undefined")
 				{
 					const component = <Collection
-						collections={this.props.collections}
+						collections={this.props.collections} createToast={this.props.createToast}
 						key={index} index={index} type={collection.type} header={collection.header} openModal={this.props.openModal}
 						words={collection.words} editCollection={this.props.editCollection}
 						openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}

@@ -3,6 +3,7 @@ import {Textbox} from "../controls/Textbox";
 import {Button} from "../controls/Button";
 import {LabeledControl} from "../controls/LabeledControl";
 import axios from "axios";
+import {GenericModal} from "./GenericModal";
 
 class MapItem extends Component
 {
@@ -21,9 +22,15 @@ class MapItem extends Component
 					<Button value={"SHARE LINK"} onClick={(e) => {
 						const domain = "http://localhost:3000/"; // Major TODO: Update this when hosted
 						const link = `http://localhost:3000/map/${this.props.activeUser.username}/${this.props.map.activeMap.mapID}`;
-						alert("Here is the link to your map: " + link + "\n\n" +
-							"This will not share your map to the showcase, but anybody with the link can access it.\n" +
-							"Whenever you save your map, your changes will be reflected by this link.");
+						const linkModal =
+							<GenericModal>
+								<p>
+									Here is the link to your map: <a href={link}>{link}</a><br /><br />
+									This will not share your map to the showcase, but anybody with the link can access it.<br />
+									Whenever you save your map, your changes will be shown via this same link.
+								</p>
+							</GenericModal>
+						this.props.openModal(null, linkModal, true);
 					}} />
 					<Button value={"LOAD"} onClick={(e) => {
 						const userConfirmed = window.confirm("This will overwrite your currently active map.\nYou may wish to save your map before you load another one.\n\nWould you like to continue?");
@@ -93,26 +100,11 @@ export class ViewMapsModal extends Component
 		});
 	}
 
-	/**
-	 * Validates file upload.
-	 * @returns {boolean}
-	 */
-	validate()
-	{
-		/*let errorCollector = "";
-
-		 if(errorCollector !== "")
-		 {
-		 alert(errorCollector);
-		 return false;
-		 }
-		 else return true;*/
-	}
-
 	render()
 	{
 		let mapItems = [];
-		this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem activeUser={this.props.activeUser} map={m} loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
+		this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem activeUser={this.props.activeUser} map={m} openModal={this.props.openModal}
+		                                                            loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
 		if(this.state.loading)
 			mapItems = "Loading...";
 		else if(mapItems.length === 0)

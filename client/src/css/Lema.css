@@ -2,6 +2,9 @@ html, body, div#root {
     height: 100%;
     width: 100%;
 }
+h1, h2, h3, h4 {
+    font-weight: 600;
+}
 
 .Lema {
     display: flex;
@@ -13,17 +16,21 @@ span[title] {
     display: flex;
     margin: 0px 0.3em;
     text-decoration: underline 1px dashed black;
-    justify-self: flex-start;
 }
 
 /* Banner */
 div.banner-container {
     display: flex;
     flex-flow: row;
+    background-color: hsl(226deg 35% 30%);
+    color: white;
     border-bottom: 1px solid black;
+    max-height: 10%;
 }
 div.banner-container h2 {
     flex: 2;
+    text-align: center;
+    cursor: default;
 }
 div.banner-container p {
     display: flex;
@@ -43,7 +50,7 @@ div.banner-container div.buttons-container div {
     width: 100%;
     height: 100%;
     text-align: center;
-    border-left: 1px solid black;
+    border-left: 1px solid white;
 }
 div.banner-container div.buttons-container div:hover {
     background-color: rgba(0, 0, 0, 0.5);
@@ -113,11 +120,12 @@ div.search-container div.textbox input {
 div.search-container div.mode-selection div.radio-group {
     display: flex;
     flex-flow: row;
-    flex-basis: 60%;
+}
+div.search-container div.mode-selection span[title] {
+    flex-basis: 25%;
 }
 div.search-container div.mode-selection div.button {
     display: flex;
-    flex-basis: 55%;
     justify-content: flex-end;
 }
 div.radio-group div.radio-button {
@@ -216,6 +224,34 @@ div.collection-node div.buttons-container div {
     flex-basis: 15%;
 }
 
+/* Toast */
+div.toast-container {
+    position: absolute;
+    bottom: 2em;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 1001;
+}
+div.toast-container div.toast {
+    display: flex;
+    flex-flow: column wrap;
+    border-radius: 5px 5px 5px 5px;
+    padding: 1em;
+    box-shadow: 0px 0px 15px 1px;
+    align-items: center;
+    background-color: white;
+    max-width: 30%;
+    white-space: break-spaces;
+}
+div.toast-container div.toast.success {
+    border: 2px solid green;
+}
+div.toast-container div.toast.error {
+    border: 2px solid red;
+}
+
 /* Modals */
 div.modal-container {
     position: absolute;
@@ -224,6 +260,7 @@ div.modal-container {
     height: 100%;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
 }
 div.modal {
     display: flex;

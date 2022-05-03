@@ -5,6 +5,7 @@ import {LeftBar} from "./components/LeftBar";
 import {Map} from "./components/Map";
 import axios from "axios";
 import {ViewMapsModal} from "./components/modals/ViewMapsModal";
+import {Toast} from "./components/Toast";
 
 class Lema extends Component
 {
@@ -13,6 +14,7 @@ class Lema extends Component
 		super(props);
 
 		this.state = {
+			activeToast: null,       // Either null or a React component
 			activeModal: null,       // Either null or a React component
 			activeContextMenu: null, // Either null or a React component
 			activeUser: null,        // Set upon user login
@@ -22,9 +24,11 @@ class Lema extends Component
 			isShowcaseMode: false
 		};
 
+		this.toastTimeout = null;
 		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"] // TODO: Better colours
 
 		this.flattenTree = this.flattenTree.bind(this);
+		this.createToast = this.createToast.bind(this);
 		this.openModal = this.openModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.openContextMenu = this.openContextMenu.bind(this);
@@ -251,6 +255,27 @@ class Lema extends Component
 	}
 
 	/**
+	 * Creates a
+	 * @param e SyntheticEvent
+	 * @param contents HTML contents to be displayed in the toast.
+	 * @param time Time in ms to keep the toast open
+	 * @param type What type of alert the toast is showing: neutral, error, or success
+	 */
+	createToast(e, contents, time = 5000, type = "neutral")
+	{
+		const toast =
+			<Toast type={type}>
+				{contents}
+			</Toast>
+		this.setState({activeToast: toast}, function(){
+			window.clearTimeout(this.toastTimeout);
+			this.toastTimeout = window.setTimeout(() => {
+				this.setState({activeToast: null});
+			}, time);
+		})
+	}
+
+	/**
 	 * Opens a modal if one is not already open.
 	 * @param e SyntheticEvent
 	 * @param modalComponent React component of the modal that is to be opened.
@@ -331,7 +356,7 @@ class Lema extends Component
 		}
 
 		if(errorCollector.length > 0)
-			alert(errorCollector); // TODO: Proper error message with toast
+			this.createToast(null, errorCollector, 7000, "error");
 		else
 		{
 			// Insert new node
@@ -415,7 +440,6 @@ class Lema extends Component
 				{
 					if(word.parents[j].id === node.id)
 					{
-						alert("Found a parent! Get ready to splice!")
 						word.parents.splice(j, 1);
 					}
 				}
@@ -440,7 +464,7 @@ class Lema extends Component
 
 		// Only one cognate allowed, for now // TODO
 		if(data.type === "cognate" && newCollections.find(e => e.type === "cognate") !== undefined)
-			alert("Support for multiple cognate collections coming soon!");
+			this.createToast(e, "Support for multiple cognate collections coming soon!");
 		else
 		{
 			if(data.type === "journey")
@@ -654,14 +678,14 @@ class Lema extends Component
 		if(response.data.type === "error")
 		{
 			console.error(response.data.message);
-			alert(response.data.message);
+			this.createToast(null, response.data.message, 5000, "error");
 		}
 		else if(response.data.type === "success")
 		{
 			console.log(response.data);
 			if(response.data.message === successMessage)
 			{
-				if(successAlert) alert(successAlert);
+				if(successAlert) this.createToast(null, successAlert, 5000, "success");
 				if(closeModal) this.closeModal();
 				return true;
 			}
@@ -671,12 +695,21 @@ class Lema extends Component
 	render()
 	{
 		// Render any active modals and context menus
-		let modalContainer = null, contextMenuContainer = null;
+		let toastContainer = null, modalContainer = null, contextMenuContainer = null;
+		if(this.state.activeToast !== null)
+		{
+			const activeToast = this.state.activeToast;
+			toastContainer =
+				<div className={"toast-container"}>
+					{activeToast}
+				</div>
+		}
+
 		if(this.state.activeModal !== null)
 		{
 			const activeModal = this.state.activeModal;
 			modalContainer =
-				<div className={"modal-container"} onClick={(e) =>{
+				<div className={"modal-container"} onClick={(e) => {
 					if(e.nativeEvent.target.className === "modal-container") this.closeModal(); // Closes modal if they click off the modal
 				}}>
 					{activeModal}
@@ -692,13 +725,13 @@ class Lema extends Component
 		return (
 			<div className="Lema">
 				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMap={this.state.activeMap}
-				        isShowcaseMode={this.state.isShowcaseMode}
+				        isShowcaseMode={this.state.isShowcaseMode} createToast={this.createToast}
 				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} logoutUser={this.logoutUser}
 				        editProfile={this.editProfile} deleteProfile={this.deleteProfile} toggleShowcaseMode={this.toggleShowcaseMode}
 				        newMap={this.newMap} saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />
 				<div className={"main-view-container"}>
 					<LeftBar activeMap={this.state.activeMap} collections={this.state.collections}
-					         isShowcaseMode={this.state.isShowcaseMode}
+					         isShowcaseMode={this.state.isShowcaseMode} createToast={this.createToast}
 					         openModal={this.openModal} closeModal={this.closeModal}
 					         openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					         addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
@@ -706,12 +739,13 @@ class Lema extends Component
 					         addJourneyFromDatabase={this.addJourneyFromDatabase}
 					/>
 					<Map collections={this.state.collections}
-					     isShowcaseMode={this.state.isShowcaseMode}
+					     isShowcaseMode={this.state.isShowcaseMode} createToast={this.createToast}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					     openModal={this.openModal} closeModal={this.closeModal}
 						 addNode={this.addNode} editNode={this.editNode} removeNode={this.removeNode}
 					/>
 				</div>
+				{toastContainer}
 				{modalContainer}
 				{contextMenuContainer}
 			</div>

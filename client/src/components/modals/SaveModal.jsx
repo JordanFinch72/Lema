@@ -49,7 +49,7 @@ export class SaveModal extends Component
 
 		if(errorCollector !== "")
 		{
-			alert(errorCollector);
+			this.props.createToast(null, errorCollector, 5000, "error");
 			return false;
 		}
 		else return true;

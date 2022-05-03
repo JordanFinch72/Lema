@@ -16,9 +16,9 @@ export class LeftBar extends Component
 	{
 		return (
 			<div className={"left-bar-container"}>
-				<ControlBox addJourneyFromDatabase={this.props.addJourneyFromDatabase} isShowcaseMode={this.props.isShowcaseMode} />
+				<ControlBox addJourneyFromDatabase={this.props.addJourneyFromDatabase} isShowcaseMode={this.props.isShowcaseMode} createToast={this.props.createToast} />
 				<CollectionArea activeMap={this.props.activeMap} collections={this.props.collections}
-				                isShowcaseMode={this.props.isShowcaseMode}
+				                isShowcaseMode={this.props.isShowcaseMode} createToast={this.props.createToast}
 				                mapMode={this.state.mapMode} openModal={this.props.openModal} closeModal={this.props.closeModal}
 				                openContextMenu={this.props.openContextMenu} closeContextMenu={this.props.closeContextMenu}
 				                addNode={this.props.addNode} editNode={this.props.editNode} removeNode={this.props.removeNode}

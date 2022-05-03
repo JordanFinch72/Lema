@@ -44,7 +44,7 @@ export class AddEditCollectionModal extends Component
 
 		if(errorCollector.length > 0)
 		{
-			alert(errorCollector); // TODO: Proper error handling with toast
+			this.props.createToast(null, errorCollector, 5000, "error");
 			return false;
 		}
 		else return true;

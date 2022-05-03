@@ -37,6 +37,7 @@ class CollectionNode extends Component
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
 						collectionIndex={this.props.collectionIndex}
+						createToast={this.props.createToast}
 					/>);
 				}}>{this.props.node.word}</div>
 				<div onClick={(e) =>
@@ -49,6 +50,7 @@ class CollectionNode extends Component
 						language={this.props.node.language}
 						onNodeSubmit={this.props.editNode}
 						collectionIndex={this.props.collectionIndex}
+						createToast={this.props.createToast}
 					/>);
 				}}>{this.props.node.language}</div>
 				<div className={"buttons-container"}>
@@ -112,6 +114,7 @@ export class Collection extends Component
 					removeNode={this.props.removeNode}
 					openModal={this.props.openModal}
 					collectionIndex={this.props.index}  // Index of collection the node belongs to
+					createToast={this.props.createToast}
 				/>);
 			}
 		}
@@ -149,6 +152,7 @@ export class Collection extends Component
 							language={this.props.header.language}
 							onCollectionSubmit={this.props.editCollection}
 							index={this.props.index}
+							createToast={this.props.createToast}
 						/>);
 					}}>{this.props.header.word}</div>
 					<div onClick={(e) =>
@@ -159,6 +163,7 @@ export class Collection extends Component
 							language={this.props.header.language}
 							onCollectionSubmit={this.props.editCollection}
 							index={this.props.index}
+							createToast={this.props.createToast}
 						/>);
 					}}>{this.props.header.language}</div>
 					<div className={"meatball-collapser-container"}>

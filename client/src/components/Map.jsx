@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import * as d3 from "d3";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 import {ContextMenu} from "./controls/ContextMenu";
@@ -15,6 +15,7 @@ export function Map(props)
 	const editNode = props.editNode.bind(this);
 	const removeNode = props.removeNode.bind(this);
 	const openModal = props.openModal.bind(this);
+	const createToast = props.createToast.bind(this);
 
 	// Props
 	const collections = props.collections;
@@ -117,7 +118,7 @@ export function Map(props)
 
 								if(collectionList.length <= 0)
 								{
-									alert("You must first create a cognate collection for the node to be added to.");
+									createToast(e, "You must first create a cognate collection for the node to be added to.");
 								}
 								else
 								{
@@ -144,7 +145,7 @@ export function Map(props)
 							})
 							if(collectionList.length <= 0)
 							{
-								alert("You must first create a journey collection for the node to be added to.");
+								createToast(e, "You must first create a journey collection for the node to be added to.");
 							}
 							else
 							{
@@ -189,7 +190,7 @@ export function Map(props)
 				else if(node.label.type === "Custom text") labelText = node.label.customText;
 				else if(node.label.type === "Language") labelText = node.language;
 
-				// TODO: Initial scale factor depending on size of country (to stop oversized text from escaping country)
+				// Initial scale factor depending on size of country (to stop oversized text from escaping country)
 				if(labelText.length !== 0 && !node.label.fontSize) // Only scale if font size hasn't been set by user
 				{
 					if(boundingBox.width < (labelText.length * 16))

@@ -60,7 +60,7 @@ export class ControlBox extends Component
 						.catch((error) => {
 							if(error.response.data['Error message'].indexOf("Could not get an ids") !== -1)
 							{
-								alert("Database error: word not found.");
+								this.props.createToast(null, "Database error: word not found.", 5000, "error");
 							}
 						});
 				}
@@ -109,7 +109,8 @@ export class ControlBox extends Component
 					"You may tick this checkbox to include them in the return data."}>?</span>
 			</div>
 		let modeSpan = <span title={"Historical journey mode: A new Journey collection will be created and auto-populated with nodes according to the chronological journey of that word through time (usually starting in PIE).\n\n" +
-			"Cognate mode: A new Cognate collection will be created and automatically populated with translations of the searched words, with all translations that are cognates filled with the same colour."}>?</span>;
+			"Cognate mode: A new Cognate collection will be created and automatically populated with translations of the searched words, with all translations that are cognates filled with the same colour.\n\n" +
+			"Note: Cognate mode is currently unavailable due to server upgrades. You can still manually add cognates."}>?</span>;
 
 		// Adjust view for the Community Showcase
 		if(this.props.isShowcaseMode)
