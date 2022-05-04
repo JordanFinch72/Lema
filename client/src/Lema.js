@@ -1,11 +1,14 @@
 import "./css/Lema.css";
 import {Component} from "react";
+import axios from "axios";
+import {useJwt} from "react-jwt";
 import {Banner} from "./components/Banner";
 import {LeftBar} from "./components/LeftBar";
 import {Map} from "./components/Map";
-import axios from "axios";
 import {ViewMapsModal} from "./components/modals/ViewMapsModal";
 import {Toast} from "./components/Toast";
+const jwt = require("jsonwebtoken");
+
 
 class Lema extends Component
 {
@@ -50,6 +53,7 @@ class Lema extends Component
 		this.saveMap = this.saveMap.bind(this);
 		this.loadMap = this.loadMap.bind(this);
 		this.deleteMap = this.deleteMap.bind(this);
+		this.handleResponse = this.handleResponse.bind(this);
 	}
 
 	/**
@@ -65,7 +69,6 @@ class Lema extends Component
 
 		// Check if user has been linked a map
 		const urlParts = window.location.href.split('/');
-		console.log(urlParts);
 		if(urlParts.includes("map"))
 		{
 			const userConfirmed = window.confirm("You are loading another person's map.\nThis will overwrite your currently active map.\n\n" +
@@ -130,13 +133,24 @@ class Lema extends Component
 		// Check the user
 		const username = data.loginUsername;
 		const password = data.loginPassword;
-		const rememberMe = data.rememberMe; // TODO: This
+		const rememberMe = data.rememberMe;
 
 		axios.get(`/users/${username}/${password}`).then((response) => {
 			if(this.handleResponse(response, "User found.", "Login successful!"))
 			{
-				if(rememberMe) localStorage.setItem("LEMA_activeUser", JSON.stringify(response.data.user));
-				this.setState({activeUser: response.data.user});
+				console.log(response);
+				const decodedToken = jwt.decode(response.data.tokens[0], {});
+				console.log(decodedToken);
+				const activeUser = {
+					username: decodedToken.username,
+					displayName: decodedToken.displayName,
+					jwt: response.data.tokens[0],
+					refreshToken: response.data.tokens[1]
+				};
+
+				this.setState({activeUser: activeUser}, () => {
+					if(rememberMe) localStorage.setItem("LEMA_activeUser", JSON.stringify(activeUser));
+				});
 			}
 		});
 
@@ -243,7 +257,6 @@ class Lema extends Component
 		// Flatten the data structure
 		let journeyWords = [];
 		journeyWords = this.flattenTree(journeyWords, edWords, edStructure, null, edAffixes);
-		console.log(journeyWords);
 
 		// Create the new journey and add it to collections
 		const newJourney = {type: "journey", header: {word: journeyWords[journeyWords.length-1].word, language: journeyWords[journeyWords.length-1].language}, words: journeyWords};
@@ -381,9 +394,6 @@ class Lema extends Component
 	editNode(e, collectionIndex, updatedNode, newCollectionIndex = null)
 	{
 		const newCollections = this.state.collections;
-		console.log(e);
-		console.log(collectionIndex);
-		console.log(updatedNode);
 
 		// Find node
 		const node = newCollections[collectionIndex].words[updatedNode.arrayIndex];
@@ -533,8 +543,6 @@ class Lema extends Component
 		const username = this.state.activeUser.username;
 		const activeMapID = (this.state.activeMap) ? this.state.activeMap.mapID : null;
 		const isNewMap = data.isNewMap;
-		console.log(data);
-		console.log(this.state.activeMap);
 
 		// Attach map data
 		data.mapData = {collections: this.state.collections, journeyCount: this.state.journeyCount};
@@ -545,28 +553,26 @@ class Lema extends Component
 			if(activeMapID === null || isNewMap)
 			{
 				// Insert new map
-				axios.put(`/maps/${username}`, {data: data}).then((response) =>
+				axios.put(`/maps/${username}`, {data: data, jwt: this.state.activeUser.jwt}).then((response) =>
 				{
-					if(this.handleResponse(response, "Map inserted.", "Map saved!"))
+					if(this.handleResponse(response, "Map inserted.", "Map saved!", true, () => this.saveMap(e, data)))
 					{
 						this.setState({activeMap: response.data.activeMap}, function(){
 							localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
 						}); // Set new map data returned by server
 					}
-
 				});
 			}
 			else
 			{
 				// Update map
-				axios.put(`/maps/${username}/${activeMapID}`, {data: data}).then((response) => {
-					if(this.handleResponse(response, "Map data updated.", "Map saved!"))
+				axios.put(`/maps/${username}/${activeMapID}`, {data: data, jwt: this.state.activeUser.jwt}).then((response) => {
+					if(this.handleResponse(response, "Map data updated.", "Map saved!", true, () => this.saveMap(e, data)))
 					{
 						this.setState({activeMap: response.data.activeMap}, function(){
 							localStorage.setItem("LEMA_activeMap", JSON.stringify(this.state.activeMap));
 						}); // Set new map data returned by server
 					}
-
 				});
 			}
 
@@ -620,7 +626,7 @@ class Lema extends Component
 		let activeMap = this.state.activeMap;
 
 		// If they're deleting the currently active map
-		if(Number(mapID) === Number(this.state.activeMap.mapID))
+		if(activeMap && Number(mapID) === Number(activeMap.mapID))
 		{
 			// Unset the activeMap
 			activeMap = null;
@@ -630,25 +636,27 @@ class Lema extends Component
 		}
 
 		// Delete the map
-		axios.delete(`/maps/${username}/${mapID}`).then((response) => {
-			this.handleResponse(response, "Map deleted.", null, false);
+		axios.delete(`/maps/${username}/${mapID}`, {data: {jwt: this.state.activeUser.jwt}}).then((response) => {
+			this.handleResponse(response, "Map deleted.", null, false, () => this.deleteMap(e, mapID));
 			this.closeModal();
-			this.openModal(e, <ViewMapsModal loadMap={this.loadMap} deleteMap={this.deleteMap} activeUser={this.state.activeUser} />);
+			this.openModal(e, <ViewMapsModal loadMap={this.loadMap} deleteMap={this.deleteMap} activeUser={this.state.activeUser} openModal={this.openModal}
+			                                 handleResponse={this.handleResponse}  />);
 		});
 	}
 
 	editProfile(e, data)
 	{
-		let activeUser = this.state.activeUser;
+		const activeUser = this.state.activeUser;
 		const username = activeUser.username;
-		axios.put(`/users/${username}`, {data: data}).then((response) => {
-			if(this.handleResponse(response, "User profile updated.", "Profile updated!"))
+		axios.put(`/users/${username}`, {data: data, jwt: this.state.activeUser.jwt}).then((response) => {
+			if(this.handleResponse(response, "User profile updated.", "Profile updated!", false, () => this.editProfile(e, data)))
 			{
-				activeUser = {
-					...activeUser,
-					displayName: data.displayName
-				};
-				this.setState({activeUser: activeUser});
+				activeUser.displayName = data.displayName; // Update to reflect changes
+
+				this.setState({activeUser: activeUser}, () => {
+					if(localStorage.getItem("LEMA_activeUser")) // Update only if they have asked to be remembered
+						localStorage.setItem("LEMA_activeUser", JSON.stringify(activeUser));
+				});
 			}
 		});
 	}
@@ -656,8 +664,8 @@ class Lema extends Component
 	deleteProfile(e)
 	{
 		const username = this.state.activeUser.username;
-		axios.delete(`/users/${username}`).then((response) => {
-			if(this.handleResponse(response, "User profile and maps deleted.", "User profile and maps deleted!"))
+		axios.delete(`/users/${username}`, {data: {jwt: this.state.activeUser.jwt}}).then((response) => {
+			if(this.handleResponse(response, "User profile deleted.", "User profile deleted!", null, () => this.deleteProfile(e)))
 			{
 				this.logoutUser(e, true);
 			}
@@ -670,15 +678,48 @@ class Lema extends Component
 	 * @param successMessage Success message expected from server.
 	 * @param successAlert Success message to display to user.
 	 * @param closeModal Whether to close the active modal after the operation is complete.
-	 * @returns {boolean} If the response was a success.
+	 * @param refreshFunction Function to call if token refresh required
+	 * @returns true if the response was a success; "Token refreshed" if the JWT needed to be refreshed first
 	 */
-	handleResponse(response, successMessage, successAlert, closeModal = true)
+	handleResponse(response, successMessage, successAlert, closeModal = true, refreshFunction = null)
 	{
 		console.log(response);
 		if(response.data.type === "error")
 		{
-			console.error(response.data.message);
-			this.createToast(null, response.data.message, 5000, "error");
+			if(response.data.error && response.data.error.name === "TokenExpiredError")
+			{
+				// Send refresh token to server to retrieve new JWT
+				let activeUser = this.state.activeUser;
+				axios.get(`jwt/refresh/${activeUser.username}/${activeUser.refreshToken}`).then((res) => {
+					if(this.handleResponse(res, "Token refreshed.", null))
+					{
+						console.log("Token refreshed innit");
+						activeUser = {
+							...activeUser,
+							jwt: res.data.tokens[0],
+							refreshToken: res.data.tokens[1]
+						}
+						this.setState({activeUser: activeUser}, function(){
+							if(localStorage.getItem("LEMA_activeUser")) // Update only if they have asked to be remembered
+								localStorage.setItem("LEMA_activeUser", JSON.stringify(activeUser));
+
+							if(refreshFunction !== null) refreshFunction(); // Re-call function
+						});
+
+					}
+				});
+			}
+			else
+			{
+				console.error(response.data.message);
+				if(response.data.message === "Invalid refresh token.") // Invalid refresh token is a security risk; log them out
+				{
+					this.logoutUser(null, true);
+					this.closeModal();
+				}
+				else
+					this.createToast(null, response.data.message, 5000, "error");
+			}
 		}
 		else if(response.data.type === "success")
 		{
@@ -725,7 +766,7 @@ class Lema extends Component
 		return (
 			<div className="Lema">
 				<Banner activeUser={this.state.activeUser} openModal={this.openModal} activeMap={this.state.activeMap}
-				        isShowcaseMode={this.state.isShowcaseMode} createToast={this.createToast}
+				        isShowcaseMode={this.state.isShowcaseMode} createToast={this.createToast} handleResponse={this.handleResponse}
 				        authenticateUser={this.authenticateUser} registerUser={this.registerUser} logoutUser={this.logoutUser}
 				        editProfile={this.editProfile} deleteProfile={this.deleteProfile} toggleShowcaseMode={this.toggleShowcaseMode}
 				        newMap={this.newMap} saveMap={this.saveMap} loadMap={this.loadMap} deleteMap={this.deleteMap} />

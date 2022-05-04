@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const PouchDB = require("pouchdb");
+const jwt = require("jsonwebtoken");
 
 // Database
 const authHeader = Buffer.from("admin" + ":" + ".PAQWQ6o1Jo").toString("base64"); // TODO: Hide this; this is terrible
@@ -14,12 +15,29 @@ const db = new PouchDB("http://localhost:5984/lema", {
 const bcrypt = require("bcrypt");
 const saltRounds = 10; // Number of rounds to salt (recommended by bcrypt author)
 
+const JWT_SECRET = "025B972660676EA25D6A501D09CD3B1515272A8A149F8E04DF4CDD9EDEB1359A";
+const RT_SEED = "7391C2E1D899974AA86C8A859843024D955DEE13344C8E7D1F45F8FD7BE7C86E";
+
+const generateRefreshToken = () =>
+{
+	const seed = (RT_SEED + RT_SEED).split("");
+	let refreshToken = "";
+
+	// Jumble up seed
+	for(let i = 0; i < seed.length; ++i)
+	{
+		const r = Math.floor(Math.random() * seed.length-1); // Random index
+		refreshToken += seed[r];
+	}
+	return refreshToken;
+}
 
 /* Retrieve user by username and (salt-hashed) password */
 router.get("/:username/:password", function(req, res, next)
 {
 	const username = req.params.username;
 	const password = req.params.password;
+	let jwtToken = "", refreshToken = "";
 
 	db.get("user_" + username).then(function(doc)
 	{
@@ -33,7 +51,22 @@ router.get("/:username/:password", function(req, res, next)
 					username: username,
 					displayName: doc.displayName
 				};
-				res.send({type: "success", message: "User found.", user: user});
+
+				// TODO: If token is invalid because it's expired, send that message back to client (which will then refresh the token)
+				jwt.sign(user, JWT_SECRET, {
+					algorithm: "HS256",
+					expiresIn: 900, // 15 minutes
+					issuer: "LEMA Authentication"
+				}, function(error, token){
+					refreshToken = generateRefreshToken();
+					jwtToken = token;
+					doc = {
+						...doc,
+						refreshToken: refreshToken
+					};
+					db.put(doc);
+					res.send({type: "success", message: "User found.", tokens: [jwtToken, refreshToken]});
+				});
 			}
 			else
 				res.send({type: "error", message: "Password incorrect."});
@@ -94,7 +127,8 @@ router.put("/:displayName/:username/:password/:email", function(req, res, next)
 							"_id": "user_" + username,
 							"displayName": displayName,
 							"password": hash,
-							"email": email
+							"email": email,
+							"refreshToken": ""
 						};
 						db.put(doc).then(function(response)
 						{
@@ -122,25 +156,37 @@ router.put("/:username/", function(req, res, next)
 {
 	const username = req.params.username;
 	const data = req.body.data;
+	const token = req.body.jwt;
 
-	db.get("user_" + username).then(function(doc)
-	{
-		doc = {
-			...doc,
-			displayName: data.displayName
-		};
+	// Verify JWT
+	jwt.verify(token, JWT_SECRET, {}, (error, decodedToken) => {
+		if(error)
+		{
+			console.log(error);
+			res.send({type: "error", message: "JWT error.", error: error});
+		}
+		else if(decodedToken.username === username)
+		{
+			db.get("user_" + username).then(function(doc)
+			{
+				doc = {
+					...doc,
+					displayName: data.displayName
+				};
 
-		// Put the document back
-		return db.put(doc);
-	}).then(function(response)
-	{
-		if(response.ok)
-			res.send({type: "success", message: "User profile updated."});
-		else
-			res.send({type: "error", message: "Server error.", response: response});
-	}).catch(function(error)
-	{
-		res.send({type: "error", message: "Error: " + error.error});
+				// Put the document back
+				return db.put(doc);
+			}).then(function(response)
+			{
+				if(response.ok)
+					res.send({type: "success", message: "User profile updated."});
+				else
+					res.send({type: "error", message: "Server error.", response: response});
+			}).catch(function(error)
+			{
+				res.send({type: "error", message: "Error: " + error.error});
+			});
+		}
 	});
 });
 
@@ -148,35 +194,50 @@ router.put("/:username/", function(req, res, next)
 router.delete("/:username/", function(req, res, next)
 {
 	const username = req.params.username;
+	const token = req.body.jwt;
 
-	db.get(`user_${username}`).then(function(doc)
-	{
-		// Remove the document
-		return db.remove(doc);
-	}).then(function(response)
-	{
-		if(!response.ok)
-			res.send({type: "error", message: "Server error.", response: response});
-	}).catch(function(error)
-	{
-		res.send({type: "error", message: "Error:" + error.error});
+	jwt.verify(token, JWT_SECRET, {}, (error, decodedToken) => {
+		if(error)
+		{
+			console.log(error);
+			res.send({type: "error", message: "JWT error.", error: error});
+		}
+		else if(decodedToken.username === username)
+		{
+			// Delete user document
+			db.get(`user_${username}`).then(function(doc)
+			{
+				return db.remove(doc);
+			}).then(function(response)
+			{
+				if(!response.ok)
+					res.send({type: "error", message: "Server error.", response: response});
+				else
+					res.send({type: "success", message: "User profile and maps deleted."});
+			}).catch(function(error)
+			{
+				res.send({type: "error", message: "Error:" + error.error});
+			});
+
+			/*// Delete all maps belonging to this user
+			db.allDocs({
+				include_docs: true,
+				startkey: `map_${username}_`,
+				endkey: `map_${username}_\ufff0`
+			}).then(function(result)
+			{
+				return db.remove(result);
+			}).then(function(response){
+				if(response.ok)
+					res.send({type: "success", message: "User profile and maps deleted."});
+			}).catch(function(error)
+			{
+				res.send({type: "error", message: "Error: " + error.error});
+			});*/
+		}
 	});
 
-	// Retrieve all maps belonging to this user
-	db.allDocs({
-		include_docs: true,
-		startkey: `map_${username}_`,
-		endkey: `map_${username}_\ufff0`
-	}).then(function(result)
-	{
-		return db.remove(result);
-	}).then(function(response){
-		if(response.ok)
-			res.send({type: "success", message: "User profile and maps deleted."});
-	}).catch(function(error)
-	{
-		res.send({type: "error", message: "Error: " + error.error});
-	});
+
 });
 
 module.exports = router;

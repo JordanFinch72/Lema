@@ -49,7 +49,9 @@ export class Banner extends Component
 					Save Map / Export
 				</div>,
 				<div className={"view-maps-button"} onClick={(e) => {
-					this.props.openModal(e, <ViewMapsModal loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} activeUser={this.props.activeUser} openModal={this.props.openModal} />);
+					this.props.openModal(e, <ViewMapsModal loadMap={this.props.loadMap} deleteMap={this.props.deleteMap}
+					                                       activeUser={this.props.activeUser} openModal={this.props.openModal}
+															handleResponse={this.props.handleResponse}  />);
 				}}>
 					View Maps / Import
 				</div>,

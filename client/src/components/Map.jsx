@@ -7,7 +7,11 @@ import languageProperties from "../data/languageProperties.json";
 
 export function Map(props)
 {
-	console.log("[== MAP RENDER ==]");
+	// DEBUG MODE
+	const DEBUG_MODE = true;
+
+	if(DEBUG_MODE)
+		console.debug("[== MAP RENDER ==]");
 
 	// Prop functions
 	const openContextMenu = props.openContextMenu.bind(this);
@@ -19,9 +23,6 @@ export function Map(props)
 
 	// Props
 	const collections = props.collections;
-
-	// DEBUG MODE
-	const DEBUG_MODE = false;
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
@@ -59,6 +60,7 @@ export function Map(props)
 			.attr("d", path)
 			.on("click", function(e, d){
 				// TODO: Possibly same functions as context menu (see about calling this.onContextMenu() to keep things nice and DRY)
+				createToast(e, d.properties.name_long, 2000);
 			})
 			.on("mousemove", function(e, d)
 			{
@@ -315,7 +317,7 @@ export function Map(props)
 				if(!node.vertex.x || !node.vertex.y)
 				{
 					node.vertex.x = vertexX; node.vertex.y = vertexY;
-					return editNode(null, journeyNodeObject.collectionIndex, node);
+					return editNode(null, journeyNodeObject.collectionIndex, node); // Performance TODO: Make this a bulk update instead to prevent re-rendering loop
 				}
 
 				// Prepare text element. This is required to calculate circle radius based on text element's width

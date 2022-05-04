@@ -64,27 +64,22 @@ export class ViewMapsModal extends Component
 		};
 
 		this.onFieldChange = this.onFieldChange.bind(this);
+
 	}
 
 	componentDidMount()
 	{
+		this.loadUserMaps(this.props.activeUser.username, this.props.activeUser.jwt);
+	}
+
+	loadUserMaps(username, jwt)
+	{
 		// Fetch maps belonging to this user
-		const username = this.props.activeUser.username;
-		axios.get(`/maps/${username}/0`).then((response) =>
+		axios.get(`/maps/${username}/0/${jwt}`).then((response) =>
 		{
-			console.log(response);
-			if(response.data.type === "error")
+			if(this.props.handleResponse(response, "User's maps retrieved.", null, null, () => this.loadUserMaps(username, jwt)))
 			{
-				console.error(response.data.message);
-				alert(response.data.message);
-			}
-			else if(response.data.type === "success")
-			{
-				console.log(response.data);
-				if(response.data.message === "User's maps retrieved.")
-				{
-					this.setState({loadedMaps: response.data.maps, loading: false})
-				}
+				this.setState({loadedMaps: response.data.maps, loading: false})
 			}
 		});
 	}

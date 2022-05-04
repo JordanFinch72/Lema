@@ -6,17 +6,9 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
+const jwtRouter = require("./routes/jwt");
 const usersRouter = require("./routes/users");
 const mapsRouter = require("./routes/maps");
-
-
-
-// create a GET route
-server.get('/express_backend', (req, res) => { //Line 9
-res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Line 10
-});
-
-//server.listen(5000, () => console.log(`Server listening on port 5000.`));
 
 // View engine setup
 server.set("views", path.join(__dirname, "views"));
@@ -28,6 +20,7 @@ server.use(express.urlencoded({extended: false}));
 server.use(cookieParser());
 server.use(express.static(path.join(__dirname, "public")));
 
+server.use("/jwt", jwtRouter);
 server.use("/users", usersRouter);
 server.use("/maps", mapsRouter);
 
