@@ -9,7 +9,7 @@ export class SaveModal extends Component
 	{
 		super(props);
 
-		this.validSaveModes = ["Save to profile", "Export to JSON file"];
+		this.validSaveModes = ["Save to profile", "Export to JSON file", "Export to SVG", "Export to PNG"];
 
 		this.state = {
 			id: (this.props.activeMap) ? this.props.activeMap.mapID : null,

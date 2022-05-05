@@ -30,7 +30,7 @@ export function Map(props)
 		const countries = countriesData.features;
 
 		// Create path (passed as svg attribute later to draw the countries)
-		// TODO: Have it auto-scale as window is dragged
+		// TODO: Have it auto-scale as window is dragged/re-sized
 		const width = svg._groups[0][0].clientWidth;
 		const height = svg._groups[0][0].clientHeight;
 		const projection = d3.geoConicConformal()
@@ -205,6 +205,7 @@ export function Map(props)
 				const label = verticesLabelsG.append("text")
 					.attr("x", x).attr("y", y)
 					.attr("fill", node.label.fontColour)
+					.attr("font-family", "'Segoe UI', sans-serif")
 					.style("font-size", fontSize)
 					.text(labelText);
 
@@ -327,6 +328,7 @@ export function Map(props)
 					.attr("fill", node.vertex.fontColour)
 					.attr("text-anchor", "middle")        // Centre of circle
 					.attr("alignment-baseline", "middle") // Centre of circle
+					.attr("font-family", "'Segoe UI', sans-serif")
 					.style("font-size", "16px")
 					.text(vertexText);
 
@@ -415,6 +417,7 @@ export function Map(props)
 					.attr("fill", node.vertex.fontColour)
 					.attr("text-anchor", "middle")        // Centre of circle
 					.attr("alignment-baseline", "middle") // Centre of circle
+					.attr("font-family", "'Segoe UI', sans-serif")
 					.style("font-size", fontSize)
 					.text(vertexText);
 
@@ -677,18 +680,19 @@ export function Map(props)
 		else return "black";                                   // Otherwise, return black by default for all countries with no associated data
 	}
 
-
 	return (
 		<div className={"map-container"}>
 			<svg
 				/*ref={ref}*/
+				id={"map-svg"}
 				style={{
 					height: "100%",
 					width: "100%",
-					margin: 0,
-					backgroundColor: "#3d73ab" /* The sea */
+					margin: 0
 				}}
-			/>
+			>
+				<rect width={"100%"} height={"100%"} fill={"#3d73ab"}/>
+			</svg>
 		</div>
 	);
 }

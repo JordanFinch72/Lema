@@ -112,6 +112,14 @@
     "radius": 25
   },
   {
+    "language": "Frankish",
+    "x": 116,
+    "y": -12.5,
+    "width": 214.70062255859375,
+    "height": 289.0872802734375,
+    "radius": 25
+  },
+  {
     "language": "Old High German",
     "x": 161,
     "y": 68.5,
@@ -323,6 +331,14 @@
     "language": "Late Latin",
     "x": 284,
     "y": 312,
+    "width": 330.083251953125,
+    "height": 368.1420593261719,
+    "radius": 25
+  },
+  {
+    "language": "Medieval Latin",
+    "x": 145,
+    "y": 101,
     "width": 330.083251953125,
     "height": 368.1420593261719,
     "radius": 25

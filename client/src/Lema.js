@@ -589,6 +589,59 @@ class Lema extends Component
 			a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
 			a.click(); // Download
 		}
+		else if(data.saveMode === "Export to SVG")
+		{
+			const svg = document.getElementById("map-svg");
+
+			// Pre-processing
+			const map_container = document.getElementsByClassName("map-container")[0];
+			const width = map_container.clientWidth, height = map_container.clientHeight;
+			svg.setAttribute("width", `${width}px`);
+			svg.setAttribute("height", `${height}px`);
+
+			// Build BLOB of SVG
+			const a = document.createElement("a");
+			const blob = new Blob([svg.outerHTML], {type: "image/svg+xml;charset=utf-8"});
+			a.href = URL.createObjectURL(blob);
+			a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}.svg`; // File name (stripped of spaces)
+			a.click(); // Download
+			svg.removeAttribute("width");
+			svg.removeAttribute("height");
+		}
+		else if(data.saveMode === "Export to PNG")
+		{
+			const svg = document.getElementById("map-svg");
+
+			// Pre-processing
+			const map_container = document.getElementsByClassName("map-container")[0];
+			const width = map_container.clientWidth, height = map_container.clientHeight;
+			svg.setAttribute("width", `${width}px`);
+			svg.setAttribute("height", `${height}px`);
+
+			// Construct image data
+			const image = new Image();
+			const serializer = new XMLSerializer();
+			const imageString = serializer.serializeToString(svg);
+			image.src = "data:image/svg+xml;base64, " + window.btoa(unescape(encodeURIComponent(imageString)));
+
+			// Wait until image has finished loading
+			image.onload = () => {
+				// Create mock canvas; draw and extract image
+				const canvas = document.createElement("canvas");
+				canvas.width = width;
+				canvas.height = height;
+				canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+				const imageData = canvas.toDataURL("image/png");
+
+				const a = document.createElement("a");
+				a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
+				a.href = imageData;
+				a.dataset.downloadurl = ["image/png", a.download, a.href].join(':');
+				a.click(); // Download
+				svg.removeAttribute("width");
+				svg.removeAttribute("height");
+			}
+		}
 	}
 
 	/**
