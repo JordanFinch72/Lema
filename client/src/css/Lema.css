@@ -28,7 +28,7 @@ div.banner-container {
     max-height: 10%;
 }
 div.banner-container h2 {
-    flex: 2;
+    flex-basis: calc(25% + 4px); /* Adjust for border */
     text-align: center;
     cursor: default;
 }
