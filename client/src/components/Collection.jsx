@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {Meatballs} from "./controls/Meatballs";
 import {Collapser} from "./controls/Collapser";
 import {AddEditCollectionModal} from "./modals/AddEditCollectionModal";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
@@ -119,56 +118,33 @@ export class Collection extends Component
 			}
 		}
 
-		const meatballItems = [
-			{
-				text: "Add node", handler: (e) =>
-				{
-					this.props.cAddNode(e, {type: this.props.type, collectionIndex: this.props.index, words: this.props.words});
-				}
-			},
-			{
-				text: "Add node (default)", handler: (e) =>
-				{
-					this.props.cAddNodeDefault(e, {type: this.props.type, collectionIndex: this.props.index});
-				}
-			},
-			{
-				text: "Remove collection", handler: (e) =>
-				{
-					this.props.cRemoveCollection(e, this.props.index);
-				}
-			}
-		];
-
 		return (
 			<div className={"collection-container"}>
 				<div className={"collection-header"}>
 					{/* Flex-row */}
-					<div onClick={(e) =>
+					<div className={"name"} onClick={(e) =>
 					{
 						this.props.openModal(e, <AddEditCollectionModal
 							type={this.props.type}
-							word={this.props.header.word}
-							language={this.props.header.language}
+							name={this.props.header.name}
 							onCollectionSubmit={this.props.editCollection}
 							index={this.props.index}
 							createToast={this.props.createToast}
 						/>);
-					}}>{this.props.header.word}</div>
-					<div onClick={(e) =>
-					{
-						this.props.openModal(e, <AddEditCollectionModal
-							type={this.props.type}
-							word={this.props.header.word}
-							language={this.props.header.language}
-							onCollectionSubmit={this.props.editCollection}
-							index={this.props.index}
-							createToast={this.props.createToast}
-						/>);
-					}}>{this.props.header.language}</div>
+					}}>{this.props.header.name}</div>
 					<div className={"meatball-collapser-container"}>
-						<Meatballs openModal={this.props.openModal} openContextMenu={this.props.openContextMenu}
-						           closeContextMenu={this.props.closeContextMenu} contextMenuItems={meatballItems}/>
+						<Button value={"+"} id={"manual-add"} style={{alignSelf: "end"}}
+						        onClick={(e) => {
+							        this.props.cAddNode(e, {type: this.props.type, collectionIndex: this.props.index, words: this.props.words});
+						        }}
+						/>
+						<Button value={"X"} id={"manual-delete"} style={{alignSelf: "end"}}
+						        onClick={(e) => {
+									const userConfirmed = window.confirm("This will remove the entire collection of nodes from your map.\nDo you wish to continue?");
+									if(userConfirmed)
+							            this.props.cRemoveCollection(e, this.props.index);
+						        }}
+						/>
 						<Collapser toggleCollapse={this.toggleCollapse} collapsed={this.state.collapsed}/>
 					</div>
 				</div>

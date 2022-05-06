@@ -8,7 +8,7 @@ import languageProperties from "../data/languageProperties.json";
 export function Map(props)
 {
 	// DEBUG MODE
-	const DEBUG_MODE = true;
+	const DEBUG_MODE = false;
 
 	if(DEBUG_MODE)
 		console.debug("[== MAP RENDER ==]");
@@ -177,14 +177,16 @@ export function Map(props)
 			});
 
 		// Cognate labels, journey vertices
-		const vertexEdgesG = svg.append("g").classed("vertex-edges", true); // SVG group for edges
-		const verticesLabelsG = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
+		const edgesGroup = svg.append("g").classed("edges", true); // SVG group for edges
+		edgesGroup.on("contextmenu", (e) => e.preventDefault());
+		const verticesLabelsGroup = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
 		countryPaths.each(function(f, i) {
 			const cognateNodeObject = findNodes(f, "cognate");  // The first node in any cognate collection that belongs to this country/region
 			if(cognateNodeObject)
 			{
 				/* Cognate visualisations */
 				const node = cognateNodeObject.node;
+				const languageProp = getLanguageProp(node);
 				const boundingBox = d3.select(this).node().getBBox(); // Get rectangular bounds of country/region
 				let fontSize = node.label.fontSize;                 // Font size of the label
 				let labelText = node.word;                          // Word by default
@@ -199,10 +201,10 @@ export function Map(props)
 						fontSize = boundingBox.width/8 + "px";
 				}
 
-				// Append labels to paths, with co-ordinates according to feature's position on map
-				let x = (node.label.x === null) ? (boundingBox.x + boundingBox.width/4) : node.label.x;
-				let y = (node.label.y === null) ? (boundingBox.y + boundingBox.height/2) : node.label.y;
-				const label = verticesLabelsG.append("text")
+				// Initial co-ordinates
+				let x = (node.label.x === null) ? (languageProp.x + 612) : node.label.x;
+				let y = (node.label.y === null) ? (languageProp.y + 528) : node.label.y;
+				const label = verticesLabelsGroup.append("text")
 					.attr("x", x).attr("y", y)
 					.attr("fill", node.label.fontColour)
 					.attr("font-family", "'Segoe UI', sans-serif")
@@ -322,7 +324,7 @@ export function Map(props)
 				}
 
 				// Prepare text element. This is required to calculate circle radius based on text element's width
-				const vertexG = verticesLabelsG.append("g"); // Group required to have circle and text together
+				const vertexG = verticesLabelsGroup.append("g"); // Group required to have circle and text together
 				const preparedText = vertexG.append("text")
 					.attr("x", vertexX).attr("y", vertexY)
 					.attr("fill", node.vertex.fontColour)
@@ -358,7 +360,7 @@ export function Map(props)
 						// Compute arrowheads
 						if(node.vertex.edgeArrowheadEnabled)
 						{
-							vertexEdgesG.append("defs")
+							edgesGroup.append("defs")
 								.append("marker")
 								.attr("id", "arrow" + parentRef + nodeRef)
 								.attr("markerWidth", 5).attr("markerHeight", 4)
@@ -391,7 +393,7 @@ export function Map(props)
 						}
 
 						// Place edge
-						const edge = vertexEdgesG.append("line")
+						const edge = edgesGroup.append("line")
 							.attr("x1", parentNode.vertex.x + startEdgeXOffset)
 							.attr("y1", parentNode.vertex.y + startEdgeYOffset)
 							.attr("x2", node.vertex.x + endEdgeXOffset)
@@ -421,7 +423,7 @@ export function Map(props)
 					.style("font-size", fontSize)
 					.text(vertexText);
 
-				// Dragging/resizing/clicking handlers
+				/* Dragging/resizing/clicking handlers */
 				let startXOffset, startYOffset, resizing = false, startX, startY, startRadius, newVertexRadius, newLabelSize;
 				const nodeContextMenuHandler = (e) => {
 					e.preventDefault();
@@ -434,11 +436,11 @@ export function Map(props)
 										collection.collectionIndex = i;
 										return true;
 									}
-								})
+								});
 
 								openModal(e, <AddEditNodeModal onNodeSubmit={editNode} node={node} collectionList={collectionList}
-								                               collectionIndex={journeyNodeObject.collectionIndex}
-								                               type={"cognate"} language={node.language} />);
+								                               collectionIndex={journeyNodeObject.collectionIndex} language={node.language}
+								                               type={"journey"} words={collectionList[journeyNodeObject.collectionIndex].words}  />);
 							}
 						},
 						{
@@ -449,6 +451,20 @@ export function Map(props)
 					];
 					openContextMenu(e, <ContextMenu x={e.clientX} y={e.clientY} items={contextMenuItems} />);
 				};
+
+				// Dimensions of bottom-right corner
+				const squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
+				const circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
+				const cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
+
+				// Determine corner of circle's box
+				const southEastCorner = {
+					xStart: vertexX,
+					xEnd: vertexX + cornerWidth,
+					yStart: vertexY,
+					yEnd: vertexY + cornerWidth
+				}
+				let hoveringOverText = false;
 				const nodeDragHandler = d3.drag()
 					.on("start", (e) => {
 						const vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
@@ -458,22 +474,10 @@ export function Map(props)
 						startXOffset = mouseX - vertexX;
 						startYOffset = mouseY - vertexY;
 
-						// Dimensions of bottom-right corner
-						const squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
-						const circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
-						const cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
-
-						// Determine corner of circle's box
-						const southEastCorner = {
-							xStart: vertexX,
-							xEnd: vertexX + cornerWidth,
-							yStart: vertexY,
-							yEnd: vertexY + cornerWidth
-						}
-
 						// Check corner
 						if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd
-							&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd)
+							&& mouseY >= southEastCorner.yStart && mouseY <= southEastCorner.yEnd
+							&& !hoveringOverText)
 						{
 							resizing = true;
 							startX = mouseX;
@@ -539,22 +543,13 @@ export function Map(props)
 				// Assign handlers
 				text.on("contextmenu", nodeContextMenuHandler);
 				text.call(nodeDragHandler);
+				text.on("mousemove", () => {
+					text.style("cursor", "grab");
+					hoveringOverText = true;
+				});
 				vertex.on("mousemove", (e) => {
-					const vertexX = parseFloat(vertex.attr("cx")), vertexY = parseFloat(vertex.attr("cy"));
+					hoveringOverText = false;
 					const mouseX = e.layerX, mouseY = e.layerY;
-
-					// Dimensions of bottom-right corner
-					const squareArea = vertex.node().getBBox().width * vertex.node().getBBox().height;
-					const circleArea = Math.PI * Math.pow(parseFloat(vertex.attr("r")),2);
-					const cornerWidth = ((squareArea - circleArea) / 4) / 2; // Extract corners, divide by four, width and height are equal length (/2)
-
-					// Determine corner of circle's box
-					const southEastCorner = {
-						xStart: vertexX,
-						xEnd: vertexX + cornerWidth,
-						yStart: vertexY,
-						yEnd: vertexY + cornerWidth
-					};
 
 					// Check corner
 					if(mouseX >= southEastCorner.xStart && mouseX <= southEastCorner.xEnd

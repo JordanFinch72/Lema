@@ -42,6 +42,7 @@ div.banner-container div.buttons-container {
     flex: 2;
     justify-content: space-evenly;
     align-items: center;
+    user-select: none;
 }
 div.banner-container div.buttons-container div {
     display: flex;
@@ -156,9 +157,14 @@ div.collections-container h3 {
     align-items: center;
     margin: 0.5em 0 0;
 }
+div.collections-container div.description {
+    font-size: 0.7em;
+    font-weight: normal;
+}
 div.collections-container div.id {
     font-size: 0.5em;
     font-weight: normal;
+    margin-top: 0.5em;
 }
 div.collections-container div.header-container
 {
@@ -181,9 +187,13 @@ div.collection-header, div.showcase-header {
     flex-flow: row;
     justify-content: center;
     width: 100%;
-    background-color: #c4c4c4;
+    background-color: rgb(196,196,196);
     border: 1px solid black;
     padding: 0.7em 0;
+}
+div.collection-header:hover, div.showcase-header:hover {
+    cursor: pointer;
+    background-color: rgba(196,196,196,0.7);
 }
 div.showcase-header {
     margin-top: 1em;
@@ -195,6 +205,13 @@ div.collection-header div, div.showcase-header div {
     justify-content: center;
     text-align: center;
     font-weight: 600;
+
+}
+div.collection-header div.name {
+    flex: 2;
+}
+div.collection-header div.meatball-collapser-container {
+    flex: 1;
 }
 div.collection-header div.meatball-collapser-container div {
     flex-basis: 15%;
@@ -209,7 +226,7 @@ div.collection-node, div.community-map {
     border: 1px solid black;
     padding: 0.7em 0;
 }
-div.community-map:hover {
+div.collection-node:hover, div.community-map:hover {
     cursor: pointer;
     background-color: rgba(196,196,196,0.2);
 }
@@ -385,6 +402,8 @@ div.modal div.bottom {
 }
 div.modal div.bottom div.buttons-container {
     display: flex;
+    justify-content: space-evenly;
+    flex: 1;
 }
 
 /* Save modal */
@@ -411,10 +430,10 @@ div.context-menu {
 div.context-menu div.context-menu-item {
     border-bottom: 1px solid black;
     padding: 0.2em;
-    cursor: pointer;
     user-select: none;
 }
 div.context-menu div.context-menu-item:hover {
+    cursor: pointer;
     background-color: #d6f5d6;
 }
 div.context-menu div.context-menu-item:last-child {

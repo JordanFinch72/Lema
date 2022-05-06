@@ -130,12 +130,15 @@ export class CollectionArea extends Component
 		{
 			// Build header
 			const headerText = (this.props.activeMap) ? this.props.activeMap.title : "Collection Area";
+			const headerDescription = (this.props.activeMap)
+				? <div className={"description"}>{this.props.activeMap.description}</div>
+				: null;
 			const mapID = (this.props.activeMap) ?
 				(this.props.activeMap.mapID !== null) ?
 					<div className={"id"}> Attached to profile (ID: {this.props.activeMap.mapID})</div> :
 					<div className={"id"}> Loaded from file or link</div>
 				: "";
-			header = <h3>{headerText}{mapID}</h3>;
+			header = <h3>{headerText}{headerDescription}{mapID}</h3>;
 
 			this.props.collections.map((collection, index) =>
 			{

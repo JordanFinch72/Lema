@@ -61,10 +61,17 @@ export class SaveModal extends Component
 		this.validSaveModes.forEach((m) => saveModes.push(<option>{m}</option>));
 
 		// Allow them to save as new map if a map is already active (loaded)
-		const saveAsNewMap = (this.props.activeMap !== null && this.props.activeMap.mapID !== null) ?
-			<LabeledControl label={"Save as new map:"} tooltip={"Instead of overwriting your current map in the database, it will create a new map entry."}>
-				<input type={"checkbox"} name={"isNewMap"} checked={this.state.isNewMap} disabled={(this.state.saveMode !== "Save to profile")} onChange={this.onFieldChange} />
-			</LabeledControl>
+		const saveChangesLabel = (this.state.saveMode === "Save to profile") ? "Save Changes" : "Export..."
+		const saveAsNewMap = (this.props.activeMap !== null && this.props.activeMap.mapID !== null && this.state.saveMode === "Save to profile") ?
+			<Button value={"Save As New Map"} onClick={(e) =>
+			{
+				if(this.validate())
+				{
+					this.setState({isNewMap: true}, () => {
+						this.props.handler(e, this.state);
+					});
+				}
+			}}/>
 			: null;
 
 		return (
@@ -89,7 +96,6 @@ export class SaveModal extends Component
 									<LabeledControl label={"Share to showcase:"} tooltip={"This will make your map visible to others on the Community Showcase page."}>
 										<input type={"checkbox"} name={"isShared"} checked={this.state.isShared} disabled={(this.state.saveMode !== "Save to profile")} onChange={this.onFieldChange} />
 									</LabeledControl>
-									{saveAsNewMap}
 								</div>
 							</div>
 						</div>
@@ -97,13 +103,14 @@ export class SaveModal extends Component
 				</div>
 				<div className={"bottom"}>
 					<div className={"buttons-container"}>
-						<Button value={"Submit"} onClick={(e) =>
+						<Button value={saveChangesLabel} onClick={(e) =>
 						{
 							if(this.validate())
 							{
 								this.props.handler(e, this.state);
 							}
 						}}/>
+						{saveAsNewMap}
 					</div>
 				</div>
 			</div>

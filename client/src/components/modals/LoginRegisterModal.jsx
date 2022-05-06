@@ -31,6 +31,18 @@ export class LoginRegisterModal extends Component
 		this.validate = this.validate.bind(this);
 	}
 
+	componentDidMount()
+	{
+		// Load in preserved data
+		const loginRegisterForm = JSON.parse(localStorage.getItem("LEMA_loginRegisterForm"));
+		if(loginRegisterForm)
+		{
+			loginRegisterForm.mode = this.props.mode;
+			this.setState(loginRegisterForm);
+		}
+
+	}
+
 	onFieldChange(event)
 	{
 		const target = event.target;
@@ -138,13 +150,10 @@ export class LoginRegisterModal extends Component
 								<div className={"section"}>
 									<h4>User Data</h4>
 									<div className={"form"}>
-										<LabeledControl label={"Display name: "}>
-											<Textbox name={"displayName"} value={this.state.displayName} hint={"e.g. \"Jordan F.\""} autoFocus={true} onFieldChange={this.onFieldChange} />
-										</LabeledControl>
 										<LabeledControl label={"Username: "} tooltip={"Min. 3 characters.\nMax. 32 characters."}>
-											<Textbox name={"username"} value={this.state.username} hint={"e.g. \"JordanFinch72\""} onFieldChange={this.onFieldChange} />
+											<Textbox name={"username"} value={this.state.username} hint={"e.g. \"JordanFinch72\""} autoFocus={true} onFieldChange={this.onFieldChange} />
 										</LabeledControl>
-										<LabeledControl label={"Password: "} tooltip={"Min. 6 characters"}>
+										<LabeledControl label={"Password: "} tooltip={"Min. 6 characters."}>
 											<Textbox name={"password"} isPassword={true} value={this.state.password} hint={""} onFieldChange={this.onFieldChange} />
 										</LabeledControl>
 										<LabeledControl label={"Password (confirm): "}>
@@ -156,6 +165,9 @@ export class LoginRegisterModal extends Component
 										<LabeledControl label={"E-mail address (confirm): "}>
 											<Textbox name={"emailConfirm"} value={this.state.emailConfirm} onFieldChange={this.onFieldChange} />
 										</LabeledControl>
+										<LabeledControl label={"Display name: "} tooltip={"Display name shown on Community Showcase.\nMin. 3 characters.\nMax. 3 characters."}>
+											<Textbox name={"displayName"} value={this.state.displayName} hint={"e.g. \"Master of Maps\""} onFieldChange={this.onFieldChange} />
+										</LabeledControl>
 									</div>
 								</div>
 								<div className={"section"}>
@@ -163,35 +175,36 @@ export class LoginRegisterModal extends Component
 									<div className={"form"}>
 										<p>By ticking this box, you agree that your user data will be used in accordance with the <a href={"#"} onClick={(e) => {
 											const privacyPolicy =
-											<GenericModal>
-												<main>
-													<h1>Data & Privacy Policy</h1>
-													<p>This privacy policy details how the software Linguistic Etymology Map Assistant (LEMA) will handle private and/or personal user data submitted to it.</p>
-													<section>
-														<h2>User Data</h2>
-														<ul>
-															<li>Any personally-identifiable data (PID) submitted to LEMA will be secured and encrypted using HTTPS/SSL protocols during its passage from client to server.</li>
-															<li>Passwords submitted to LEMA will be appropriately secured by the server before being stored in any database.</li>
-															<li>No user data will <b>ever</b> be shared with any third party and will be used <b>solely</b> for the functions of LEMA itself.</li>
-														</ul>
-													</section>
-													<section>
-														<h2>Cookies</h2>
-														<ul>
-															<li>LEMA uses <i>localStorage</i> cookies to: (1) keep you logged in; (2) auto-save your active maps and their collections so that you do not lose work by closing the app.</li>
-															<li>localStorage use (1) is opt-in and this cookie can be avoided by not ticking the "Remember me" box when you log in. If you have already done so, logging out will delete the cookie.</li>
-															<li>localStorage use (1) is an essential cookie for the proper function of this app. There is currently no way to opt out. If you feel that this option would be important, please contact me.</li>
-														</ul>
-													</section>
-													<section>
-														<h2>Community Showcase</h2>
-														<ul>
-															<li>Any maps shared on the Community Showcase will have all of their data - in addition to the username and display name of the map owner - exposed to all other users of LEMA.</li>
-															<li>If you wish your map to no longer be shared on the Community Showcase, you may load the map and then re-save it with the "Share to showcase" box unticked.</li>
-														</ul>
-													</section>
-												</main>
-											</GenericModal>
+												<GenericModal>
+													<main>
+														<h1>Data & Privacy Policy</h1>
+														<p>This privacy policy details how the software Linguistic Etymology Map Assistant (LEMA) will handle private and/or personal user data submitted to it.</p>
+														<section>
+															<h2>User Data</h2>
+															<ul>
+																<li>Any personally-identifiable data (PID) submitted to LEMA will be secured and encrypted using HTTPS/SSL protocols during its passage from client to server.</li>
+																<li>Passwords submitted to LEMA will be appropriately secured by the server before being stored in any database.</li>
+																<li>No user data will <b>ever</b> be shared with any third party and will be used <b>solely</b> for the functions of LEMA itself.</li>
+															</ul>
+														</section>
+														<section>
+															<h2>Cookies</h2>
+															<ul>
+																<li>LEMA uses <i>localStorage</i> cookies to: (1) keep you logged in; (2) auto-save your active maps and their collections so that you do not lose work by closing the app.</li>
+																<li>localStorage use (1) is opt-in and this cookie can be avoided by not ticking the "Remember me" box when you log in. If you have already done so, logging out will delete the cookie.</li>
+																<li>localStorage use (1) is an essential cookie for the proper function of this app. There is currently no way to opt out. If you feel that this option would be important, please contact me.</li>
+															</ul>
+														</section>
+														<section>
+															<h2>Community Showcase</h2>
+															<ul>
+																<li>Any maps shared on the Community Showcase will have all of their data - in addition to the username and display name of the map owner - exposed to all other users of LEMA.</li>
+																<li>If you wish your map to no longer be shared on the Community Showcase, you may load the map and then re-save it with the "Share to showcase" box unticked.</li>
+															</ul>
+														</section>
+													</main>
+												</GenericModal>
+											localStorage.setItem("LEMA_loginRegisterForm", JSON.stringify(this.state)); // Preserve data
 											this.props.openModal(e, privacyPolicy, true);
 										}}>privacy policy</a>.</p>
 										<input type={"checkbox"} name={"dataConsent"} checked={this.state.dataConsent} onChange={this.onFieldChange} />
@@ -207,6 +220,7 @@ export class LoginRegisterModal extends Component
 						{
 							if(this.validate(this.state.mode))
 							{
+								localStorage.removeItem("LEMA_loginRegisterForm");
 								this.props.handler(e, this.state);
 							}
 						}}/>

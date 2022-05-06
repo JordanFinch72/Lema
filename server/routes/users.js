@@ -213,7 +213,7 @@ router.delete("/:username/", function(req, res, next)
 				if(!response.ok)
 					res.send({type: "error", message: "Server error.", response: response});
 				else
-					res.send({type: "success", message: "User profile and maps deleted."});
+					res.send({type: "success", message: "User profile deleted."});
 			}).catch(function(error)
 			{
 				res.send({type: "error", message: "Error:" + error.error});

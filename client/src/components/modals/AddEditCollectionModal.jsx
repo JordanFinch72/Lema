@@ -11,8 +11,7 @@ export class AddEditCollectionModal extends Component
 		super(props);
 		this.state = {
 			type: (this.props.type === "cognate") ? "Cognates" : "Historical journey",
-			word: this.props.word || null,
-			language: this.props.language || null
+			name: this.props.name || null
 		};
 
 		this.onCollectionSubmit = this.props.onCollectionSubmit.bind(this);
@@ -37,10 +36,8 @@ export class AddEditCollectionModal extends Component
 		// TODO: For cognates, only one cognate per language should be allowed
 		//  - Future feature: for additional cognate collections, change solid colours to patterns of the specified colours instead (e.g. stripes; checks)
 		let errorCollector = "";
-		if(this.state.word === null || this.state.word.length <= 0)
-			errorCollector += "You must enter a word.\n";
-		if(this.state.language === null || this.state.language.length <= 0)
-			errorCollector += "You must enter a language.\n";
+		if(this.state.name === null || this.state.name.length <= 0)
+			errorCollector += "You must enter a name.\n";
 
 		if(errorCollector.length > 0)
 		{
@@ -60,11 +57,8 @@ export class AddEditCollectionModal extends Component
 						<div className={"node-data"}>
 							<div className={"section"}>
 								<div className={"form"}>
-									<LabeledControl label={"Word: "}>
-										<Textbox name={"word"} value={this.state.word} hint={"e.g. \"horse from PIE to Modern English\""} autoFocus={true} onFieldChange={this.onFieldChange} />
-									</LabeledControl>
-									<LabeledControl label={"Language: "}>
-										<Textbox hint={"e.g. \"English\""} name={"language"} value={this.state.language} onFieldChange={this.onFieldChange} />
+									<LabeledControl label={"Name: "}>
+										<Textbox name={"name"} value={this.state.name} hint={"e.g. \"horse (PIE->English)\""} autoFocus={true} onFieldChange={this.onFieldChange} />
 									</LabeledControl>
 									<LabeledControl label={"Type: "}>
 										<select name={"type"} value={this.state.type} onChange={this.onFieldChange}>
@@ -84,7 +78,7 @@ export class AddEditCollectionModal extends Component
 							if(this.validation())
 							{
 								const type = (this.state.type === "Historical journey") ? "journey" : "cognate";
-								const data = {type: type, header: {word: this.state.word, language: this.state.language}, index: this.props.index};
+								const data = {type: type, header: {name: this.state.name}, index: this.props.index};
 								this.props.onCollectionSubmit(e, data);
 							}
 						}}/>

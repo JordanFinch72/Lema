@@ -108,11 +108,10 @@ router.get("/:username/:sharedOnly/:jwt", function(req, res, next)
 });
 
 /* Retrieve specific map belonging to a particular user and optionally filter for maps that have been shared */
-router.get("/:username/:mapID/:sharedOnly", function(req, res, next)
+router.get("/:username/:mapID/", function(req, res, next)
 {
 	const username = req.params.username;
 	const mapID = req.params.mapID;
-	const sharedOnly = req.params.sharedOnly;
 
 	// Retrieve all maps
 	db.allDocs({
@@ -122,7 +121,7 @@ router.get("/:username/:mapID/:sharedOnly", function(req, res, next)
 	}).then(function(result)
 	{
 		const rows = result.rows;
-		if(sharedOnly === "1" && !rows[0].doc.isShared)
+		if(!rows[0].doc.isShared)
 			res.send({type: "error", message: "Error: This map's owner has not made the map shareable."});
 		else
 		{

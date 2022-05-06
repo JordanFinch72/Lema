@@ -77,7 +77,7 @@ class Lema extends Component
 			{
 				const username = urlParts[4];
 				const mapID = urlParts[5];
-				axios.get(`/maps/${username}/${mapID}/0`).then((response) => {
+				axios.get(`/maps/${username}/${mapID}`).then((response) => {
 					if(this.handleResponse(response, "User's map retrieved.", null))
 					{
 						this.loadMap(null, response.data.map, "database");
@@ -622,7 +622,7 @@ class Lema extends Component
 			const image = new Image();
 			const serializer = new XMLSerializer();
 			const imageString = serializer.serializeToString(svg);
-			image.src = "data:image/svg+xml;base64, " + window.btoa(unescape(encodeURIComponent(imageString)));
+				image.src = "data:image/svg+xml;base64, " + window.btoa(unescape(encodeURIComponent(imageString)));
 
 			// Wait until image has finished loading
 			image.onload = () => {
@@ -702,7 +702,7 @@ class Lema extends Component
 		const activeUser = this.state.activeUser;
 		const username = activeUser.username;
 		axios.put(`/users/${username}`, {data: data, jwt: this.state.activeUser.jwt}).then((response) => {
-			if(this.handleResponse(response, "User profile updated.", "Profile updated!", false, () => this.editProfile(e, data)))
+			if(this.handleResponse(response, "User profile updated.", "Profile updated!", true, () => this.editProfile(e, data)))
 			{
 				activeUser.displayName = data.displayName; // Update to reflect changes
 
@@ -718,8 +718,9 @@ class Lema extends Component
 	{
 		const username = this.state.activeUser.username;
 		axios.delete(`/users/${username}`, {data: {jwt: this.state.activeUser.jwt}}).then((response) => {
-			if(this.handleResponse(response, "User profile deleted.", "User profile deleted!", null, () => this.deleteProfile(e)))
+			if(this.handleResponse(response, "User profile deleted.", "User profile deleted!", true, () => this.deleteProfile(e)))
 			{
+				this.setState({isShowcaseMode: false});
 				this.logoutUser(e, true);
 			}
 		});
@@ -757,6 +758,7 @@ class Lema extends Component
 								localStorage.setItem("LEMA_activeUser", JSON.stringify(activeUser));
 
 							if(refreshFunction !== null) refreshFunction(); // Re-call function
+							else return "Token refreshed.";
 						});
 
 					}
@@ -813,7 +815,7 @@ class Lema extends Component
 		{
 			const activeContextMenu = this.state.activeContextMenu;
 			contextMenuContainer =
-				<div className={"context-menu-container"} onClick={this.closeContextMenu}>{activeContextMenu}</div>;
+				<div className={"context-menu-container"} onClick={this.closeContextMenu} onContextMenu={(e) => e.preventDefault()} >{activeContextMenu}</div>;
 		}
 
 		return (

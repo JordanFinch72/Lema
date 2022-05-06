@@ -19,19 +19,6 @@ class MapItem extends Component
 				{/* Flex-row */}
 				<div className={"title"}>{this.props.map.activeMap.title}</div>
 				<div className={"buttons-container"}>
-					<Button value={"SHARE LINK"} onClick={(e) => {
-						const domain = "http://localhost:3000/"; // Major TODO: Update this when hosted
-						const link = `http://localhost:3000/map/${this.props.activeUser.username}/${this.props.map.activeMap.mapID}`;
-						const linkModal =
-							<GenericModal>
-								<p>
-									Here is the link to your map: <a href={link}>{link}</a><br /><br />
-									This will not share your map to the showcase, but anybody with the link can access it.<br />
-									Whenever you save your map, your changes will be shown via this same link.
-								</p>
-							</GenericModal>
-						this.props.openModal(null, linkModal, true);
-					}} />
 					<Button value={"LOAD"} onClick={(e) => {
 						const userConfirmed = window.confirm("This will overwrite your currently active map.\nYou may wish to save your map before you load another one.\n\nWould you like to continue?");
 
@@ -74,12 +61,24 @@ export class ViewMapsModal extends Component
 
 	loadUserMaps(username, jwt)
 	{
+		console.debug("[== LOADING MAPS ==]");
+
 		// Fetch maps belonging to this user
 		axios.get(`/maps/${username}/0/${jwt}`).then((response) =>
 		{
-			if(this.props.handleResponse(response, "User's maps retrieved.", null, null, () => this.loadUserMaps(username, jwt)))
+			const handleResponse = this.props.handleResponse(response, "User's maps retrieved.", null, false);
+			console.log(handleResponse);
+			if(handleResponse === true)
 			{
 				this.setState({loadedMaps: response.data.maps, loading: false})
+			}
+			else if(handleResponse === false)
+			{
+				console.error("Error loading maps.");
+			}
+			else
+			{
+				this.loadUserMaps(this.props.activeUser.username, this.props.activeUser.jwt);
 			}
 		});
 	}

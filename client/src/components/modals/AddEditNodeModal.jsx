@@ -176,13 +176,15 @@ export class AddEditNodeModal extends Component
 									</LabeledControl>
 								</div>
 							</div>
-							{/* parentNodes */}
-							<div className={"section"}>
-								<h4>Parent Nodes:</h4>
-								<div className={"parent-node-list"}>
-									{parentNodeList}
+							{this.props.node.vertex !== undefined &&
+								/* parentNodes */
+								<div className={"section"}>
+									<h4>Parent Nodes:</h4>
+									<div className={"parent-node-list"}>
+										{parentNodeList}
+									</div>
 								</div>
-							</div>
+							}
 						</div>
 					</div>
 					<div className={"right"}>
@@ -190,7 +192,32 @@ export class AddEditNodeModal extends Component
 						{this.props.node.vertex !== undefined && /* Vertex appearance */
 							<div className={"node-appearance"}>
 								<div className={"section"}>
-									<h4>Vertex</h4>
+									<h4>Vertex Label</h4>
+									<div className={"form"}>
+										<LabeledControl label={"Text: "}>
+											<select name={"vertexTextType"} value={this.state.vertexTextType} onChange={(e) => {
+												this.setState({vertexCustomText: ""}); // Automatically clear "Custom text" field
+												this.onFieldChange(e);
+											}}>
+												<option>Word</option>
+												<option>Language</option>
+												<option>Custom text</option>
+											</select>
+										</LabeledControl>
+										<LabeledControl label={"Custom text: "}>
+											<Textbox name={"vertexCustomText"} value={this.state.vertexCustomText} hint={"e.g. \"Coolest word ever!\""} onFieldChange={(e) => {
+												this.setState({vertexTextType: "Custom text"}); // Automatically change type to "Custom text"
+												this.onFieldChange(e);
+											}} />
+										</LabeledControl>
+										<LabeledControl label={"Font colour: "}>
+											<Textbox name={"vertexFontColour"}  value={this.state.vertexFontColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
+											<ColourPicker name={"vertexFontColour"} value={this.state.vertexFontColour} onChange={this.onFieldChange} />
+										</LabeledControl>
+									</div>
+								</div>
+								<div className={"section"}>
+									<h4>Vertex Circle</h4>
 									<div className={"form"}>
 										<LabeledControl label={"Stroke colour: "}>
 											<Textbox name={"vertexStrokeColour"}  value={this.state.vertexStrokeColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
@@ -203,7 +230,7 @@ export class AddEditNodeModal extends Component
 									</div>
 								</div>
 								<div className={"section"}>
-									<h4>Parent Edge</h4>
+									<h4>Edge Line</h4>
 									<div className={"form"}>
 										<LabeledControl label={"Stroke colour: "}>
 											<Textbox name={"vertexEdgeStrokeColour"}  value={this.state.vertexEdgeStrokeColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
@@ -227,31 +254,6 @@ export class AddEditNodeModal extends Component
 										<LabeledControl label={"Fill colour: "}>
 											<Textbox name={"vertexArrowheadFillColour"}  value={this.state.vertexArrowheadFillColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
 											<ColourPicker name={"vertexArrowheadFillColour"} value={this.state.vertexArrowheadFillColour} onChange={this.onFieldChange} />
-										</LabeledControl>
-									</div>
-								</div>
-								<div className={"section"}>
-									<h4>Label</h4>
-									<div className={"form"}>
-										<LabeledControl label={"Text: "}>
-											<select name={"vertexTextType"} value={this.state.vertexTextType} onChange={(e) => {
-												this.setState({vertexCustomText: ""}); // Automatically clear "Custom text" field
-												this.onFieldChange(e);
-											}}>
-												<option>Word</option>
-												<option>Language</option>
-												<option>Custom text</option>
-											</select>
-										</LabeledControl>
-										<LabeledControl label={"Custom text: "}>
-											<Textbox name={"vertexCustomText"} value={this.state.vertexCustomText} hint={"e.g. \"Coolest word ever!\""} onFieldChange={(e) => {
-												this.setState({vertexTextType: "Custom text"}); // Automatically change type to "Custom text"
-												this.onFieldChange(e);
-											}} />
-										</LabeledControl>
-										<LabeledControl label={"Font colour: "}>
-											<Textbox name={"vertexFontColour"}  value={this.state.vertexFontColour} hint={"Hexadecimal value (e.g. #000000)"} onFieldChange={this.onFieldChange} />
-											<ColourPicker name={"vertexFontColour"} value={this.state.vertexFontColour} onChange={this.onFieldChange} />
 										</LabeledControl>
 									</div>
 								</div>
@@ -307,7 +309,8 @@ export class AddEditNodeModal extends Component
 								{
 									updatedNode = {
 										...this.props.node,
-										word: this.state.word, language: this.state.language, colour: this.state.colour,
+										word: this.state.word, language: (this.state.language.charAt(0).toUpperCase() + this.state.language.slice(1)), // Capitalise first letter of language
+										colour: this.state.colour,
 										vertex: {
 											...this.props.node.vertex,
 											type: this.state.vertexTextType,
@@ -327,7 +330,7 @@ export class AddEditNodeModal extends Component
 								{
 									updatedNode = {
 										...this.props.node,
-										word: this.state.word, language: this.state.language,
+										word: this.state.word, language: (this.state.language.charAt(0).toUpperCase() + this.state.language.slice(1)), // Capitalise first letter of language
 										fillColour: this.state.fillColour, strokeColour: this.state.strokeColour,
 										label: {
 											...this.props.node.label,
