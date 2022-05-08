@@ -52,10 +52,9 @@ router.get("/:username/:password", function(req, res, next)
 					displayName: doc.displayName
 				};
 
-				// TODO: If token is invalid because it's expired, send that message back to client (which will then refresh the token)
 				jwt.sign(user, JWT_SECRET, {
 					algorithm: "HS256",
-					expiresIn: 900, // 15 minutes
+					expiresIn: 900 * 4 * 6, // 6 hours // Major TODO: Change to 15 minutes when releasing to public
 					issuer: "LEMA Authentication"
 				}, function(error, token){
 					refreshToken = generateRefreshToken();

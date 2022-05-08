@@ -58,7 +58,7 @@ router.get("/refresh/:username/:refreshToken", function(req, res, next)
 			// Regenerate JWT and refresh token
 			jwtToken = jwt.sign(user, JWT_SECRET, {
 				algorithm: "HS256",
-				expiresIn: 900, // 15 minutes
+				expiresIn: 900 * 4 * 6, // 6 hours // Major TODO: Change to 15 minutes when releasing to public
 				issuer: "LEMA Authentication"
 			});
 			newRefreshToken = generateRefreshToken();
