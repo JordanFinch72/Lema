@@ -1,6 +1,4 @@
 # LEMA: The Linguistic Etymology Map Assistant
-
-## Description
 LEMA is a tool that allows people to create custom etymology maps, as seen on the /r/etymologymaps subreddit (https://reddit.com/r/etymologymaps).
 
 ## Online Access
