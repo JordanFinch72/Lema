@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import * as d3 from "d3";
 import {AddEditNodeModal} from "./modals/AddEditNodeModal";
 import {ContextMenu} from "./controls/ContextMenu";
@@ -8,10 +8,10 @@ import languageProperties from "../data/languageProperties.json";
 export function Map(props)
 {
 	// DEBUG MODE
-	const DEBUG_MODE = false;
+	const DEBUG_MODE = true;
 
 	if(DEBUG_MODE)
-		console.debug("[== MAP RENDER ==]");
+		console.log("[== MAP RENDER ==]");
 
 	// Prop functions
 	const openContextMenu = props.openContextMenu.bind(this);
@@ -23,6 +23,10 @@ export function Map(props)
 
 	// Props
 	const collections = props.collections;
+
+	// State
+	const [lastX, setLastX] = useState(0);
+	const [lastY, setLastY] = useState(0);
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
@@ -47,9 +51,10 @@ export function Map(props)
 				.attr('transform', 'translate(50,150)')
 		}
 
-
 		// Draw countries, bind data and handlers
 		const countryPaths = svg.append("g")
+			.classed("countries", true)
+			.attr("style", `transform: translate(${lastX}px, ${lastY}px)`) // Set previous drag values
 			.selectAll("path") // svg->g->path
 			.data(countries)         // svg->g->path
 			.enter()                 // svg->g->path (create new nodes per data)
@@ -177,9 +182,15 @@ export function Map(props)
 			});
 
 		// Cognate labels, journey vertices
-		const edgesGroup = svg.append("g").classed("edges", true); // SVG group for edges
-		edgesGroup.on("contextmenu", (e) => e.preventDefault());
-		const verticesLabelsGroup = svg.append("g").classed("vertices-labels", true); // SVG group for vertices AND cognate labels
+		const edgesGroup = svg.append("g") // SVG group for edges
+			.classed("edges", true)
+			.attr("style", `transform: translate(${lastX}px, ${lastY}px)`) // Set previous drag values
+			.on("contextmenu", (e) => e.preventDefault());
+
+		const verticesLabelsGroup = svg.append("g") // SVG group for vertices AND cognate labels
+			.classed("vertices-labels", true)
+			.attr("style", `transform: translate(${lastX}px, ${lastY}px)`); // Set previous drag values
+
 		countryPaths.each(function(f, i) {
 			const cognateNodeObject = findNodes(f, "cognate");  // The first node in any cognate collection that belongs to this country/region
 			if(cognateNodeObject)
@@ -568,17 +579,31 @@ export function Map(props)
 		// Graticules (lines on the map)
 		const g = svg.append("g");
 		const graticules = g.classed("graticules", true)
+			.attr("style", `transform: translate(${lastX}px, ${lastY}px)`) // Set previous drag values
 			.append("path")
 			.attr("fill", "none")
 			.attr("stroke", "rgba(0,0,0,.2)")
 			.attr("d", path(d3.geoGraticule()()));
-
-		/*
-		svg.call(d3.zoom().on("zoom", function () {
-			z = d3.event.transform.k;
-			draw(); // TODO: Contain above render code into draw() function
-		}));
-		 */
+		
+		/* Map dragging */
+		// Allow map to be dragged
+		let svgChildren = null, xInit = 0, yInit = 0, newX = 0, newY = 0;
+		svg.call(d3.drag()
+			.on("start", (e) => {
+				svgChildren = d3.selectAll("g.countries, g.edges, g.vertices-labels, g.graticules");
+				xInit = e.x; yInit = e.y;
+			})
+			.on("drag", (e) => {
+				let deltaX = (e.x - xInit); let deltaY = (e.y - yInit);
+				newX = lastX + deltaX; newY = lastY + deltaY;
+				svgChildren.attr("style", `transform: translate(${newX}px, ${newY}px)`);
+			})
+			.on("end", (e) => {
+				let deltaX = (e.x - xInit); let deltaY = (e.y - yInit);
+				if(Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) // Only set if they actually dragged; not just clicked
+					setLastX(newX); setLastY(newY);
+			})
+		);
 
 		// Clean-up function (kills all SVG elements upon unmounting)
 		return function cleanup()
