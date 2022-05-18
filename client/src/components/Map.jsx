@@ -8,10 +8,10 @@ import languageProperties from "../data/languageProperties.json";
 export function Map(props)
 {
 	// DEBUG MODE
-	const DEBUG_MODE = true;
+	const DEBUG_MODE = false;
 
 	if(DEBUG_MODE)
-		console.log("[== MAP RENDER ==]");
+		console.debug("[== MAP RENDER ==]");
 
 	// Prop functions
 	const openContextMenu = props.openContextMenu.bind(this);
