@@ -584,7 +584,7 @@ export function Map(props)
 			.attr("fill", "none")
 			.attr("stroke", "rgba(0,0,0,.2)")
 			.attr("d", path(d3.geoGraticule()()));
-		
+
 		/* Map dragging */
 		// Allow map to be dragged
 		let svgChildren = null, xInit = 0, yInit = 0, newX = 0, newY = 0;
