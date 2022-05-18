@@ -20,13 +20,12 @@ export function Map(props)
 	const removeNode = props.removeNode.bind(this);
 	const openModal = props.openModal.bind(this);
 	const createToast = props.createToast.bind(this);
+	const setMapTranslate = props.setMapTranslate.bind(this);
 
 	// Props
 	const collections = props.collections;
-
-	// State
-	const [lastX, setLastX] = useState(0);
-	const [lastY, setLastY] = useState(0);
+	const lastX = props.mapTranslate.x;
+	const lastY = props.mapTranslate.y;
 
 	// Note: Unfortunately, cannot append React components (then again, that's probably a good thing...)
 	useEffect(() => {
@@ -601,7 +600,7 @@ export function Map(props)
 			.on("end", (e) => {
 				let deltaX = (e.x - xInit); let deltaY = (e.y - yInit);
 				if(Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) // Only set if they actually dragged; not just clicked
-					setLastX(newX); setLastY(newY);
+					setMapTranslate(newX, newY);
 			})
 		);
 

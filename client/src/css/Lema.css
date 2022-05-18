@@ -160,6 +160,7 @@ div.collections-container h3 {
 div.collections-container div.description {
     font-size: 0.7em;
     font-weight: normal;
+    text-align: center;
 }
 div.collections-container div.id {
     font-size: 0.5em;

@@ -24,7 +24,8 @@ class Lema extends Component
 			activeMap: null,         // Either null, set by load function, or set by save function once saved to profile
 			collections: [],
 			journeyCount: 0,
-			isShowcaseMode: false
+			isShowcaseMode: false,
+			mapTranslate: {x: 0, y: 0}
 		};
 
 		this.toastTimeout = null;
@@ -54,6 +55,7 @@ class Lema extends Component
 		this.loadMap = this.loadMap.bind(this);
 		this.deleteMap = this.deleteMap.bind(this);
 		this.handleResponse = this.handleResponse.bind(this);
+		this.setMapTranslate = this.setMapTranslate.bind(this);
 	}
 
 	/**
@@ -787,6 +789,12 @@ class Lema extends Component
 			}
 		}
 	}
+	setMapTranslate(x, y)
+	{
+		const mapTranslate = this.state.mapTranslate;
+		mapTranslate.x = x; mapTranslate.y =y;
+		this.setState({mapTranslate: mapTranslate});
+	}
 
 	render()
 	{
@@ -835,6 +843,7 @@ class Lema extends Component
 					         addJourneyFromDatabase={this.addJourneyFromDatabase}
 					/>
 					<Map collections={this.state.collections}
+						 setMapTranslate={this.setMapTranslate} mapTranslate={this.state.mapTranslate}
 					     isShowcaseMode={this.state.isShowcaseMode} createToast={this.createToast}
 					     openContextMenu={this.openContextMenu} closeContextMenu={this.closeContextMenu}
 					     openModal={this.openModal} closeModal={this.closeModal}
