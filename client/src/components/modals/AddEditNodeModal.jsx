@@ -21,6 +21,7 @@ export class AddEditNodeModal extends Component
 			labelType: (this.props.node.label !== undefined) ? this.props.node.label.type || null : null,
 			labelCustomText: (this.props.node.label !== undefined) ? this.props.node.label.customText || null : null, // Note: Text can be ""
 			labelFontColour: (this.props.node.label !== undefined) ? this.props.node.label.fontColour || null : null,
+			labelFontSize: (this.props.node.label !== undefined) ? this.props.node.label.fontSize || null : null,
 
 			// Journey properties
 			vertexTextType: (this.props.node.vertex !== undefined) ? this.props.node.vertex.type || null : null,
@@ -140,7 +141,7 @@ export class AddEditNodeModal extends Component
 				if(this.props.node !== wordNode)
 				{
 					// If true, disables adding and enables deletion. If false, the inverse
-					const isAlreadyParent = this.props.node.parents.includes(wordNode);
+					const isAlreadyParent = (this.props.node.parents.find((parentNode) => parentNode.id === wordNode.id) !== undefined);
 
 					parentNodeList.push(
 					<div key={i} data-index={i} className={"parent-node"}>
@@ -337,7 +338,7 @@ export class AddEditNodeModal extends Component
 											type: this.state.labelType,
 											customText: this.state.labelCustomText,
 											fontColour: this.state.labelFontColour,
-											fontSize: this.state.fontSize
+											fontSize: this.state.labelFontSize
 										}
 									};
 								}

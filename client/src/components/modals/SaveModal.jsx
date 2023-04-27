@@ -61,18 +61,22 @@ export class SaveModal extends Component
 		this.validSaveModes.forEach((m) => saveModes.push(<option>{m}</option>));
 
 		// Allow them to save as new map if a map is already active (loaded)
-		const saveChangesLabel = (this.state.saveMode === "Save to profile") ? "Save Changes" : "Export..."
-		const saveAsNewMap = (this.props.activeMap !== null && this.props.activeMap.mapID !== null && this.state.saveMode === "Save to profile") ?
-			<Button value={"Save As New Map"} onClick={(e) =>
-			{
-				if(this.validate())
+		let saveChangesLabel = (this.state.saveMode === "Save to profile") ? "Save New Map" : "Export...";
+		let saveAsNewMap = null;
+		if(this.props.activeMap !== null && this.props.activeMap.mapID !== null && this.state.saveMode === "Save to profile")
+		{
+			saveChangesLabel = "Save Changes";
+			saveAsNewMap =
+				<Button value={"Save As New Map"} onClick={(e) =>
 				{
-					this.setState({isNewMap: true}, () => {
-						this.props.handler(e, this.state);
-					});
-				}
-			}}/>
-			: null;
+					if(this.validate())
+					{
+						this.setState({isNewMap: true}, () => {
+							this.props.handler(e, this.state);
+						});
+					}
+				}}/>
+		}
 
 		return (
 			<div className={"modal"}>
