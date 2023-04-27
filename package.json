@@ -1,6 +1,9 @@
 {
   "scripts": {
-	"start": "node server/server.js",
-	"heroku-postbuild": "cd client && npm install && npm run build"
+    "start": "node server/server.js",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "dependencies": {
+    "react-scripts": "^5.0.1"
   }
 }

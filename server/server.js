@@ -44,6 +44,6 @@ server.use(function(err, req, res, next)
 
 module.exports = server;
 
-
+const PORT = process.env.PORT || 5000;
 // This displays message that the server running and listening to specified port
-server.listen(5000, () => console.log(`Listening on port ${5000}`)); //Line 6
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`)); //Line 6
