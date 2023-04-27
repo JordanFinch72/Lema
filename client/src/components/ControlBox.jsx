@@ -39,7 +39,9 @@ export class ControlBox extends Component
 		}
 		else
 		{
-			const word = this.state.searchBoxValue;
+			// TODO: New source for data retrieval (unless something can be arranged)
+			alert("Feature currently unavailable - but you can still add data manually!");
+			/*const word = this.state.searchBoxValue;
 			const language =  this.state.searchFilter;
 			if(word !== "" && language !== "")
 			{
@@ -68,7 +70,7 @@ export class ControlBox extends Component
 				{
 					// TODO: Find translations for the word in every country shown on the map. Colour code translations that share the same ancestry (are cognates)
 				}
-			}
+			}*/
 		}
 	}
 	onRadioButtonClick(e, data)
