@@ -18,7 +18,19 @@ server.use(logger("dev"));
 server.use(express.json());
 server.use(express.urlencoded({extended: false}));
 server.use(cookieParser());
-server.use(express.static(path.join(__dirname, "public")));
+
+server.use(express.static(__dirname));
+server.use(express.static(path.join(__dirname, '../client/build')));
+server.get('/', function (req, res) {
+	res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
+
+
+server.get('/!*.js', function (req, res) {
+	res.set('Content-Encoding', 'gzip');
+	res.set('Content-Type', 'application/json');
+	res.sendFile(path.join(__dirname, 'build', `${req.path}.gz`)); //serving build folder
+});
 
 server.use("/jwt", jwtRouter);
 server.use("/users", usersRouter);
@@ -44,6 +56,7 @@ server.use(function(err, req, res, next)
 
 module.exports = server;
 
+console.log("Hello");
 
 // This displays message that the server running and listening to specified port
 server.listen(5555, () => console.log(`Listening on port ${5555}`)); //Line 6

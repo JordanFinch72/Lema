@@ -74,6 +74,8 @@ router.get("/:username/:password", function(req, res, next)
 	{
 		if(error.error === "not_found")
 			res.send({type: "error", message: "Username not found in database."});
+		else
+			res.send({type: "error", message: "Error:" + error.error});
 	});
 
 });
@@ -142,11 +144,14 @@ router.put("/:displayName/:username/:password/:email", function(req, res, next)
 					});
 				});
 			}
+			else
+			{
+				res.send({type: "error", message: "Error:" + error.error});
+			}
 		});
 	}
 	else
 		res.send({type: "error", message: errorCollector});
-
 
 });
 
