@@ -34,6 +34,18 @@ export class Banner extends Component
 			}}>
 				New Map
 			</div>,
+			<div className={"save-button"} onClick={(e) => {
+				this.props.openModal(e, <SaveModal handler={this.props.saveMap} activeMap={this.props.activeMap} createToast={this.props.createToast} />);
+			}}>
+				Save Map / Export
+			</div>,
+			<div className={"view-maps-button"} onClick={(e) => {
+				this.props.openModal(e, <ViewMapsModal loadMap={this.props.loadMap} deleteMap={this.props.deleteMap}
+				                                       activeUser={this.props.activeUser} openModal={this.props.openModal}
+				                                       handleResponse={this.props.handleResponse}  />);
+			}}>
+				View Maps / Import
+			</div>,
 			<div className={"login-button"} onClick={(e) => {
 				if(this.DATABASE_DISABLED)
 				{

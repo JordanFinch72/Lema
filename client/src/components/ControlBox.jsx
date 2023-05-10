@@ -41,7 +41,7 @@ export class ControlBox extends Component
 		else
 		{
 			// TODO: New source for data retrieval (unless something can be arranged)
-			this.createToast(null, "Auto-population feature currently unavailable - feel free to add data manually in the meantime!", 10000, "neutral");
+			this.createToast(null, "Automatic etymology search feature currently unavailable - feel free to add data manually in the meantime!", 10000, "neutral");
 			/*const word = this.state.searchBoxValue;
 			const language =  this.state.searchFilter;
 			if(word !== "" && language !== "")

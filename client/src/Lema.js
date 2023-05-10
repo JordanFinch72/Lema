@@ -66,12 +66,16 @@ class Lema extends Component
 	componentDidMount()
 	{
 		// Welcome message
-		window.setTimeout(function(){
-			alert(
-				"Welcome to LEMA! To get started, why not create a new 'Historical journey' by hitting the '+' on the left-hand side?\n\n" +
-				"You can add a node for each word in your journey, style them how you wish, and connect them by setting parent nodes on any subsequent children you make!\n\n"
-			);
-		}, 2000);
+		if(!localStorage.getItem("LEMA_welcomed"))
+		{
+			window.setTimeout(function(){
+				localStorage.setItem("LEMA_welcomed", "true");
+				alert(
+					"Welcome to LEMA! To get started, why not create a new 'Historical journey' by hitting the '+' on the left-hand side?\n\n" +
+					"You can add a node for each word in your journey, style them how you wish, and connect them by setting parent nodes on any subsequent children you make!\n\n"
+				);
+			}, 2000);
+		}
 
 		// Check if user is already logged in
 		const activeUser = JSON.parse(localStorage.getItem("LEMA_activeUser"));
@@ -558,7 +562,7 @@ class Lema extends Component
 	 */
 	saveMap(e, data)
 	{
-		const username = this.state.activeUser.username;
+		const username = (this.state.activeUser) ? this.state.activeUser.username : "guest_user";
 		const activeMapID = (this.state.activeMap) ? this.state.activeMap.mapID : null;
 		const isNewMap = data.isNewMap;
 
@@ -604,7 +608,7 @@ class Lema extends Component
 			const a = document.createElement("a");
 			const blob = new Blob([JSON.stringify(data, null, 4)], {type: 'application/json'});
 			a.href = URL.createObjectURL(blob);
-			a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
+			a.download = `map_${username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
 			a.click(); // Download
 		}
 		else if(data.saveMode === "Export to SVG")
@@ -621,7 +625,7 @@ class Lema extends Component
 			const a = document.createElement("a");
 			const blob = new Blob([svg.outerHTML], {type: "image/svg+xml;charset=utf-8"});
 			a.href = URL.createObjectURL(blob);
-			a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}.svg`; // File name (stripped of spaces)
+			a.download = `map_${username}_${data.title.replace(/\s+/g, '')}.svg`; // File name (stripped of spaces)
 			a.click(); // Download
 			svg.removeAttribute("width");
 			svg.removeAttribute("height");
@@ -652,7 +656,7 @@ class Lema extends Component
 				const imageData = canvas.toDataURL("image/png");
 
 				const a = document.createElement("a");
-				a.download = `map_${this.state.activeUser.username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
+				a.download = `map_${username}_${data.title.replace(/\s+/g, '')}`; // File name (stripped of spaces)
 				a.href = imageData;
 				a.dataset.downloadurl = ["image/png", a.download, a.href].join(':');
 				a.click(); // Download
@@ -693,7 +697,7 @@ class Lema extends Component
 
 	deleteMap(e, mapID)
 	{
-		const username = this.state.activeUser.username;
+		const username = (this.state.activeUser) ? this.state.activeUser.username : "guest_user";
 		let activeMap = this.state.activeMap;
 
 		// If they're deleting the currently active map
@@ -734,7 +738,7 @@ class Lema extends Component
 
 	deleteProfile(e)
 	{
-		const username = this.state.activeUser.username;
+		const username = (this.state.activeUser) ? this.state.activeUser.username : "guest_user";
 		axios.delete(`/users/${username}`, {data: {jwt: this.state.activeUser.jwt}}).then((response) => {
 			if(this.handleResponse(response, "User profile deleted.", "User profile deleted!", true, () => this.deleteProfile(e)))
 			{

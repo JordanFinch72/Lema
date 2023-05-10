@@ -47,7 +47,7 @@ export class ViewMapsModal extends Component
 		this.state = {
 			loadedMaps: [],
 			loadedFileName: null,
-			loading: true
+			loading: !!(props.activeUser)
 		};
 
 		this.onFieldChange = this.onFieldChange.bind(this);
@@ -56,7 +56,8 @@ export class ViewMapsModal extends Component
 
 	componentDidMount()
 	{
-		this.loadUserMaps(this.props.activeUser.username, this.props.activeUser.jwt);
+		if(this.props.activeUser)
+			this.loadUserMaps(this.props.activeUser.username, this.props.activeUser.jwt);
 	}
 
 	loadUserMaps(username, jwt)
@@ -97,12 +98,21 @@ export class ViewMapsModal extends Component
 	render()
 	{
 		let mapItems = [];
-		this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem activeUser={this.props.activeUser} map={m} openModal={this.props.openModal}
-		                                                            loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
+		if(this.props.activeUser)
+		{
+			this.state.loadedMaps.forEach((m) => mapItems.push(<MapItem activeUser={this.props.activeUser} map={m} openModal={this.props.openModal}
+			                                                            loadMap={this.props.loadMap} deleteMap={this.props.deleteMap} />));
+		}
+
 		if(this.state.loading)
 			mapItems = "Loading...";
 		else if(mapItems.length === 0)
-			mapItems = "No maps here! Try saving one to your profile! Alternatively, feel free to load one in from a file.";
+		{
+			if(this.props.activeUser)
+				mapItems = "No maps here! Try saving one to your profile! Alternatively, feel free to load one in from a file.";
+			else
+				mapItems = "No maps here! Log in to save one to your profile! Alternatively, feel free to load one in from a file.";
+		}
 
 		return (
 			<div className={"modal"}>
