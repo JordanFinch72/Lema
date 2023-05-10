@@ -10,6 +10,8 @@ const jwtRouter = require("./server/routes/jwt");
 const usersRouter = require("./server/routes/users");
 const mapsRouter = require("./server/routes/maps");
 
+const PORT = process.env.PORT || 5555;
+
 // View engine setup
 server.set("views", path.join(__dirname, "server/views"));
 server.set("view engine", "jade");
@@ -59,4 +61,4 @@ module.exports = server;
 console.log("Hello");
 
 // This displays message that the server running and listening to specified port
-server.listen(5555, () => console.log(`Listening on port ${5555}`)); //Line 6
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`)); //Line 6
