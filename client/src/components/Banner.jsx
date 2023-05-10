@@ -68,7 +68,7 @@ export class Banner extends Component
 					{
 						if(this.props.activeMap.mapID)
 						{
-							const domain = "http://localhost:3000/"; // Major TODO: Update this when hosted
+							const domain = "https://lema-tool.herokuapp.com"; // Major TODO: Update this when hosted
 							const link = `${domain}/map/${this.props.activeUser.username}/${this.props.activeMap.mapID}`;
 							const linkModal =
 								<GenericModal>
