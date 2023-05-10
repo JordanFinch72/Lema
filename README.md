@@ -1,3 +1,7 @@
+**Note: The ``master`` branch contains the version of the app as it was delivered at the deadline for my thesis project (a.k.a final-year project) at Plymouth University in May 2022.**
+
+**An effort is being made to move the project from using PouchDB to using MongoDB instead so that it can be deployed live.**
+
 # LEMA: The Linguistic Etymology Map Assistant
 
 ## Vision
