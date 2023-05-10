@@ -6,12 +6,12 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
-const jwtRouter = require("./routes/jwt");
-const usersRouter = require("./routes/users");
-const mapsRouter = require("./routes/maps");
+const jwtRouter = require("./server/routes/jwt");
+const usersRouter = require("./server/routes/users");
+const mapsRouter = require("./server/routes/maps");
 
 // View engine setup
-server.set("views", path.join(__dirname, "views"));
+server.set("views", path.join(__dirname, "server/views"));
 server.set("view engine", "jade");
 
 server.use(logger("dev"));
@@ -20,16 +20,16 @@ server.use(express.urlencoded({extended: false}));
 server.use(cookieParser());
 
 server.use(express.static(__dirname));
-server.use(express.static(path.join(__dirname, '../client/build')));
+server.use(express.static(path.join(__dirname, 'client/build')));
 server.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname, '../client/build/index.html'));
+	res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
 
 server.get('/!*.js', function (req, res) {
 	res.set('Content-Encoding', 'gzip');
 	res.set('Content-Type', 'application/json');
-	res.sendFile(path.join(__dirname, 'build', `${req.path}.gz`)); //serving build folder
+	res.sendFile(path.join(__dirname, 'client/build', `${req.path}.gz`)); //serving build folder
 });
 
 server.use("/jwt", jwtRouter);
