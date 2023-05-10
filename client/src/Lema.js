@@ -28,6 +28,7 @@ class Lema extends Component
 			mapTranslate: {x: 0, y: 0}
 		};
 
+		this.DATABASE_DISABLED = true; // TODO: Set to false when database has been set up properly (10/05/23)
 		this.toastTimeout = null;
 		this.defaultJourneyColours = ["#ff0000", "#00ff00", "#0000ff", "#da35aa", "#ffcc00"] // TODO: Better colours
 
@@ -64,6 +65,14 @@ class Lema extends Component
 	 */
 	componentDidMount()
 	{
+		// Welcome message
+		window.setTimeout(function(){
+			alert(
+				"Welcome to LEMA! To get started, why not create a new 'Historical journey' by hitting the '+' on the left-hand side?\n\n" +
+				"You can add a node for each word in your journey, style them how you wish, and connect them by setting parent nodes on any subsequent children you make!\n\n"
+			);
+		}, 2000);
+
 		// Check if user is already logged in
 		const activeUser = JSON.parse(localStorage.getItem("LEMA_activeUser"));
 		if(activeUser)
@@ -272,7 +281,7 @@ class Lema extends Component
 	/**
 	 * Creates a
 	 * @param e SyntheticEvent
-	 * @param contents HTML contents to be displayed in the toast.
+	 * @param contents Contents to be displayed in the toast.
 	 * @param time Time in ms to keep the toast open
 	 * @param type What type of alert the toast is showing: neutral, error, or success
 	 */
@@ -338,8 +347,15 @@ class Lema extends Component
 	 */
 	toggleShowcaseMode(e, toggle = null)
 	{
-		const isShowcaseMode = (toggle !== null) ? toggle : !this.state.isShowcaseMode;
-		this.setState({isShowcaseMode: isShowcaseMode});
+		if(this.DATABASE_DISABLED)
+		{
+			this.createToast(null, "Feature currently unavailable due to a migration from PouchDB to MongoDB. Check back later!", 10000, "neutral");
+		}
+		else
+		{
+			const isShowcaseMode = (toggle !== null) ? toggle : !this.state.isShowcaseMode;
+			this.setState({isShowcaseMode: isShowcaseMode});
+		}
 	}
 
 	/**

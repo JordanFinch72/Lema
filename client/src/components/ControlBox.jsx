@@ -16,6 +16,7 @@ export class ControlBox extends Component
 			includeAffixes: false
 		};
 
+		this.createToast = props.createToast.bind(this);
 		this.onFieldChange = this.onFieldChange.bind(this);
 		this.onButtonClick = this.onButtonClick.bind(this);
 		this.onRadioButtonClick = this.onRadioButtonClick.bind(this);
@@ -40,7 +41,7 @@ export class ControlBox extends Component
 		else
 		{
 			// TODO: New source for data retrieval (unless something can be arranged)
-			alert("Feature currently unavailable - but you can still add data manually!");
+			this.createToast(null, "Auto-population feature currently unavailable - feel free to add data manually in the meantime!", 10000, "neutral");
 			/*const word = this.state.searchBoxValue;
 			const language =  this.state.searchFilter;
 			if(word !== "" && language !== "")

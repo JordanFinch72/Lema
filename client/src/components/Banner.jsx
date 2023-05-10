@@ -10,6 +10,10 @@ export class Banner extends Component
 	constructor(props)
 	{
 		super(props);
+
+		this.DATABASE_DISABLED = true; // TODO: Set to false when database is migrated etc. etc.
+
+		this.createToast = props.createToast.bind(this);
 	}
 
 	render()
@@ -31,12 +35,26 @@ export class Banner extends Component
 				New Map
 			</div>,
 			<div className={"login-button"} onClick={(e) => {
-				this.props.openModal(e, <LoginRegisterModal mode={"login"} handler={this.props.authenticateUser} createToast={this.props.createToast} />);
+				if(this.DATABASE_DISABLED)
+				{
+					this.createToast(null, "Feature currently unavailable due to a migration from PouchDB to MongoDB. Check back later!", 10000, "neutral");
+				}
+				else
+				{
+					this.props.openModal(e, <LoginRegisterModal mode={"login"} handler={this.props.authenticateUser} createToast={this.props.createToast} />);
+				}
 			}}>
 				Log In
 			</div>,
 			<div className={"register-button"} onClick={(e) => {
-				this.props.openModal(e, <LoginRegisterModal mode={"register"} handler={this.props.registerUser} openModal={this.props.openModal} createToast={this.props.createToast} />);
+				if(this.DATABASE_DISABLED)
+				{
+					this.createToast(null, "Feature currently unavailable due to a migration from PouchDB to MongoDB. Check back later!", 10000, "neutral");
+				}
+				else
+				{
+					this.props.openModal(e, <LoginRegisterModal mode={"register"} handler={this.props.registerUser} openModal={this.props.openModal} createToast={this.props.createToast} />);
+				}
 			}}>
 				Register
 			</div>

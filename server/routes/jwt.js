@@ -4,8 +4,8 @@ const PouchDB = require("pouchdb");
 const jwt = require("jsonwebtoken");
 
 // Database
-const authHeader = Buffer.from("lema-heroku" + ":" + ".PAQWQ6o1Jo").toString("base64"); // TODO: Hide this; this is terrible
-const db = new PouchDB("wss://teofl5ol9ddtn2ik.apps.cloud.couchbase.com:4984/lema-endpoint", {
+const authHeader = Buffer.from("admin" + ":" + ".PAQWQ6o1Jo").toString("base64"); // TODO: Hide this; this is terrible
+const db = new PouchDB("http://localhost:5984/lema", {
 	headers: {
 		Authorization: "Basic " + authHeader
 	}
