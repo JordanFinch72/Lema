@@ -50,5 +50,8 @@
   "devDependencies": {
     "d3-scale": "^4.0.2"
   },
+  "engines": {
+    "node": "16.15.0"
+  },
   "proxy": "http://localhost:5555"
 }
